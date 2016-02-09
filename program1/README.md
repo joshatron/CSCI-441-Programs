@@ -72,7 +72,10 @@ of new shapes. Be sure to document how the user is able to change shape sizes
 in your README file.
 
 *Be able to assign colors to the shapes.* At a minimum, your program must be
-able to inherit the color of the corresponding pixel in the image. You are 
+able to inherit the color of the corresponding pixel in the image. Note that
+you do not need to draw the original image in the background (though, it could
+be an additional feature), but the position that you click
+must sample the color of the image at a reasonable location.  You are 
 encouraged to implement a way to allow the user to specify a custom color. Be
 sure to document any extra color features you implement in your README file.
 
