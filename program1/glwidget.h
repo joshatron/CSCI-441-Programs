@@ -12,6 +12,7 @@
 #define GLM_FORCE_RADIANS
 
 using glm::vec2;
+using glm::vec3;
 
 class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     Q_OBJECT
@@ -34,6 +35,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         void clearScreen();
         void fillUniformly();
         void fillRandomly();
+        void addPoint(int x, int y);
 
         GLuint vao;
         GLuint program;

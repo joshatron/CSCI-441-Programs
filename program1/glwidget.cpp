@@ -10,9 +10,8 @@ using namespace std;
 
 
 GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent), outline(false), drawMode(0) {
-    num_pts = 0;
     shape = 0;
-    resizeMode = 0;
+    resizeMode = 3;
     background = false;
     exactColor = true;
     mouseFollow = false;
@@ -21,6 +20,10 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent), outline(false), dra
     baseHeight = 480;
     width = baseWidth;
     height = baseHeight;
+    num_squares = 0;
+    num_circles = 0;
+    num_triangles = 0;
+    num_lines = 0;
     drawMode = GL_POINTS;
 }
 
@@ -64,8 +67,8 @@ void GLWidget::keyPressEvent(QKeyEvent *event) {
             exactColor = !exactColor;
             break;
         case Qt::Key_O:
-            //clear screen
             cout << "Clearing screen" << endl;
+            clearScreen();
             break;
         case Qt::Key_P:
             mouseFollow = !mouseFollow;
@@ -89,28 +92,92 @@ void GLWidget::keyPressEvent(QKeyEvent *event) {
     cout << "Size: " << size << endl << endl;
 }
 
+void GLWidget::clearScreen()
+{
+    squareCenters.clear();
+    num_squares = 0;
+    circleCenters.clear();
+    num_circles = 0;
+    triangleCenters.clear();
+    num_triangles = 0;
+    lines.clear();
+    num_lines = 0;
+    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);
+}
+
 void GLWidget::mousePressEvent(QMouseEvent *event)
+{
+    addPoint(event->x(), event->y());
+
+    //push all buffers
+    glUseProgram(program);
+    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * num_squares, squareCenters.data(), GL_DYNAMIC_DRAW);
+    update();
+}
+
+void GLWidget::addPoint(int x, int y)
 {
     vec2 newPoint;
     //same
     if(resizeMode == 0)
     {
-        newPoint.x = event->x();
-        newPoint.y = event->y();
+        newPoint.x = x;
+        newPoint.y = y;
     }
     //width
     else if(resizeMode == 1)
     {
+        newPoint.x = x * ((float)baseWidth / width);
+        if(((float)width / (float)height) > ((float)baseWidth / (float)baseHeight))
+        {
+            float newH = baseHeight * (1.f * width / baseWidth);
+            newPoint.y = (baseHeight / newH) * y;
+        }
+        else
+        {
+            float newH = baseHeight * (1.f * width / baseWidth);
+            float diff = ((float)height - newH) * (baseHeight / newH);
+            newPoint.y = (baseHeight / newH) * y - (diff / 2);
+        }
     }
     //height
     else if(resizeMode == 2)
     {
+        newPoint.y = y * ((float)baseHeight / height);
+        if(((float)width / (float)height) < ((float)baseWidth / (float)baseHeight))
+        {
+            float newW = baseWidth * (1.f * height / baseHeight);
+            newPoint.x = (baseWidth / newW) * x;
+        }
+        else
+        {
+            float newW = baseWidth * (1.f * height / baseHeight);
+            float diff = ((float)width - newW) * (baseWidth / newW);
+            newPoint.x = (baseWidth / newW) * x - (diff / 2);
+        }
     }
     //both
     else
     {
+        if(((float)width / (float)height) < ((float)baseWidth / (float)baseHeight))
+        {
+            float newH = baseHeight * (1.f * width / baseWidth);
+            float diff = ((float)height - newH) * (baseHeight / newH);
+            newPoint.y = (baseHeight / newH) * y - (diff / 2);
+            newPoint.x = x * ((float)baseWidth / width);
+        }
+        else
+        {
+            float newW = baseWidth * (1.f * height / baseHeight);
+            float diff = ((float)width - newW) * (baseWidth / newW);
+            newPoint.x = (baseWidth / newW) * x - (diff / 2);
+            newPoint.y = y * ((float)baseHeight / height);
+        }
     }
 
+    //check to see if it is out of bounds
     if(newPoint.x < 0 || newPoint.x > baseWidth || newPoint.y < 0 || newPoint.y > baseHeight)
     {
         cout << "out of bounds!" << endl;
@@ -118,17 +185,25 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
     }
 
     //push to correct section
-    pts2.push_back(newPoint);
-
-    cout << "Added point (" << pts2[num_pts].x << ", " << pts2[num_pts].y << ") " << endl;
-
-    num_pts++;
-
-    //push all buffers
-    glUseProgram(program);
-    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * num_pts, pts2.data(), GL_DYNAMIC_DRAW);
-    update();
+    if(shape == 0)
+    {
+        squareCenters.push_back(newPoint);
+        num_squares++;
+    }
+    else if(shape == 1)
+    {
+        circleCenters.push_back(newPoint);
+        num_circles++;
+    }
+    else if(shape == 2)
+    {
+        triangleCenters.push_back(newPoint);
+        num_triangles++;
+    }
+    else
+    {
+        //generate lines and push
+    }
 }
 
 void GLWidget::initializeGL() {
@@ -238,12 +313,12 @@ void GLWidget::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     // draw primitives based on the current draw mode
-    glDrawArrays(drawMode, 0, num_pts);
+    glDrawArrays(drawMode, 0, num_squares);
     
     // draw points so we can always see them
     // glPointSize adjusts the size of point
     // primitives
-    glDrawArrays(GL_POINTS, 0, num_pts);
+    glDrawArrays(GL_POINTS, 0, num_squares);
 }
 
 // Copied from LoadShaders.cpp in the the oglpg-8th-edition.zip
