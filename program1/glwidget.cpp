@@ -89,41 +89,46 @@ void GLWidget::keyPressEvent(QKeyEvent *event) {
     cout << "Size: " << size << endl << endl;
 }
 
-void GLWidget::mousePressEvent(QMouseEvent *event) {
-//    if(num_pts >= pts2.size()) {
-//        cout << "increasing size by 3" << endl;
-//        pts2.resize(pts2.size() + 3);
-//    }
-
-
-
+void GLWidget::mousePressEvent(QMouseEvent *event)
+{
     vec2 newPoint;
-    newPoint.x = event->x();
-    newPoint.y = event->y();
+    //same
+    if(resizeMode == 0)
+    {
+        newPoint.x = event->x();
+        newPoint.y = event->y();
+    }
+    //width
+    else if(resizeMode == 1)
+    {
+    }
+    //height
+    else if(resizeMode == 2)
+    {
+    }
+    //both
+    else
+    {
+    }
 
+    if(newPoint.x < 0 || newPoint.x > baseWidth || newPoint.y < 0 || newPoint.y > baseHeight)
+    {
+        cout << "out of bounds!" << endl;
+        return;
+    }
+
+    //push to correct section
     pts2.push_back(newPoint);
 
-//    pts2[num_pts].x = event->x();
-//    pts2[num_pts].y = event->y();
+    cout << "Added point (" << pts2[num_pts].x << ", " << pts2[num_pts].y << ") " << endl;
 
-//        pts[num_pts].x = event->x();
-//        pts[num_pts].y = event->y();
+    num_pts++;
 
-        cout << "Added point (" << pts2[num_pts].x << ", " << pts2[num_pts].y << ") " << endl;
-
-        num_pts++;
-
-        glUseProgram(program);
-        glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * num_pts, pts2.data(), GL_DYNAMIC_DRAW);
-        update();
-
-
-//    } else {
-//        cout << "Three points is the max. "
-//                "You must change this to make "
-//                "it so any number of points can be created." << endl;
-//    }
+    //push all buffers
+    glUseProgram(program);
+    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * num_pts, pts2.data(), GL_DYNAMIC_DRAW);
+    update();
 }
 
 void GLWidget::initializeGL() {
@@ -209,7 +214,7 @@ void GLWidget::resizeGL(int w, int h) {
         }
     }
     //both
-    else if(resizeMode == 3)
+    else
     {
         if(((float)w / (float)h) < ((float)baseWidth / (float)baseHeight))
         {

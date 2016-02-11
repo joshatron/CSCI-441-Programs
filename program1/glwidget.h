@@ -42,13 +42,24 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         bool outline;
         GLenum drawMode;
 
-        std::vector<vec2> pts2;
+        //centers of all the squares
+        std::vector<vec2> squareCenters;
+        //centers of all the circles
+        std::vector<vec2> circleCenters;
+        //centers of all the triangles
+        std::vector<vec2> triangleCenters;
+        //centers and angle of the lines
+        std::vector<vec3> lines;
+
         GLuint projectionBuffer;
         GLint projectionLoc;
 
         glm::mat4 projection;
-        vec2 pts[3];
-        int num_pts;
+
+        int num_squares;
+        int num_circles;
+        int num_triangles;
+        int num_lines;
 
         //0- square
         //1- circle
