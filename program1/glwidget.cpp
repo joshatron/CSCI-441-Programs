@@ -20,10 +20,7 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent), outline(false), dra
     baseHeight = 480;
     width = baseWidth;
     height = baseHeight;
-    num_squares = 0;
-    num_circles = 0;
-    num_triangles = 0;
-    num_lines = 0;
+    num_shapes = 0;
     lastX = 0;
     lastY = 0;
     drawMode = GL_POINTS;
@@ -96,31 +93,24 @@ void GLWidget::keyPressEvent(QKeyEvent *event) {
 
 void GLWidget::clearScreen()
 {
-    squareCenters.clear();
-    num_squares = 0;
-    circleCenters.clear();
-    num_circles = 0;
-    triangleCenters.clear();
-    num_triangles = 0;
-    lines.clear();
-    num_lines = 0;
+    shapes.clear();
+    colors.clear();
+    allShapes.clear();
+    num_shapes = 0;
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
     glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);
 }
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
 {
-    addPoint(event->x(), event->y());
+    addShape(event->x(), event->y());
     lastX = event->x();
     lastY = event->y();
-
-    updatePoints();
-    updateColors();
 
     //push all buffers
     glUseProgram(program);
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * points.size(), points.data(), GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * shapes.size(), shapes.data(), GL_DYNAMIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * colors.size(), colors.data(), GL_DYNAMIC_DRAW);
@@ -139,140 +129,59 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
         return;
     }
 
-    addPoint(event->x(), event->y());
+    addShape(event->x(), event->y());
     lastX = event->x();
     lastY = event->y();
-
-    updatePoints();
-    updateColors();
 
     //push all buffers
     glUseProgram(program);
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * points.size(), points.data(), GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * num_shapes, shapes.data(), GL_DYNAMIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * colors.size(), colors.data(), GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * num_shapes, colors.data(), GL_DYNAMIC_DRAW);
     update();
 }
 
-void GLWidget::updatePoints()
+void GLWidget::addShape(int x, int y)
 {
-    points.clear();
-    
-    for(int k = 0; k < num_squares; k++)
-    {
-        vec2 nextPoint;
-        nextPoint.x = squareCenters[k].x;
-        nextPoint.y = squareCenters[k].y;
-        points.push_back(nextPoint);
-    }
-
-    for(int k = 0; k < num_circles; k++)
-    {
-        vec2 nextPoint;
-        nextPoint.x = circleCenters[k].x;
-        nextPoint.y = circleCenters[k].y;
-        points.push_back(nextPoint);
-    }
-
-    for(int k = 0; k < num_triangles; k++)
-    {
-        vec2 nextPoint;
-        nextPoint.x = triangleCenters[k].x;
-        nextPoint.y = triangleCenters[k].y;
-        points.push_back(nextPoint);
-    }
-
-    for(int k = 0; k < num_lines; k++)
-    {
-        vec2 nextPoint;
-        nextPoint.x = lines[k].x;
-        nextPoint.y = lines[k].y;
-        points.push_back(nextPoint);
-    }
-}
-
-void GLWidget::updateColors()
-{
-    colors.clear();
-    
-    for(int k = 0; k < num_squares; k++)
-    {
-        vec3 nextColor;
-        nextColor.r = squareCenters[k].r;
-        nextColor.g = squareCenters[k].g;
-        nextColor.b = squareCenters[k].b;
-        colors.push_back(nextColor);
-    }
-
-    for(int k = 0; k < num_circles; k++)
-    {
-        vec3 nextColor;
-        nextColor.r = circleCenters[k].r;
-        nextColor.g = circleCenters[k].g;
-        nextColor.b = circleCenters[k].b;
-        colors.push_back(nextColor);
-    }
-
-    for(int k = 0; k < num_triangles; k++)
-    {
-        vec3 nextColor;
-        nextColor.r = triangleCenters[k].r;
-        nextColor.g = triangleCenters[k].g;
-        nextColor.b = triangleCenters[k].b;
-        colors.push_back(nextColor);
-    }
-
-    for(int k = 0; k < num_lines; k++)
-    {
-        vec3 nextColor;
-        nextColor.r = lines[k].r;
-        nextColor.g = lines[k].g;
-        nextColor.b = lines[k].b;
-        colors.push_back(nextColor);
-    }
-}
-
-void GLWidget::addPoint(int x, int y)
-{
-    Shape newPoint;
+    Shape newShape;
     //same
     if(resizeMode == 0)
     {
-        newPoint.x = x;
-        newPoint.y = y;
+        newShape.x = x;
+        newShape.y = y;
     }
     //width
     else if(resizeMode == 1)
     {
-        newPoint.x = x * ((float)baseWidth / width);
+        newShape.x = x * ((float)baseWidth / width);
         if(((float)width / (float)height) > ((float)baseWidth / (float)baseHeight))
         {
             float newH = baseHeight * (1.f * width / baseWidth);
-            newPoint.y = (baseHeight / newH) * y;
+            newShape.y = (baseHeight / newH) * y;
         }
         else
         {
             float newH = baseHeight * (1.f * width / baseWidth);
             float diff = ((float)height - newH) * (baseHeight / newH);
-            newPoint.y = (baseHeight / newH) * y - (diff / 2);
+            newShape.y = (baseHeight / newH) * y - (diff / 2);
         }
     }
     //height
     else if(resizeMode == 2)
     {
-        newPoint.y = y * ((float)baseHeight / height);
+        newShape.y = y * ((float)baseHeight / height);
         if(((float)width / (float)height) < ((float)baseWidth / (float)baseHeight))
         {
             float newW = baseWidth * (1.f * height / baseHeight);
-            newPoint.x = (baseWidth / newW) * x;
+            newShape.x = (baseWidth / newW) * x;
         }
         else
         {
             float newW = baseWidth * (1.f * height / baseHeight);
             float diff = ((float)width - newW) * (baseWidth / newW);
-            newPoint.x = (baseWidth / newW) * x - (diff / 2);
+            newShape.x = (baseWidth / newW) * x - (diff / 2);
         }
     }
     //both
@@ -282,60 +191,72 @@ void GLWidget::addPoint(int x, int y)
         {
             float newH = baseHeight * (1.f * width / baseWidth);
             float diff = ((float)height - newH) * (baseHeight / newH);
-            newPoint.y = (baseHeight / newH) * y - (diff / 2);
-            newPoint.x = x * ((float)baseWidth / width);
+            newShape.y = (baseHeight / newH) * y - (diff / 2);
+            newShape.x = x * ((float)baseWidth / width);
         }
         else
         {
             float newW = baseWidth * (1.f * height / baseHeight);
             float diff = ((float)width - newW) * (baseWidth / newW);
-            newPoint.x = (baseWidth / newW) * x - (diff / 2);
-            newPoint.y = y * ((float)baseHeight / height);
+            newShape.x = (baseWidth / newW) * x - (diff / 2);
+            newShape.y = y * ((float)baseHeight / height);
         }
     }
 
     //check to see if it is out of bounds
-    if(newPoint.x < 0 || newPoint.x > baseWidth || newPoint.y < 0 || newPoint.y > baseHeight)
+    if(newShape.x < 0 || newShape.x > baseWidth || newShape.y < 0 || newShape.y > baseHeight)
     {
         cout << "out of bounds!" << endl;
         return;
     }
 
-    newPoint.rotation = 0;
-    newPoint.radius = size;
-    newPoint.r = 1;
-    newPoint.g = 1;
-    newPoint.b = 1;
+    newShape.rotation = 0;
+    newShape.radius = size;
+    newShape.shape = shape;
+    newShape.r = 1;
+    newShape.g = 1;
+    newShape.b = 1;
 
     //push to correct section
     if(shape == 0)
     {
-        newPoint.r = 1;
-        newPoint.g = 0;
-        newPoint.b = 0;
-        squareCenters.push_back(newPoint);
-        num_squares++;
+        newShape.r = 1;
+        newShape.g = 0;
+        newShape.b = 0;
     }
     else if(shape == 1)
     {
-        newPoint.r = 0;
-        newPoint.g = 1;
-        newPoint.b = 0;
-        circleCenters.push_back(newPoint);
-        num_circles++;
+        newShape.r = 0;
+        newShape.g = 1;
+        newShape.b = 0;
     }
     else if(shape == 2)
     {
-        newPoint.r = 0;
-        newPoint.g = 0;
-        newPoint.b = 1;
-        triangleCenters.push_back(newPoint);
-        num_triangles++;
+        newShape.r = 0;
+        newShape.g = 0;
+        newShape.b = 1;
     }
     else
     {
-        //generate lines and push
+        newShape.r = 1;
+        newShape.g = 1;
+        newShape.b = 1;
     }
+
+    vec2 nextShape;
+    nextShape.x = newShape.x;
+    nextShape.y = newShape.y;
+    shapes.push_back(nextShape);
+
+    vec3 nextColor;
+    nextColor.r = newShape.r;
+    nextColor.g = newShape.g;
+    nextColor.b = newShape.b;
+    colors.push_back(nextColor);
+
+    num_shapes++;
+
+    allShapes.push_back(newShape);
 }
 
 void GLWidget::initializeGL() {
@@ -456,12 +377,12 @@ void GLWidget::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     // draw primitives based on the current draw mode
-    glDrawArrays(drawMode, 0, points.size());
+    glDrawArrays(drawMode, 0, num_shapes);
     
     // draw points so we can always see them
     // glPointSize adjusts the size of point
     // primitives
-    glDrawArrays(GL_POINTS, 0, points.size());
+    glDrawArrays(GL_POINTS, 0, num_shapes);
 }
 
 // Copied from LoadShaders.cpp in the the oglpg-8th-edition.zip

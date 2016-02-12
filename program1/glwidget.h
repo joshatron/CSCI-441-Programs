@@ -37,10 +37,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         void clearScreen();
         void fillUniformly();
         void fillRandomly();
-        void addPoint(int x, int y);
-        void updatePoints();
-        void updateColors();
-
+        void addShape(int x, int y);
 
         GLuint vao;
         GLuint program;
@@ -51,27 +48,16 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
         GLuint colorBuffer;
 
-        //centers of all the squares
-        std::vector<Shape> squareCenters;
-        //centers of all the circles
-        std::vector<Shape> circleCenters;
-        //centers of all the triangles
-        std::vector<Shape> triangleCenters;
-        //centers and angle of the lines
-        std::vector<Shape> lines;
-
-        std::vector<vec2> points;
+        std::vector<vec2> shapes;
         std::vector<vec3> colors;
+        std::vector<Shape> allShapes;
 
         GLuint projectionBuffer;
         GLint projectionLoc;
 
         glm::mat4 projection;
 
-        int num_squares;
-        int num_circles;
-        int num_triangles;
-        int num_lines;
+        int num_shapes;
 
         //0- square
         //1- circle
