@@ -1,4 +1,4 @@
-HEADERS += glwidget.h 
+HEADERS += glwidget.h shape.h
 SOURCES += glwidget.cpp main.cpp
 
 macx {

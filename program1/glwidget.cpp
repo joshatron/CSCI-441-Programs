@@ -15,7 +15,7 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent), outline(false), dra
     background = false;
     exactColor = true;
     mouseFollow = false;
-    size = 1;
+    size = 10;
     baseWidth = 640;
     baseHeight = 480;
     width = baseWidth;
@@ -24,6 +24,8 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent), outline(false), dra
     num_circles = 0;
     num_triangles = 0;
     num_lines = 0;
+    lastX = 0;
+    lastY = 0;
     drawMode = GL_POINTS;
 }
 
@@ -109,17 +111,132 @@ void GLWidget::clearScreen()
 void GLWidget::mousePressEvent(QMouseEvent *event)
 {
     addPoint(event->x(), event->y());
+    lastX = event->x();
+    lastY = event->y();
+
+    updatePoints();
+    updateColors();
 
     //push all buffers
     glUseProgram(program);
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * num_squares, squareCenters.data(), GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * points.size(), points.data(), GL_DYNAMIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * colors.size(), colors.data(), GL_DYNAMIC_DRAW);
     update();
+}
+
+void GLWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    if(!(event->buttons() & Qt::LeftButton))
+    {
+        return;
+    }
+
+    if(((event->x() - lastX) * (event->x() - lastX)) + ((event->y() - lastY) * (event->y() - lastY)) < size * size)
+    {
+        return;
+    }
+
+    addPoint(event->x(), event->y());
+    lastX = event->x();
+    lastY = event->y();
+
+    updatePoints();
+    updateColors();
+
+    //push all buffers
+    glUseProgram(program);
+    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * points.size(), points.data(), GL_DYNAMIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * colors.size(), colors.data(), GL_DYNAMIC_DRAW);
+    update();
+}
+
+void GLWidget::updatePoints()
+{
+    points.clear();
+    
+    for(int k = 0; k < num_squares; k++)
+    {
+        vec2 nextPoint;
+        nextPoint.x = squareCenters[k].x;
+        nextPoint.y = squareCenters[k].y;
+        points.push_back(nextPoint);
+    }
+
+    for(int k = 0; k < num_circles; k++)
+    {
+        vec2 nextPoint;
+        nextPoint.x = circleCenters[k].x;
+        nextPoint.y = circleCenters[k].y;
+        points.push_back(nextPoint);
+    }
+
+    for(int k = 0; k < num_triangles; k++)
+    {
+        vec2 nextPoint;
+        nextPoint.x = triangleCenters[k].x;
+        nextPoint.y = triangleCenters[k].y;
+        points.push_back(nextPoint);
+    }
+
+    for(int k = 0; k < num_lines; k++)
+    {
+        vec2 nextPoint;
+        nextPoint.x = lines[k].x;
+        nextPoint.y = lines[k].y;
+        points.push_back(nextPoint);
+    }
+}
+
+void GLWidget::updateColors()
+{
+    colors.clear();
+    
+    for(int k = 0; k < num_squares; k++)
+    {
+        vec3 nextColor;
+        nextColor.r = squareCenters[k].r;
+        nextColor.g = squareCenters[k].g;
+        nextColor.b = squareCenters[k].b;
+        colors.push_back(nextColor);
+    }
+
+    for(int k = 0; k < num_circles; k++)
+    {
+        vec3 nextColor;
+        nextColor.r = circleCenters[k].r;
+        nextColor.g = circleCenters[k].g;
+        nextColor.b = circleCenters[k].b;
+        colors.push_back(nextColor);
+    }
+
+    for(int k = 0; k < num_triangles; k++)
+    {
+        vec3 nextColor;
+        nextColor.r = triangleCenters[k].r;
+        nextColor.g = triangleCenters[k].g;
+        nextColor.b = triangleCenters[k].b;
+        colors.push_back(nextColor);
+    }
+
+    for(int k = 0; k < num_lines; k++)
+    {
+        vec3 nextColor;
+        nextColor.r = lines[k].r;
+        nextColor.g = lines[k].g;
+        nextColor.b = lines[k].b;
+        colors.push_back(nextColor);
+    }
 }
 
 void GLWidget::addPoint(int x, int y)
 {
-    vec2 newPoint;
+    Shape newPoint;
     //same
     if(resizeMode == 0)
     {
@@ -184,19 +301,34 @@ void GLWidget::addPoint(int x, int y)
         return;
     }
 
+    newPoint.rotation = 0;
+    newPoint.radius = size;
+    newPoint.r = 1;
+    newPoint.g = 1;
+    newPoint.b = 1;
+
     //push to correct section
     if(shape == 0)
     {
+        newPoint.r = 1;
+        newPoint.g = 0;
+        newPoint.b = 0;
         squareCenters.push_back(newPoint);
         num_squares++;
     }
     else if(shape == 1)
     {
+        newPoint.r = 0;
+        newPoint.g = 1;
+        newPoint.b = 0;
         circleCenters.push_back(newPoint);
         num_circles++;
     }
     else if(shape == 2)
     {
+        newPoint.r = 0;
+        newPoint.g = 0;
+        newPoint.b = 1;
         triangleCenters.push_back(newPoint);
         num_triangles++;
     }
@@ -225,6 +357,11 @@ void GLWidget::initializeGL() {
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
     glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);
 
+    glGenBuffers(1, &colorBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);
+
+
     // Load our vertex and fragment shaders into a program object
     // on the GPU
     program = loadShaders(":/vert.glsl", ":/frag.glsl");
@@ -237,6 +374,12 @@ void GLWidget::initializeGL() {
     GLint positionIndex = glGetAttribLocation(program, "position");
     glEnableVertexAttribArray(positionIndex);
     glVertexAttribPointer(positionIndex, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+    GLint colorIndex = glGetAttribLocation(program, "color_in");
+    glEnableVertexAttribArray(colorIndex);
+    glVertexAttribPointer(colorIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
     glUseProgram(program);
     projectionLoc = glGetUniformLocation(program, "projection");
 }
@@ -313,12 +456,12 @@ void GLWidget::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     // draw primitives based on the current draw mode
-    glDrawArrays(drawMode, 0, num_squares);
+    glDrawArrays(drawMode, 0, points.size());
     
     // draw points so we can always see them
     // glPointSize adjusts the size of point
     // primitives
-    glDrawArrays(GL_POINTS, 0, num_squares);
+    glDrawArrays(GL_POINTS, 0, points.size());
 }
 
 // Copied from LoadShaders.cpp in the the oglpg-8th-edition.zip

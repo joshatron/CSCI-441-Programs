@@ -5,6 +5,7 @@
 #include <QOpenGLFunctions_3_3_Core>
 #include <QMouseEvent>
 #include <glm/glm.hpp>
+#include "shape.h"
 
 // glm by default uses degrees, but that functionality
 // is deprecated so GLM_FORCE_RADIANS turns off some 
@@ -28,6 +29,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
         void mousePressEvent(QMouseEvent *event);
         void keyPressEvent(QKeyEvent *event);
+        void mouseMoveEvent(QMouseEvent *event);
 
     private:
         GLuint loadShaders(const char* vertf, const char* fragf);
@@ -36,6 +38,9 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         void fillUniformly();
         void fillRandomly();
         void addPoint(int x, int y);
+        void updatePoints();
+        void updateColors();
+
 
         GLuint vao;
         GLuint program;
@@ -44,14 +49,19 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         bool outline;
         GLenum drawMode;
 
+        GLuint colorBuffer;
+
         //centers of all the squares
-        std::vector<vec2> squareCenters;
+        std::vector<Shape> squareCenters;
         //centers of all the circles
-        std::vector<vec2> circleCenters;
+        std::vector<Shape> circleCenters;
         //centers of all the triangles
-        std::vector<vec2> triangleCenters;
+        std::vector<Shape> triangleCenters;
         //centers and angle of the lines
-        std::vector<vec3> lines;
+        std::vector<Shape> lines;
+
+        std::vector<vec2> points;
+        std::vector<vec3> colors;
 
         GLuint projectionBuffer;
         GLint projectionLoc;
@@ -85,6 +95,9 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
         int width;
         int height;
+
+        int lastX;
+        int lastY;
 };
 
 #endif
