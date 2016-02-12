@@ -30,6 +30,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         void mousePressEvent(QMouseEvent *event);
         void keyPressEvent(QKeyEvent *event);
         void mouseMoveEvent(QMouseEvent *event);
+        void wheelEvent(QWheelEvent *event);
 
     private:
         GLuint loadShaders(const char* vertf, const char* fragf);
@@ -74,7 +75,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         bool background;
         bool exactColor;
         bool mouseFollow;
-        int size;
+        float size;
 
         int baseWidth;
         int baseHeight;

@@ -1,5 +1,6 @@
 #include "glwidget.h"
 #include <iostream>
+#include <stdlib.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -73,12 +74,12 @@ void GLWidget::keyPressEvent(QKeyEvent *event) {
             mouseFollow = !mouseFollow;
             break;
         case Qt::Key_A:
-            //uniform fill
             cout << "Filling uniformly" << endl;
+            fillUniformly();
             break;
         case Qt::Key_S:
-            //Random fill
             cout << "Filling randomly" << endl;
+            fillRandomly();
             break;
     }
     update();
@@ -99,6 +100,47 @@ void GLWidget::clearScreen()
     num_shapes = 0;
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
     glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);
+}
+
+void GLWidget::fillUniformly()
+{
+    clearScreen();
+
+    for(int k = 0; k < baseWidth; k += size)
+    {
+        for(int a = 0; a < baseHeight; a += size)
+        {
+            addShape(k, a);
+        }
+    }
+
+    glUseProgram(program);
+    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * shapes.size(), shapes.data(), GL_DYNAMIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * colors.size(), colors.data(), GL_DYNAMIC_DRAW);
+    update();
+}
+
+void GLWidget::fillRandomly()
+{
+    clearScreen();
+    srand(time(NULL));
+
+    int totalShapes = width * height / (size * size) * 2;
+    for(int k = 0; k < totalShapes; k++)
+    {
+        addShape(rand() % baseWidth, rand() % baseHeight);
+    }
+
+    glUseProgram(program);
+    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * shapes.size(), shapes.data(), GL_DYNAMIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * colors.size(), colors.data(), GL_DYNAMIC_DRAW);
+    update();
 }
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
@@ -141,6 +183,16 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * num_shapes, colors.data(), GL_DYNAMIC_DRAW);
     update();
+}
+
+void GLWidget::wheelEvent(QWheelEvent *event)
+{
+    float numSteps = event->delta() / 8.f / 15.f;
+    size += numSteps / 2;
+    if(size < 1)
+    {
+        size = 1;
+    }
 }
 
 void GLWidget::addShape(int x, int y)
