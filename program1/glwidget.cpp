@@ -128,7 +128,7 @@ void GLWidget::fillRandomly()
     clearScreen();
     srand(time(NULL));
 
-    int totalShapes = width * height / (size * size) * 2;
+    int totalShapes = baseWidth * baseHeight / (size * size) * 2;
     for(int k = 0; k < totalShapes; k++)
     {
         addShape(rand() % baseWidth, rand() % baseHeight);
