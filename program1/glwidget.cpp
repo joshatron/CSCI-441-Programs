@@ -110,7 +110,7 @@ void GLWidget::fillUniformly()
     {
         for(int a = 0; a < baseHeight; a += size)
         {
-            addShape(k, a);
+            addShapeSimple(k, a);
         }
     }
 
@@ -131,7 +131,7 @@ void GLWidget::fillRandomly()
     int totalShapes = baseWidth * baseHeight / (size * size) * 2;
     for(int k = 0; k < totalShapes; k++)
     {
-        addShape(rand() % baseWidth, rand() % baseHeight);
+        addShapeSimple(rand() % baseWidth, rand() % baseHeight);
     }
 
     glUseProgram(program);
@@ -255,6 +255,15 @@ void GLWidget::addShape(int x, int y)
         }
     }
 
+    addShapeSimple(newShape.x, newShape.y);
+}
+
+void GLWidget::addShapeSimple(int x, int y)
+{
+    Shape newShape;
+    newShape.x = x;
+    newShape.y = y;
+    
     //check to see if it is out of bounds
     if(newShape.x < 0 || newShape.x > baseWidth || newShape.y < 0 || newShape.y > baseHeight)
     {
