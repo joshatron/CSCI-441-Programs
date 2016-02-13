@@ -107,6 +107,9 @@ void GLWidget::clearScreen()
     allShapes.clear();
     num_shapes = 0;
 
+    lastX = -1;
+    lastY = -1;
+
     glUseProgram(program);
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
     glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);
@@ -121,9 +124,19 @@ void GLWidget::fillUniformly()
     bool tempFollow = mouseFollow;
     mouseFollow = false;
 
-    for(int k = 0; k < baseWidth; k += size)
+    float offsetX = baseWidth / size;
+    offsetX -= (int)offsetX;
+    offsetX *= size;
+    offsetX /= 2;
+
+    float offsetY = baseHeight / size;
+    offsetY -= (int)offsetY;
+    offsetY *= size;
+    offsetY /= 2;
+
+    for(int k = (int)offsetX; k <= baseWidth; k += size)
     {
-        for(int a = 0; a < baseHeight; a += size)
+        for(int a = (int)offsetY; a <= baseHeight; a += size)
         {
             addShapeSimple(k, a);
         }
@@ -469,7 +482,7 @@ void GLWidget::addShapePoints(Shape newShape)
         if(mouseFollow && lastX >= 0)
         {
             float angle = atan2(lastX - newShape.x, lastY - newShape.y) * 180 / PI;
-            angle = 90 - angle;
+            angle = 360 - angle;
             angle = angle * PI / 180;
             lastX = newShape.x;
             lastY = newShape.y;
