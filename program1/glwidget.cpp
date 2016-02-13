@@ -1,11 +1,14 @@
 #include "glwidget.h"
 #include <iostream>
 #include <stdlib.h>
+#include <math.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include <QTextStream>
+
+#define PI 3.14159265
 
 using namespace std;
 
@@ -16,7 +19,7 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent), outline(false), dra
     background = false;
     exactColor = true;
     mouseFollow = false;
-    size = 10;
+    size = 30;
     baseWidth = 640;
     baseHeight = 480;
     width = baseWidth;
@@ -98,8 +101,13 @@ void GLWidget::clearScreen()
     colors.clear();
     allShapes.clear();
     num_shapes = 0;
+
+    glUseProgram(program);
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
     glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);
+    update();
 }
 
 void GLWidget::fillUniformly()
@@ -128,7 +136,26 @@ void GLWidget::fillRandomly()
     clearScreen();
     srand(time(NULL));
 
-    int totalShapes = baseWidth * baseHeight / (size * size) * 2;
+    float totalArea = baseWidth * baseHeight;
+    float singleArea = 1;
+    if(shape == 0)
+    {
+        singleArea = size * size;
+    }
+    else if(shape == 1)
+    {
+        singleArea = PI * size * size / 4;
+    }
+    else if(shape == 2)
+    {
+        singleArea = 1.732 / 4 * ((size + sin(30 * PI / 180)) * (size + sin(30 * PI / 180)));
+    }
+    else
+    {
+        singleArea = PI * size * size / 4;
+    }
+
+    int totalShapes = totalArea / singleArea * 2;
     for(int k = 0; k < totalShapes; k++)
     {
         addShapeSimple(rand() % baseWidth, rand() % baseHeight);
@@ -178,10 +205,10 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     //push all buffers
     glUseProgram(program);
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * num_shapes, shapes.data(), GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * shapes.size(), shapes.data(), GL_DYNAMIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * num_shapes, colors.data(), GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * shapes.size(), colors.data(), GL_DYNAMIC_DRAW);
     update();
 }
 
@@ -278,7 +305,6 @@ void GLWidget::addShapeSimple(int x, int y)
     newShape.g = 1;
     newShape.b = 1;
 
-    //push to correct section
     if(shape == 0)
     {
         newShape.r = 1;
@@ -303,17 +329,104 @@ void GLWidget::addShapeSimple(int x, int y)
         newShape.g = 1;
         newShape.b = 1;
     }
+    
+    addShapePoints(newShape);
+}
 
-    vec2 nextShape;
-    nextShape.x = newShape.x;
-    nextShape.y = newShape.y;
-    shapes.push_back(nextShape);
+void GLWidget::addShapePoints(Shape newShape)
+{
+    //square
+    if(newShape.shape == 0)
+    {
+        vec2 next;
+        next.x = newShape.x - size / 2;
+        next.y = newShape.y - size / 2;
+        shapes.push_back(next);
+        next.x = newShape.x + size / 2;
+        next.y = newShape.y - size / 2;
+        shapes.push_back(next);
+        next.x = newShape.x + size / 2;
+        next.y = newShape.y + size / 2;
+        shapes.push_back(next);
 
-    vec3 nextColor;
-    nextColor.r = newShape.r;
-    nextColor.g = newShape.g;
-    nextColor.b = newShape.b;
-    colors.push_back(nextColor);
+        next.x = newShape.x - size / 2;
+        next.y = newShape.y - size / 2;
+        shapes.push_back(next);
+        next.x = newShape.x + size / 2;
+        next.y = newShape.y + size / 2;
+        shapes.push_back(next);
+        next.x = newShape.x - size / 2;
+        next.y = newShape.y + size / 2;
+        shapes.push_back(next);
+
+        vec3 nextColor;
+        nextColor.r = newShape.r;
+        nextColor.g = newShape.g;
+        nextColor.b = newShape.b;
+        colors.push_back(nextColor);
+        colors.push_back(nextColor);
+        colors.push_back(nextColor);
+        colors.push_back(nextColor);
+        colors.push_back(nextColor);
+        colors.push_back(nextColor);
+    }
+    //circle
+    else if(newShape.shape == 1)
+    {
+        vec2 first;
+        vec2 last;
+        vec2 next;
+
+        first.x = newShape.x;
+        first.y = newShape.y;
+        last.x = newShape.x + cos(0 * PI / 180) * size / 2;
+        last.y = newShape.y - sin(0 * PI / 180) * size / 2;
+
+        vec3 nextColor;
+        nextColor.r = newShape.r;
+        nextColor.g = newShape.g;
+        nextColor.b = newShape.b;
+
+        for(int k = 36; k <= 360; k += 36)
+        {
+            next.x = newShape.x + cos(k * PI / 180) * size / 2;
+            next.y = newShape.y - sin(k * PI / 180) * size / 2;
+            shapes.push_back(first);
+            shapes.push_back(last);
+            shapes.push_back(next);
+            last = next;
+
+            colors.push_back(nextColor);
+            colors.push_back(nextColor);
+            colors.push_back(nextColor);
+        }
+    }
+    //triangle
+    else if(newShape.shape == 2)
+    {
+        vec2 next;
+        next.x = newShape.x;
+        next.y = newShape.y - size / 2;
+        shapes.push_back(next);
+        next.x = newShape.x + cos(30 * PI / 180) * size / 2;
+        next.y = newShape.y + sin(30 * PI / 180) * size / 2;
+        shapes.push_back(next);
+        next.x = newShape.x - cos(30 * PI / 180) * size / 2;
+        next.y = newShape.y + sin(30 * PI / 180) * size / 2;
+        shapes.push_back(next);
+
+        vec3 nextColor;
+        nextColor.r = newShape.r;
+        nextColor.g = newShape.g;
+        nextColor.b = newShape.b;
+        colors.push_back(nextColor);
+        colors.push_back(nextColor);
+        colors.push_back(nextColor);
+    }
+    //lines
+    else
+    {
+    }
 
     num_shapes++;
 
@@ -438,12 +551,31 @@ void GLWidget::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     // draw primitives based on the current draw mode
-    glDrawArrays(drawMode, 0, num_shapes);
+    //glDrawArrays(drawMode, 0, num_shapes);
+
+    int start = 0;
+    for(int k = 0; k < num_shapes; k++)
+    {
+        if(allShapes[k].shape == 0)
+        {
+            glDrawArrays(GL_TRIANGLES, start, start + 6);
+            start += 6;
+        }
+        else if(allShapes[k].shape == 1)
+        {
+            glDrawArrays(GL_TRIANGLES, start, start + 30);
+            start += 30;
+        }
+        else if(allShapes[k].shape == 2)
+        {
+            glDrawArrays(GL_TRIANGLES, start, start + 3);
+            start += 3;
+        }
+        else
+        {
+        }
+    }
     
-    // draw points so we can always see them
-    // glPointSize adjusts the size of point
-    // primitives
-    glDrawArrays(GL_POINTS, 0, num_shapes);
 }
 
 // Copied from LoadShaders.cpp in the the oglpg-8th-edition.zip

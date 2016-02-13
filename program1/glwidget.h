@@ -40,6 +40,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         void fillRandomly();
         void addShape(int x, int y);
         void addShapeSimple(int x, int y);
+        void addShapePoints(Shape newShape);
 
         GLuint vao;
         GLuint program;
