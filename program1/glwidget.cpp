@@ -25,8 +25,8 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent), outline(false) {
     width = baseWidth;
     height = baseHeight;
     num_shapes = 0;
-    lastX = 0;
-    lastY = 0;
+    lastX = -1;
+    lastY = -1;
     srand(time(NULL));
 }
 
@@ -75,6 +75,11 @@ void GLWidget::keyPressEvent(QKeyEvent *event) {
             break;
         case Qt::Key_P:
             mouseFollow = !mouseFollow;
+            if(!mouseFollow)
+            {
+                lastX = -1;
+                lastY = -1;
+            }
             break;
         case Qt::Key_A:
             cout << "Filling uniformly" << endl;
@@ -113,6 +118,8 @@ void GLWidget::clearScreen()
 void GLWidget::fillUniformly()
 {
     clearScreen();
+    bool tempFollow = mouseFollow;
+    mouseFollow = false;
 
     for(int k = 0; k < baseWidth; k += size)
     {
@@ -121,6 +128,8 @@ void GLWidget::fillUniformly()
             addShapeSimple(k, a);
         }
     }
+
+    mouseFollow = tempFollow;
 
     glUseProgram(program);
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
@@ -134,6 +143,8 @@ void GLWidget::fillUniformly()
 void GLWidget::fillRandomly()
 {
     clearScreen();
+    bool tempFollow = mouseFollow;
+    mouseFollow = false;
 
     float totalArea = baseWidth * baseHeight;
     float singleArea = 1;
@@ -159,6 +170,8 @@ void GLWidget::fillRandomly()
     {
         addShapeSimple(rand() % baseWidth, rand() % baseHeight);
     }
+
+    mouseFollow = tempFollow;
 
     glUseProgram(program);
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
@@ -338,25 +351,74 @@ void GLWidget::addShapePoints(Shape newShape)
     if(newShape.shape == 0)
     {
         vec2 next;
-        next.x = newShape.x - size / 2;
-        next.y = newShape.y - size / 2;
-        shapes.push_back(next);
-        next.x = newShape.x + size / 2;
-        next.y = newShape.y - size / 2;
-        shapes.push_back(next);
-        next.x = newShape.x + size / 2;
-        next.y = newShape.y + size / 2;
-        shapes.push_back(next);
+        if(mouseFollow && lastX >= 0)
+        {
+            float angle = atan2(lastX - newShape.x, lastY - newShape.y) * 180 / PI;
+            angle = 90 - angle;
+            angle = angle * PI / 180;
+            lastX = newShape.x;
+            lastY = newShape.y;
+            glm::mat2 rotate = glm::mat2(cos(angle), sin(angle), -1 * sin(angle), cos(angle));
+            next.x = -1 * size / 2;
+            next.y = -1 * size / 2;
+            next = rotate * next;
+            next.x += newShape.x;
+            next.y += newShape.y;
+            shapes.push_back(next);
+            next.x = size / 2;
+            next.y = -1 * size / 2;
+            next = rotate * next;
+            next.x += newShape.x;
+            next.y += newShape.y;
+            shapes.push_back(next);
+            next.x = size / 2;
+            next.y = size / 2;
+            next = rotate * next;
+            next.x += newShape.x;
+            next.y += newShape.y;
+            shapes.push_back(next);
 
-        next.x = newShape.x - size / 2;
-        next.y = newShape.y - size / 2;
-        shapes.push_back(next);
-        next.x = newShape.x + size / 2;
-        next.y = newShape.y + size / 2;
-        shapes.push_back(next);
-        next.x = newShape.x - size / 2;
-        next.y = newShape.y + size / 2;
-        shapes.push_back(next);
+            next.x = -1 * size / 2;
+            next.y = -1 * size / 2;
+            next = rotate * next;
+            next.x += newShape.x;
+            next.y += newShape.y;
+            shapes.push_back(next);
+            next.x = -1 * size / 2;
+            next.y = size / 2;
+            next = rotate * next;
+            next.x += newShape.x;
+            next.y += newShape.y;
+            shapes.push_back(next);
+            next.x = size / 2;
+            next.y = size / 2;
+            next = rotate * next;
+            next.x += newShape.x;
+            next.y += newShape.y;
+            shapes.push_back(next);
+        }
+        else
+        {
+            next.x = newShape.x - size / 2;
+            next.y = newShape.y - size / 2;
+            shapes.push_back(next);
+            next.x = newShape.x + size / 2;
+            next.y = newShape.y - size / 2;
+            shapes.push_back(next);
+            next.x = newShape.x + size / 2;
+            next.y = newShape.y + size / 2;
+            shapes.push_back(next);
+
+            next.x = newShape.x - size / 2;
+            next.y = newShape.y - size / 2;
+            shapes.push_back(next);
+            next.x = newShape.x + size / 2;
+            next.y = newShape.y + size / 2;
+            shapes.push_back(next);
+            next.x = newShape.x - size / 2;
+            next.y = newShape.y + size / 2;
+            shapes.push_back(next);
+        }
 
         vec3 nextColor;
         nextColor.r = newShape.r;
@@ -386,7 +448,7 @@ void GLWidget::addShapePoints(Shape newShape)
         nextColor.g = newShape.g;
         nextColor.b = newShape.b;
 
-        for(int k = 45; k <= 360; k += 45)
+        for(int k = 36; k <= 360; k += 36)
         {
             next.x = newShape.x + cos(k * PI / 180) * size / 2;
             next.y = newShape.y - sin(k * PI / 180) * size / 2;
@@ -404,15 +466,46 @@ void GLWidget::addShapePoints(Shape newShape)
     else if(newShape.shape == 2)
     {
         vec2 next;
-        next.x = newShape.x;
-        next.y = newShape.y - size / 2;
-        shapes.push_back(next);
-        next.x = newShape.x + cos(30 * PI / 180) * size / 2;
-        next.y = newShape.y + sin(30 * PI / 180) * size / 2;
-        shapes.push_back(next);
-        next.x = newShape.x - cos(30 * PI / 180) * size / 2;
-        next.y = newShape.y + sin(30 * PI / 180) * size / 2;
-        shapes.push_back(next);
+        if(mouseFollow && lastX >= 0)
+        {
+            float angle = atan2(lastX - newShape.x, lastY - newShape.y) * 180 / PI;
+            angle = 90 - angle;
+            angle = angle * PI / 180;
+            lastX = newShape.x;
+            lastY = newShape.y;
+            glm::mat2 rotate = glm::mat2(cos(angle), sin(angle), -1 * sin(angle), cos(angle));
+
+            next.x = 0;
+            next.y = -1 * size / 2;
+            next = rotate * next;
+            next.x += newShape.x;
+            next.y += newShape.y;
+            shapes.push_back(next);
+            next.x = cos(30 * PI / 180) * size / 2;
+            next.y = sin(30 * PI / 180) * size / 2;
+            next = rotate * next;
+            next.x += newShape.x;
+            next.y += newShape.y;
+            shapes.push_back(next);
+            next.x = -1 * cos(30 * PI / 180) * size / 2;
+            next.y = sin(30 * PI / 180) * size / 2;
+            next = rotate * next;
+            next.x += newShape.x;
+            next.y += newShape.y;
+            shapes.push_back(next);
+        }
+        else
+        {
+            next.x = newShape.x;
+            next.y = newShape.y - size / 2;
+            shapes.push_back(next);
+            next.x = newShape.x + cos(30 * PI / 180) * size / 2;
+            next.y = newShape.y + sin(30 * PI / 180) * size / 2;
+            shapes.push_back(next);
+            next.x = newShape.x - cos(30 * PI / 180) * size / 2;
+            next.y = newShape.y + sin(30 * PI / 180) * size / 2;
+            shapes.push_back(next);
+        }
 
         vec3 nextColor;
         nextColor.r = newShape.r;
@@ -580,8 +673,8 @@ void GLWidget::paintGL() {
         }
         else if(allShapes[k].shape == 1)
         {
-            glDrawArrays(GL_TRIANGLES, start, 24);
-            start += 24;
+            glDrawArrays(GL_TRIANGLES, start, 30);
+            start += 30;
         }
         else if(allShapes[k].shape == 2)
         {
