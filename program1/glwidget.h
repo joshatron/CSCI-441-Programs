@@ -47,7 +47,6 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
         GLuint positionBuffer;
         bool outline;
-        GLenum drawMode;
 
         GLuint colorBuffer;
 

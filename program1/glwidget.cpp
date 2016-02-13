@@ -13,7 +13,7 @@
 using namespace std;
 
 
-GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent), outline(false), drawMode(0) {
+GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent), outline(false) {
     shape = 0;
     resizeMode = 3;
     background = false;
@@ -27,7 +27,7 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent), outline(false), dra
     num_shapes = 0;
     lastX = 0;
     lastY = 0;
-    drawMode = GL_POINTS;
+    srand(time(NULL));
 }
 
 GLWidget::~GLWidget() {
@@ -134,7 +134,6 @@ void GLWidget::fillUniformly()
 void GLWidget::fillRandomly()
 {
     clearScreen();
-    srand(time(NULL));
 
     float totalArea = baseWidth * baseHeight;
     float singleArea = 1;
@@ -144,7 +143,7 @@ void GLWidget::fillRandomly()
     }
     else if(shape == 1)
     {
-        singleArea = PI * size * size / 4;
+        singleArea = PI * size * size / 6;
     }
     else if(shape == 2)
     {
@@ -152,7 +151,7 @@ void GLWidget::fillRandomly()
     }
     else
     {
-        singleArea = PI * size * size / 4;
+        singleArea = PI * size * size / 6;
     }
 
     int totalShapes = totalArea / singleArea * 2;
@@ -387,7 +386,7 @@ void GLWidget::addShapePoints(Shape newShape)
         nextColor.g = newShape.g;
         nextColor.b = newShape.b;
 
-        for(int k = 36; k <= 360; k += 36)
+        for(int k = 45; k <= 360; k += 45)
         {
             next.x = newShape.x + cos(k * PI / 180) * size / 2;
             next.y = newShape.y - sin(k * PI / 180) * size / 2;
@@ -426,6 +425,24 @@ void GLWidget::addShapePoints(Shape newShape)
     //lines
     else
     {
+        vec3 nextColor;
+        nextColor.r = newShape.r;
+        nextColor.g = newShape.g;
+        nextColor.b = newShape.b;
+
+        vec2 next;
+        for(int k = 0; k < 15; k++)
+        {
+            int angle = rand() % 180;
+            next.x = newShape.x + cos(angle * PI / 180) * size / 2;
+            next.y = newShape.y + sin(angle * PI / 180) * size / 2;
+            shapes.push_back(next);
+            next.x = newShape.x - cos(angle * PI / 180) * size / 2;
+            next.y = newShape.y - sin(angle * PI / 180) * size / 2;
+            shapes.push_back(next);
+            colors.push_back(nextColor);
+            colors.push_back(nextColor);
+        }
     }
 
     num_shapes++;
@@ -558,21 +575,23 @@ void GLWidget::paintGL() {
     {
         if(allShapes[k].shape == 0)
         {
-            glDrawArrays(GL_TRIANGLES, start, start + 6);
+            glDrawArrays(GL_TRIANGLES, start, 6);
             start += 6;
         }
         else if(allShapes[k].shape == 1)
         {
-            glDrawArrays(GL_TRIANGLES, start, start + 30);
-            start += 30;
+            glDrawArrays(GL_TRIANGLES, start, 24);
+            start += 24;
         }
         else if(allShapes[k].shape == 2)
         {
-            glDrawArrays(GL_TRIANGLES, start, start + 3);
+            glDrawArrays(GL_TRIANGLES, start, 3);
             start += 3;
         }
         else
         {
+            glDrawArrays(GL_LINES, start, 30);
+            start += 30;
         }
     }
     
