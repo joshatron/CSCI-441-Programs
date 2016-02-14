@@ -38,8 +38,8 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         void clearScreen();
         void fillUniformly();
         void fillRandomly();
+        glm::vec2 rawLocToBaseLoc(int x, int y);
         void addShape(int x, int y);
-        void addShapeSimple(int x, int y);
         void addShapePoints(Shape newShape);
 
         GLuint vao;

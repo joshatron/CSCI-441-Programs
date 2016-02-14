@@ -138,7 +138,7 @@ void GLWidget::fillUniformly()
     {
         for(int a = (int)offsetY; a <= baseHeight; a += size)
         {
-            addShapeSimple(k, a);
+            addShape(k, a);
         }
     }
 
@@ -181,7 +181,7 @@ void GLWidget::fillRandomly()
     int totalShapes = totalArea / singleArea * 2;
     for(int k = 0; k < totalShapes; k++)
     {
-        addShapeSimple(rand() % baseWidth, rand() % baseHeight);
+        addShape(rand() % baseWidth, rand() % baseHeight);
     }
 
     mouseFollow = tempFollow;
@@ -197,9 +197,12 @@ void GLWidget::fillRandomly()
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
 {
-    addShape(event->x(), event->y());
-    lastX = event->x();
-    lastY = event->y();
+    lastX = -1;
+    lastY = -1;
+    glm::vec2 loc = rawLocToBaseLoc(event->x(), event->y());
+    addShape(loc.x, loc.y);
+    lastX = loc.x;
+    lastY = loc.y;
 
     //push all buffers
     glUseProgram(program);
@@ -218,14 +221,16 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
         return;
     }
 
-    if(((event->x() - lastX) * (event->x() - lastX)) + ((event->y() - lastY) * (event->y() - lastY)) < size * size)
+    glm::vec2 loc = rawLocToBaseLoc(event->x(), event->y());
+
+    if(((loc.x - lastX) * (loc.x - lastX)) + ((loc.y - lastY) * (loc.y - lastY)) < size * size)
     {
         return;
     }
 
-    addShape(event->x(), event->y());
-    lastX = event->x();
-    lastY = event->y();
+    addShape(loc.x, loc.y);
+    lastX = loc.x;
+    lastY = loc.y;
 
     //push all buffers
     glUseProgram(program);
@@ -247,9 +252,9 @@ void GLWidget::wheelEvent(QWheelEvent *event)
     }
 }
 
-void GLWidget::addShape(int x, int y)
+glm::vec2 GLWidget::rawLocToBaseLoc(int x, int y)
 {
-    Shape newShape;
+    glm::vec2 newShape;
     //same
     if(resizeMode == 0)
     {
@@ -307,10 +312,11 @@ void GLWidget::addShape(int x, int y)
         }
     }
 
-    addShapeSimple(newShape.x, newShape.y);
+    return newShape;
+
 }
 
-void GLWidget::addShapeSimple(int x, int y)
+void GLWidget::addShape(int x, int y)
 {
     Shape newShape;
     newShape.x = x;
