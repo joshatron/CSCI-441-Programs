@@ -350,7 +350,7 @@ void GLWidget::addShapePoints(Shape newShape)
         if(mouseFollow && lastX >= 0)
         {
             float angle = atan2(lastX - newShape.x, lastY - newShape.y) * 180 / PI;
-            angle = 90 - angle;
+            angle = 360 - angle;
             angle = angle * PI / 180;
             lastX = newShape.x;
             lastY = newShape.y;
