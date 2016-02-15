@@ -6,6 +6,7 @@
 #include <QMouseEvent>
 #include <glm/glm.hpp>
 #include "shape.h"
+#include <QtGui/QImage>
 
 // glm by default uses degrees, but that functionality
 // is deprecated so GLM_FORCE_RADIANS turns off some 
@@ -41,6 +42,8 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         glm::vec2 rawLocToBaseLoc(int x, int y);
         void addShape(int x, int y);
         void addShapePoints(Shape newShape);
+
+        QImage *img;
 
         GLuint vao;
         GLuint program;
