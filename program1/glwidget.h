@@ -49,8 +49,6 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         GLuint program;
 
         GLuint positionBuffer;
-        bool outline;
-
         GLuint colorBuffer;
 
         std::vector<vec2> shapes;
@@ -64,11 +62,9 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
         int num_shapes;
 
-        //0- square
-        //1- circle
-        //2- triangle
-        //3- lines
-        int shape;
+        //1 means a circle
+        //2 means a group of lines
+        int sides;
 
         //0- always same
         //1- fit width

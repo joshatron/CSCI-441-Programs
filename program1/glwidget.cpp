@@ -13,8 +13,8 @@
 using namespace std;
 
 
-GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent), outline(false) {
-    shape = 0;
+GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
+    sides = 4;
     resizeMode = 3;
     background = false;
     exactColor = true;
@@ -36,17 +36,32 @@ GLWidget::~GLWidget() {
 
 void GLWidget::keyPressEvent(QKeyEvent *event) {
     switch(event->key()) {
-        case Qt::Key_Q:
-            shape = 0;
+        case Qt::Key_1:
+            sides = 1;
             break;
-        case Qt::Key_W:
-            shape = 1;
+        case Qt::Key_2:
+            sides = 2;
             break;
-        case Qt::Key_E:
-            shape = 2;
+        case Qt::Key_3:
+            sides = 3;
             break;
-        case Qt::Key_R:
-            shape = 3;
+        case Qt::Key_4:
+            sides = 4;
+            break;
+        case Qt::Key_5:
+            sides = 5;
+            break;
+        case Qt::Key_6:
+            sides = 6;
+            break;
+        case Qt::Key_7:
+            sides = 7;
+            break;
+        case Qt::Key_8:
+            sides = 8;
+            break;
+        case Qt::Key_9:
+            sides = 9;
             break;
         case Qt::Key_Z:
             resizeMode = 1;
@@ -93,107 +108,12 @@ void GLWidget::keyPressEvent(QKeyEvent *event) {
     }
     update();
 
-    cout << "Shape: " << shape << endl;
+    cout << "Sides: " << sides << endl;
     cout << "Resize: " << resizeMode << endl;
     cout << "Background: " << background << endl;
     cout << "Exact color: " << exactColor << endl;
     cout << "Mouse follow: " << mouseFollow << endl;
     cout << "Size: " << size << endl << endl;
-}
-
-void GLWidget::clearScreen()
-{
-    shapes.clear();
-    colors.clear();
-    allShapes.clear();
-    num_shapes = 0;
-
-    lastX = -1;
-    lastY = -1;
-
-    glUseProgram(program);
-    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);
-    update();
-}
-
-void GLWidget::fillUniformly()
-{
-    clearScreen();
-    bool tempFollow = mouseFollow;
-    mouseFollow = false;
-
-    float offsetX = baseWidth / size;
-    offsetX -= (int)offsetX;
-    offsetX *= size;
-    offsetX /= 2;
-
-    float offsetY = baseHeight / size;
-    offsetY -= (int)offsetY;
-    offsetY *= size;
-    offsetY /= 2;
-
-    for(int k = (int)offsetX; k <= baseWidth; k += size)
-    {
-        for(int a = (int)offsetY; a <= baseHeight; a += size)
-        {
-            addShape(k, a);
-        }
-    }
-
-    mouseFollow = tempFollow;
-
-    glUseProgram(program);
-    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * shapes.size(), shapes.data(), GL_DYNAMIC_DRAW);
-
-    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * colors.size(), colors.data(), GL_DYNAMIC_DRAW);
-    update();
-}
-
-void GLWidget::fillRandomly()
-{
-    clearScreen();
-    bool tempFollow = mouseFollow;
-    mouseFollow = false;
-
-    float totalArea = baseWidth * baseHeight;
-    float singleArea = 1;
-    if(shape == 0)
-    {
-        singleArea = size * size;
-    }
-    else if(shape == 1)
-    {
-        singleArea = PI * size * size / 6;
-    }
-    else if(shape == 2)
-    {
-        singleArea = 1.732 / 4 * ((size + sin(30 * PI / 180)) * (size + sin(30 * PI / 180)));
-    }
-    else
-    {
-        singleArea = PI * size * size / 6;
-    }
-
-    int totalShapes = totalArea / singleArea * 2;
-    for(int k = 0; k < totalShapes; k++)
-    {
-        addShape(rand() % baseWidth, rand() % baseHeight);
-    }
-
-    mouseFollow = tempFollow;
-
-    glUseProgram(program);
-    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * shapes.size(), shapes.data(), GL_DYNAMIC_DRAW);
-
-    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * colors.size(), colors.data(), GL_DYNAMIC_DRAW);
-    update();
 }
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
@@ -251,6 +171,89 @@ void GLWidget::wheelEvent(QWheelEvent *event)
     {
         size = 1;
     }
+}
+
+void GLWidget::clearScreen()
+{
+    shapes.clear();
+    colors.clear();
+    allShapes.clear();
+    num_shapes = 0;
+
+    lastX = -1;
+    lastY = -1;
+
+    glUseProgram(program);
+    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);
+    update();
+}
+
+void GLWidget::fillUniformly()
+{
+    clearScreen();
+    bool tempFollow = mouseFollow;
+    mouseFollow = false;
+
+    float offsetX = baseWidth / size;
+    offsetX -= (int)offsetX;
+    offsetX *= size;
+    offsetX /= 2;
+
+    float offsetY = baseHeight / size;
+    offsetY -= (int)offsetY;
+    offsetY *= size;
+    offsetY /= 2;
+
+    for(int k = (int)offsetX; k < baseWidth; k += size)
+    {
+        for(int a = (int)offsetY; a < baseHeight; a += size)
+        {
+            addShape(k, a);
+        }
+    }
+
+    mouseFollow = tempFollow;
+
+    glUseProgram(program);
+    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * shapes.size(), shapes.data(), GL_DYNAMIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * colors.size(), colors.data(), GL_DYNAMIC_DRAW);
+    update();
+}
+
+void GLWidget::fillRandomly()
+{
+    clearScreen();
+    bool tempFollow = mouseFollow;
+    mouseFollow = false;
+
+    float totalArea = baseWidth * baseHeight;
+    float singleArea = PI * size * size / 6;
+    if(sides == 3)
+    {
+        singleArea /= 2;
+    }
+
+    int totalShapes = totalArea / singleArea * 2;
+    for(int k = 0; k < totalShapes; k++)
+    {
+        addShape(abs(rand() % baseWidth), abs(rand() % baseHeight));
+    }
+
+    mouseFollow = tempFollow;
+
+    glUseProgram(program);
+    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * shapes.size(), shapes.data(), GL_DYNAMIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * colors.size(), colors.data(), GL_DYNAMIC_DRAW);
+    update();
 }
 
 glm::vec2 GLWidget::rawLocToBaseLoc(int x, int y)
@@ -330,9 +333,8 @@ void GLWidget::addShape(int x, int y)
         return;
     }
 
-    newShape.rotation = 0;
     newShape.radius = size;
-    newShape.shape = shape;
+    newShape.sides = sides;
     QColor clr(img->pixel(x, y));
     newShape.r = clr.red() / 255.;
     newShape.g = clr.green() / 255.;
@@ -343,211 +345,8 @@ void GLWidget::addShape(int x, int y)
 
 void GLWidget::addShapePoints(Shape newShape)
 {
-    //square
-    if(newShape.shape == 0)
-    {
-        vec2 next;
-        if(mouseFollow && lastX >= 0)
-        {
-            float angle = atan2(lastX - newShape.x, lastY - newShape.y) * 180 / PI;
-            angle = 360 - angle;
-            angle = angle * PI / 180;
-            lastX = newShape.x;
-            lastY = newShape.y;
-            glm::mat2 rotate = glm::mat2(cos(angle), sin(angle), -1 * sin(angle), cos(angle));
-
-            next.x = -1 * size / 2;
-            next.y = -1 * size / 2;
-            next = rotate * next;
-            next.x += newShape.x;
-            next.y += newShape.y;
-            shapes.push_back(next);
-
-            next.x = size / 2;
-            next.y = -1 * size / 2;
-            next = rotate * next;
-            next.x += newShape.x;
-            next.y += newShape.y;
-            shapes.push_back(next);
-
-            next.x = size / 2;
-            next.y = size / 2;
-            next = rotate * next;
-            next.x += newShape.x;
-            next.y += newShape.y;
-            shapes.push_back(next);
-
-            next.x = -1 * size / 2;
-            next.y = size / 2;
-            next = rotate * next;
-            next.x += newShape.x;
-            next.y += newShape.y;
-            shapes.push_back(next);
-        }
-        else
-        {
-            next.x = newShape.x - size / 2;
-            next.y = newShape.y - size / 2;
-            shapes.push_back(next);
-            next.x = newShape.x + size / 2;
-            next.y = newShape.y - size / 2;
-            shapes.push_back(next);
-            next.x = newShape.x + size / 2;
-            next.y = newShape.y + size / 2;
-            shapes.push_back(next);
-            next.x = newShape.x - size / 2;
-            next.y = newShape.y + size / 2;
-            shapes.push_back(next);
-        }
-
-        if(exactColor)
-        {
-            vec3 nextColor;
-            nextColor.r = newShape.r;
-            nextColor.g = newShape.g;
-            nextColor.b = newShape.b;
-            colors.push_back(nextColor);
-            colors.push_back(nextColor);
-            colors.push_back(nextColor);
-            colors.push_back(nextColor);
-        }
-        else
-        {
-            int size = shapes.size();
-            vec3 nextColor;
-            for(int k = size - 4; k < size; k++)
-            {
-                QColor clr(img->pixel(shapes[k].x, shapes[k].y));
-                nextColor.r = clr.red() / 255.;
-                nextColor.g = clr.green() / 255.;
-                nextColor.b = clr.blue() / 255.;
-                colors.push_back(nextColor);
-            }
-        }
-    }
-    //circle
-    else if(newShape.shape == 1)
-    {
-        vec2 first;
-        vec2 last;
-        vec2 next;
-
-        first.x = newShape.x;
-        first.y = newShape.y;
-        last.x = newShape.x + cos(0 * PI / 180) * size / 2;
-        last.y = newShape.y - sin(0 * PI / 180) * size / 2;
-        shapes.push_back(last);
-
-        vec3 nextColor;
-        nextColor.r = newShape.r;
-        nextColor.g = newShape.g;
-        nextColor.b = newShape.b;
-        if(exactColor)
-        {
-            colors.push_back(nextColor);
-        }
-        else
-        {
-            int size = shapes.size();
-            QColor clr(img->pixel(shapes[size - 1].x, shapes[size - 1].y));
-            nextColor.r = clr.red() / 255.;
-            nextColor.g = clr.green() / 255.;
-            nextColor.b = clr.blue() / 255.;
-            colors.push_back(nextColor);
-        }
-
-        for(int k = 36; k <= 360; k += 36)
-        {
-            next.x = newShape.x + cos(k * PI / 180) * size / 2;
-            next.y = newShape.y - sin(k * PI / 180) * size / 2;
-            shapes.push_back(next);
-
-            if(exactColor)
-            {
-                colors.push_back(nextColor);
-            }
-            else
-            {
-                int size = shapes.size();
-                QColor clr(img->pixel(shapes[size - 1].x, shapes[size - 1].y));
-                nextColor.r = clr.red() / 255.;
-                nextColor.g = clr.green() / 255.;
-                nextColor.b = clr.blue() / 255.;
-                colors.push_back(nextColor);
-            }
-        }
-    }
-    //triangle
-    else if(newShape.shape == 2)
-    {
-        vec2 next;
-        if(mouseFollow && lastX >= 0)
-        {
-            float angle = atan2(lastX - newShape.x, lastY - newShape.y) * 180 / PI;
-            angle = 360 - angle;
-            angle = angle * PI / 180;
-            lastX = newShape.x;
-            lastY = newShape.y;
-            glm::mat2 rotate = glm::mat2(cos(angle), sin(angle), -1 * sin(angle), cos(angle));
-
-            next.x = 0;
-            next.y = -1 * size / 2;
-            next = rotate * next;
-            next.x += newShape.x;
-            next.y += newShape.y;
-            shapes.push_back(next);
-            next.x = cos(30 * PI / 180) * size / 2;
-            next.y = sin(30 * PI / 180) * size / 2;
-            next = rotate * next;
-            next.x += newShape.x;
-            next.y += newShape.y;
-            shapes.push_back(next);
-            next.x = -1 * cos(30 * PI / 180) * size / 2;
-            next.y = sin(30 * PI / 180) * size / 2;
-            next = rotate * next;
-            next.x += newShape.x;
-            next.y += newShape.y;
-            shapes.push_back(next);
-        }
-        else
-        {
-            next.x = newShape.x;
-            next.y = newShape.y - size / 2;
-            shapes.push_back(next);
-            next.x = newShape.x + cos(30 * PI / 180) * size / 2;
-            next.y = newShape.y + sin(30 * PI / 180) * size / 2;
-            shapes.push_back(next);
-            next.x = newShape.x - cos(30 * PI / 180) * size / 2;
-            next.y = newShape.y + sin(30 * PI / 180) * size / 2;
-            shapes.push_back(next);
-        }
-
-        if(exactColor)
-        {
-            vec3 nextColor;
-            nextColor.r = newShape.r;
-            nextColor.g = newShape.g;
-            nextColor.b = newShape.b;
-            colors.push_back(nextColor);
-            colors.push_back(nextColor);
-            colors.push_back(nextColor);
-        }
-        else
-        {
-            int size = shapes.size();
-            vec3 nextColor;
-            for(int k = size - 3; k < size; k++)
-            {
-                QColor clr(img->pixel(shapes[k].x, shapes[k].y));
-                nextColor.r = clr.red() / 255.;
-                nextColor.g = clr.green() / 255.;
-                nextColor.b = clr.blue() / 255.;
-                colors.push_back(nextColor);
-            }
-        }
-    }
     //lines
-    else
+    if(newShape.sides == 2) 
     {
         vec3 nextColor;
         nextColor.r = newShape.r;
@@ -581,6 +380,56 @@ void GLWidget::addShapePoints(Shape newShape)
                 nextColor.r = clr2.red() / 255.;
                 nextColor.g = clr2.green() / 255.;
                 nextColor.b = clr2.blue() / 255.;
+                colors.push_back(nextColor);
+            }
+        }
+    }
+    else
+    {
+        if(newShape.sides == 1)
+        {
+            newShape.sides = 10;
+        }
+        float anglePer = 360. / newShape.sides;
+        float angle = 0;
+        if(mouseFollow && lastX >= 0)
+        {
+            angle = atan2(lastX - newShape.x, lastY - newShape.y) * 180 / PI;
+            angle = 360 - angle;
+        }
+        if(newShape.sides % 2 == 0)
+        {
+            angle += anglePer / 2;
+        }
+        angle = angle * PI / 180;
+
+        glm::mat2 rotate = glm::mat2(cos(angle), sin(angle), -1 * sin(angle), cos(angle));
+
+        vec3 nextColor;
+        nextColor.r = newShape.r;
+        nextColor.g = newShape.g;
+        nextColor.b = newShape.b;
+
+        vec2 next;
+        for(int k = 0; k <= 361; k += anglePer)
+        {
+            next.x = sin(k * PI / 180) * size / 2;
+            next.y = -1 * cos(k * PI / 180) * size / 2;
+            next = rotate * next;
+            next.x += newShape.x;
+            next.y += newShape.y;
+            shapes.push_back(next);
+
+            if(exactColor)
+            {
+                colors.push_back(nextColor);
+            }
+            else
+            {
+                QColor clr(img->pixel(next.x, next.y));
+                nextColor.r = clr.red() / 255.;
+                nextColor.g = clr.green() / 255.;
+                nextColor.b = clr.blue() / 255.;
                 colors.push_back(nextColor);
             }
         }
@@ -714,28 +563,17 @@ void GLWidget::paintGL() {
     int start = 0;
     for(int k = 0; k < num_shapes; k++)
     {
-        if(allShapes[k].shape == 0)
-        {
-            glDrawArrays(GL_TRIANGLE_FAN, start, 4);
-            start += 4;
-        }
-        else if(allShapes[k].shape == 1)
-        {
-            glDrawArrays(GL_TRIANGLE_FAN, start, 11);
-            start += 11;
-        }
-        else if(allShapes[k].shape == 2)
-        {
-            glDrawArrays(GL_TRIANGLES, start, 3);
-            start += 3;
-        }
-        else
+        if(allShapes[k].sides == 2)
         {
             glDrawArrays(GL_LINES, start, 30);
             start += 30;
         }
+        else
+        {
+            glDrawArrays(GL_TRIANGLE_FAN, start, allShapes[k].sides + 1);
+            start += allShapes[k].sides + 1;
+        }
     }
-    
 }
 
 // Copied from LoadShaders.cpp in the the oglpg-8th-edition.zip
