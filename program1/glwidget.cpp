@@ -355,18 +355,21 @@ void GLWidget::addShapePoints(Shape newShape)
             lastX = newShape.x;
             lastY = newShape.y;
             glm::mat2 rotate = glm::mat2(cos(angle), sin(angle), -1 * sin(angle), cos(angle));
+
             next.x = -1 * size / 2;
             next.y = -1 * size / 2;
             next = rotate * next;
             next.x += newShape.x;
             next.y += newShape.y;
             shapes.push_back(next);
+
             next.x = size / 2;
             next.y = -1 * size / 2;
             next = rotate * next;
             next.x += newShape.x;
             next.y += newShape.y;
             shapes.push_back(next);
+
             next.x = size / 2;
             next.y = size / 2;
             next = rotate * next;
@@ -375,18 +378,6 @@ void GLWidget::addShapePoints(Shape newShape)
             shapes.push_back(next);
 
             next.x = -1 * size / 2;
-            next.y = -1 * size / 2;
-            next = rotate * next;
-            next.x += newShape.x;
-            next.y += newShape.y;
-            shapes.push_back(next);
-            next.x = -1 * size / 2;
-            next.y = size / 2;
-            next = rotate * next;
-            next.x += newShape.x;
-            next.y += newShape.y;
-            shapes.push_back(next);
-            next.x = size / 2;
             next.y = size / 2;
             next = rotate * next;
             next.x += newShape.x;
@@ -399,13 +390,6 @@ void GLWidget::addShapePoints(Shape newShape)
             next.y = newShape.y - size / 2;
             shapes.push_back(next);
             next.x = newShape.x + size / 2;
-            next.y = newShape.y - size / 2;
-            shapes.push_back(next);
-            next.x = newShape.x + size / 2;
-            next.y = newShape.y + size / 2;
-            shapes.push_back(next);
-
-            next.x = newShape.x - size / 2;
             next.y = newShape.y - size / 2;
             shapes.push_back(next);
             next.x = newShape.x + size / 2;
@@ -426,14 +410,12 @@ void GLWidget::addShapePoints(Shape newShape)
             colors.push_back(nextColor);
             colors.push_back(nextColor);
             colors.push_back(nextColor);
-            colors.push_back(nextColor);
-            colors.push_back(nextColor);
         }
         else
         {
             int size = shapes.size();
             vec3 nextColor;
-            for(int k = size - 6; k < size; k++)
+            for(int k = size - 4; k < size; k++)
             {
                 QColor clr(img->pixel(shapes[k].x, shapes[k].y));
                 nextColor.r = clr.red() / 255.;
@@ -454,44 +436,43 @@ void GLWidget::addShapePoints(Shape newShape)
         first.y = newShape.y;
         last.x = newShape.x + cos(0 * PI / 180) * size / 2;
         last.y = newShape.y - sin(0 * PI / 180) * size / 2;
+        shapes.push_back(last);
 
         vec3 nextColor;
         nextColor.r = newShape.r;
         nextColor.g = newShape.g;
         nextColor.b = newShape.b;
+        if(exactColor)
+        {
+            colors.push_back(nextColor);
+        }
+        else
+        {
+            int size = shapes.size();
+            QColor clr(img->pixel(shapes[size - 1].x, shapes[size - 1].y));
+            nextColor.r = clr.red() / 255.;
+            nextColor.g = clr.green() / 255.;
+            nextColor.b = clr.blue() / 255.;
+            colors.push_back(nextColor);
+        }
 
         for(int k = 36; k <= 360; k += 36)
         {
             next.x = newShape.x + cos(k * PI / 180) * size / 2;
             next.y = newShape.y - sin(k * PI / 180) * size / 2;
-            shapes.push_back(first);
-            shapes.push_back(last);
             shapes.push_back(next);
-            last = next;
 
             if(exactColor)
             {
-                colors.push_back(nextColor);
-                colors.push_back(nextColor);
                 colors.push_back(nextColor);
             }
             else
             {
                 int size = shapes.size();
-                QColor clr(img->pixel(shapes[size - 3].x, shapes[size - 3].y));
+                QColor clr(img->pixel(shapes[size - 1].x, shapes[size - 1].y));
                 nextColor.r = clr.red() / 255.;
                 nextColor.g = clr.green() / 255.;
                 nextColor.b = clr.blue() / 255.;
-                colors.push_back(nextColor);
-                QColor clr2(img->pixel(shapes[size - 2].x, shapes[size - 2].y));
-                nextColor.r = clr2.red() / 255.;
-                nextColor.g = clr2.green() / 255.;
-                nextColor.b = clr2.blue() / 255.;
-                colors.push_back(nextColor);
-                QColor clr3(img->pixel(shapes[size - 1].x, shapes[size - 1].y));
-                nextColor.r = clr3.red() / 255.;
-                nextColor.g = clr3.green() / 255.;
-                nextColor.b = clr3.blue() / 255.;
                 colors.push_back(nextColor);
             }
         }
@@ -735,13 +716,13 @@ void GLWidget::paintGL() {
     {
         if(allShapes[k].shape == 0)
         {
-            glDrawArrays(GL_TRIANGLES, start, 6);
-            start += 6;
+            glDrawArrays(GL_TRIANGLE_FAN, start, 4);
+            start += 4;
         }
         else if(allShapes[k].shape == 1)
         {
-            glDrawArrays(GL_TRIANGLES, start, 30);
-            start += 30;
+            glDrawArrays(GL_TRIANGLE_FAN, start, 11);
+            start += 11;
         }
         else if(allShapes[k].shape == 2)
         {
