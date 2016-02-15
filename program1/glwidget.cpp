@@ -233,7 +233,7 @@ void GLWidget::fillRandomly()
     mouseFollow = false;
 
     float totalArea = baseWidth * baseHeight;
-    float singleArea = PI * size * size / 6;
+    float singleArea = PI * size * size / 10;
     if(sides == 3)
     {
         singleArea /= 2;
@@ -371,24 +371,48 @@ void GLWidget::addShapePoints(Shape newShape)
             else
             {
                 int size = shapes.size();
-                QColor clr(img->pixel(shapes[size - 2].x, shapes[size - 2].y));
-                nextColor.r = clr.red() / 255.;
-                nextColor.g = clr.green() / 255.;
-                nextColor.b = clr.blue() / 255.;
-                colors.push_back(nextColor);
-                QColor clr2(img->pixel(shapes[size - 1].x, shapes[size - 1].y));
-                nextColor.r = clr2.red() / 255.;
-                nextColor.g = clr2.green() / 255.;
-                nextColor.b = clr2.blue() / 255.;
-                colors.push_back(nextColor);
+                if(shapes[size - 2].x < 0 || shapes[size - 2].x >= baseWidth ||
+                   shapes[size - 2].y < 0 || shapes[size - 2].y >= baseHeight)
+                {
+                    nextColor.r = newShape.r;
+                    nextColor.g = newShape.g;
+                    nextColor.b = newShape.b;
+                    colors.push_back(nextColor);
+                }
+                else
+                {
+                    QColor clr(img->pixel(shapes[size - 2].x, shapes[size - 2].y));
+                    nextColor.r = clr.red() / 255.;
+                    nextColor.g = clr.green() / 255.;
+                    nextColor.b = clr.blue() / 255.;
+                    colors.push_back(nextColor);
+                }
+
+                if(shapes[size - 1].x < 0 || shapes[size - 1].x >= baseWidth ||
+                   shapes[size - 1].y < 0 || shapes[size - 1].y >= baseHeight)
+                {
+                    nextColor.r = newShape.r;
+                    nextColor.g = newShape.g;
+                    nextColor.b = newShape.b;
+                    colors.push_back(nextColor);
+                }
+                else
+                {
+                    QColor clr2(img->pixel(shapes[size - 1].x, shapes[size - 1].y));
+                    nextColor.r = clr2.red() / 255.;
+                    nextColor.g = clr2.green() / 255.;
+                    nextColor.b = clr2.blue() / 255.;
+                    colors.push_back(nextColor);
+                }
             }
         }
     }
+    //polygons
     else
     {
         if(newShape.sides == 1)
         {
-            newShape.sides = 10;
+            newShape.sides = 20;
         }
         float anglePer = 360. / newShape.sides;
         float angle = 0;
@@ -426,11 +450,21 @@ void GLWidget::addShapePoints(Shape newShape)
             }
             else
             {
-                QColor clr(img->pixel(next.x, next.y));
-                nextColor.r = clr.red() / 255.;
-                nextColor.g = clr.green() / 255.;
-                nextColor.b = clr.blue() / 255.;
-                colors.push_back(nextColor);
+                if(next.x < 0 || next.x >= baseWidth || next.y < 0 || next.y >= baseHeight)
+                {
+                    nextColor.r = newShape.r;
+                    nextColor.g = newShape.g;
+                    nextColor.b = newShape.b;
+                    colors.push_back(nextColor);
+                }
+                else
+                {
+                    QColor clr(img->pixel(next.x, next.y));
+                    nextColor.r = clr.red() / 255.;
+                    nextColor.g = clr.green() / 255.;
+                    nextColor.b = clr.blue() / 255.;
+                    colors.push_back(nextColor);
+                }
             }
         }
     }
