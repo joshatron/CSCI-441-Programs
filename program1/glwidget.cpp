@@ -87,20 +87,29 @@ void GLWidget::keyPressEvent(QKeyEvent *event) {
             resizeGL(width, height);
             break;
         //toggle background
-        case Qt::Key_U:
+        case Qt::Key_Q:
             background = !background;
             break;
         //toggle between using center vs corners for color
-        case Qt::Key_I:
+        case Qt::Key_W:
             exactColor = !exactColor;
             break;
         //clear the screen of all polygons
-        case Qt::Key_O:
+        case Qt::Key_E:
             cout << "Clearing screen" << endl;
             clearScreen();
             break;
+        //resets everything back to default
+        case Qt::Key_R:
+            sides = 4;
+            resizeMode = 3;
+            background = false;
+            exactColor = true;
+            mouseFollow = false;
+            size = 30;
+            break;
         //toggle polygons changing angle to follow mouse
-        case Qt::Key_P:
+        case Qt::Key_T:
             mouseFollow = !mouseFollow;
             if(!mouseFollow)
             {
@@ -259,7 +268,7 @@ void GLWidget::fillRandomly()
     //determine how many shapes to draw
     float totalArea = baseWidth * baseHeight;
     float singleArea = PI * size * size / 10;
-    if(sides == 3)
+    if(sides == 2 || sides == 3)
     {
         singleArea /= 2;
     }
