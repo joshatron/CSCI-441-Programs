@@ -36,12 +36,15 @@ GLWidget::~GLWidget() {
 
 void GLWidget::keyPressEvent(QKeyEvent *event) {
     switch(event->key()) {
+        //circle
         case Qt::Key_1:
             sides = 1;
             break;
+        //series of lines
         case Qt::Key_2:
             sides = 2;
             break;
+        //sides equal to number
         case Qt::Key_3:
             sides = 3;
             break;
@@ -63,32 +66,40 @@ void GLWidget::keyPressEvent(QKeyEvent *event) {
         case Qt::Key_9:
             sides = 9;
             break;
+        //fit width
         case Qt::Key_Z:
             resizeMode = 1;
             resizeGL(width, height);
             break;
+        //fit height
         case Qt::Key_X:
             resizeMode = 2;
             resizeGL(width, height);
             break;
+        //always fit
         case Qt::Key_C:
             resizeMode = 3;
             resizeGL(width, height);
             break;
+        //don't scale
         case Qt::Key_V:
             resizeMode = 0;
             resizeGL(width, height);
             break;
+        //toggle background
         case Qt::Key_U:
             background = !background;
             break;
+        //toggle between using center vs corners for color
         case Qt::Key_I:
             exactColor = !exactColor;
             break;
+        //clear the screen of all polygons
         case Qt::Key_O:
             cout << "Clearing screen" << endl;
             clearScreen();
             break;
+        //toggle polygons changing angle to follow mouse
         case Qt::Key_P:
             mouseFollow = !mouseFollow;
             if(!mouseFollow)
@@ -97,10 +108,12 @@ void GLWidget::keyPressEvent(QKeyEvent *event) {
                 lastY = -1;
             }
             break;
+        //fill screen uniformly
         case Qt::Key_A:
             cout << "Filling uniformly" << endl;
             fillUniformly();
             break;
+        //fill screen randomly
         case Qt::Key_S:
             cout << "Filling randomly" << endl;
             fillRandomly();
@@ -118,6 +131,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event) {
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
 {
+    //reset last location and add shape
     lastX = -1;
     lastY = -1;
     glm::vec2 loc = rawLocToBaseLoc(event->x(), event->y());
@@ -137,6 +151,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
+    //if button not pressed, do nothing
     if(!(event->buttons() & Qt::LeftButton))
     {
         return;
@@ -144,11 +159,13 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 
     glm::vec2 loc = rawLocToBaseLoc(event->x(), event->y());
 
+    //if too close to last polygon, do nothing
     if(((loc.x - lastX) * (loc.x - lastX)) + ((loc.y - lastY) * (loc.y - lastY)) < size * size)
     {
         return;
     }
 
+    //add shape
     addShape(loc.x, loc.y);
     lastX = loc.x;
     lastY = loc.y;
@@ -175,6 +192,7 @@ void GLWidget::wheelEvent(QWheelEvent *event)
 
 void GLWidget::clearScreen()
 {
+    //remove all the shapes and colors
     shapes.clear();
     colors.clear();
     allShapes.clear();
@@ -183,6 +201,7 @@ void GLWidget::clearScreen()
     lastX = -1;
     lastY = -1;
 
+    //update buffers
     glUseProgram(program);
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
     glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);
@@ -193,10 +212,12 @@ void GLWidget::clearScreen()
 
 void GLWidget::fillUniformly()
 {
+    //clear the screen and turn off following
     clearScreen();
     bool tempFollow = mouseFollow;
     mouseFollow = false;
 
+    //figure out how much to offset everything to center polygons
     float offsetX = baseWidth / size;
     offsetX -= (int)offsetX;
     offsetX *= size;
@@ -207,16 +228,18 @@ void GLWidget::fillUniformly()
     offsetY *= size;
     offsetY /= 2;
 
-    for(int k = (int)offsetX; k < baseWidth; k += size)
+    for(int k = (int)offsetX - 1; k < baseWidth; k += size)
     {
-        for(int a = (int)offsetY; a < baseHeight; a += size)
+        for(int a = (int)offsetY - 1; a < baseHeight; a += size)
         {
             addShape(k, a);
         }
     }
 
+    //set mouse follow back to what it was
     mouseFollow = tempFollow;
 
+    //push everything to buffers
     glUseProgram(program);
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * shapes.size(), shapes.data(), GL_DYNAMIC_DRAW);
@@ -228,10 +251,12 @@ void GLWidget::fillUniformly()
 
 void GLWidget::fillRandomly()
 {
+    //clear screen and turn off mouse following
     clearScreen();
     bool tempFollow = mouseFollow;
     mouseFollow = false;
 
+    //determine how many shapes to draw
     float totalArea = baseWidth * baseHeight;
     float singleArea = PI * size * size / 10;
     if(sides == 3)
@@ -240,13 +265,16 @@ void GLWidget::fillRandomly()
     }
 
     int totalShapes = totalArea / singleArea * 2;
+
     for(int k = 0; k < totalShapes; k++)
     {
         addShape(abs(rand() % baseWidth), abs(rand() % baseHeight));
     }
 
+    //turn mouse follow back to what it was
     mouseFollow = tempFollow;
 
+    //update buffers
     glUseProgram(program);
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * shapes.size(), shapes.data(), GL_DYNAMIC_DRAW);
@@ -333,6 +361,7 @@ void GLWidget::addShape(int x, int y)
         return;
     }
 
+    //set variables for the new shape
     newShape.radius = size;
     newShape.sides = sides;
     QColor clr(img->pixel(x, y));
@@ -410,17 +439,21 @@ void GLWidget::addShapePoints(Shape newShape)
     //polygons
     else
     {
+        //if circle
         if(newShape.sides == 1)
         {
             newShape.sides = 20;
         }
+        //find out angle to turn for each corner
         float anglePer = 360. / newShape.sides;
         float angle = 0;
+        //if following, turn toward last polygon
         if(mouseFollow && lastX >= 0)
         {
             angle = atan2(lastX - newShape.x, lastY - newShape.y) * 180 / PI;
             angle = 360 - angle;
         }
+        //if even number of sides, turn to flat on top
         if(newShape.sides % 2 == 0)
         {
             angle += anglePer / 2;
@@ -437,6 +470,7 @@ void GLWidget::addShapePoints(Shape newShape)
         vec2 next;
         for(int k = 0; k <= 361; k += anglePer)
         {
+            //set next point
             next.x = sin(k * PI / 180) * size / 2;
             next.y = -1 * cos(k * PI / 180) * size / 2;
             next = rotate * next;
@@ -444,12 +478,15 @@ void GLWidget::addShapePoints(Shape newShape)
             next.y += newShape.y;
             shapes.push_back(next);
 
+            //if color is center
             if(exactColor)
             {
                 colors.push_back(nextColor);
             }
+            //if color is corners
             else
             {
+                //if outside, go with center color
                 if(next.x < 0 || next.x >= baseWidth || next.y < 0 || next.y >= baseHeight)
                 {
                     nextColor.r = newShape.r;
@@ -457,6 +494,7 @@ void GLWidget::addShapePoints(Shape newShape)
                     nextColor.b = newShape.b;
                     colors.push_back(nextColor);
                 }
+                //get color from corner location
                 else
                 {
                     QColor clr(img->pixel(next.x, next.y));
@@ -591,17 +629,17 @@ void GLWidget::resizeGL(int w, int h) {
 void GLWidget::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // draw primitives based on the current draw mode
-    //glDrawArrays(drawMode, 0, num_shapes);
-
+    //for each shape, draw it
     int start = 0;
     for(int k = 0; k < num_shapes; k++)
     {
+        //if lines, draw using lines
         if(allShapes[k].sides == 2)
         {
             glDrawArrays(GL_LINES, start, 30);
             start += 30;
         }
+        //otherwise use triangle fan to fill shape
         else
         {
             glDrawArrays(GL_TRIANGLE_FAN, start, allShapes[k].sides + 1);
