@@ -14,7 +14,7 @@
 using namespace std;
 
 
-GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
+GLWidget::GLWidget(char* image, QWidget *parent) : QOpenGLWidget(parent) {
     sides = 4;
     resizeMode = 3;
     background = false;
@@ -23,7 +23,7 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
     num_shapes = 0;
     lastX = -1;
     lastY = -1;
-    img = new QImage("image.jpg");
+    img = new QImage(image);
     baseWidth = img->width();
     baseHeight = img->height();
     width = baseWidth;

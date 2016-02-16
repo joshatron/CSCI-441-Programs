@@ -20,7 +20,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     Q_OBJECT
 
     public:
-        GLWidget(QWidget *parent=0);
+        GLWidget(char* image, QWidget *parent=0);
         ~GLWidget();
 
     protected:
