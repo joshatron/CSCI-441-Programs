@@ -2,6 +2,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <math.h>
+#include <algorithm>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -19,15 +20,15 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
     background = false;
     exactColor = true;
     mouseFollow = false;
-    size = 30;
-    width = baseWidth;
-    height = baseHeight;
     num_shapes = 0;
     lastX = -1;
     lastY = -1;
     img = new QImage("image.jpg");
     baseWidth = img->width();
     baseHeight = img->height();
+    width = baseWidth;
+    height = baseHeight;
+    size = baseWidth / 40;
     srand(time(NULL));
 }
 
@@ -87,29 +88,29 @@ void GLWidget::keyPressEvent(QKeyEvent *event) {
             resizeGL(width, height);
             break;
         //toggle background
-        case Qt::Key_Q:
+        case Qt::Key_T:
             background = !background;
             break;
         //toggle between using center vs corners for color
-        case Qt::Key_W:
+        case Qt::Key_E:
             exactColor = !exactColor;
             break;
         //clear the screen of all polygons
-        case Qt::Key_E:
+        case Qt::Key_Q:
             cout << "Clearing screen" << endl;
             clearScreen();
             break;
         //resets everything back to default
-        case Qt::Key_R:
+        case Qt::Key_W:
             sides = 4;
             resizeMode = 3;
             background = false;
             exactColor = true;
             mouseFollow = false;
-            size = 30;
+            size = baseWidth / 40;
             break;
         //toggle polygons changing angle to follow mouse
-        case Qt::Key_T:
+        case Qt::Key_R:
             mouseFollow = !mouseFollow;
             if(!mouseFollow)
             {
@@ -237,9 +238,9 @@ void GLWidget::fillUniformly()
     offsetY *= size;
     offsetY /= 2;
 
-    for(int k = (int)offsetX - 1; k < baseWidth; k += size)
+    for(int k = max((int)offsetX - 1, 0); k < baseWidth; k += size)
     {
-        for(int a = (int)offsetY - 1; a < baseHeight; a += size)
+        for(int a = max((int)offsetY - 1, 0); a < baseHeight; a += size)
         {
             addShape(k, a);
         }
