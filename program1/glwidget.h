@@ -89,8 +89,6 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         //3- fit both
         int resizeMode;
 
-        //toggle background image showing
-        bool background;
         //toggle using polygon center or corners
         bool exactColor;
         //toggle polygons changing angle to follow mouse

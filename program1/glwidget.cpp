@@ -28,7 +28,7 @@ GLWidget::GLWidget(char* image, QWidget *parent) : QOpenGLWidget(parent) {
     baseHeight = img->height();
     width = baseWidth;
     height = baseHeight;
-    size = baseWidth / 40;
+    size = min(baseWidth, baseHeight) / 30;
     srand(time(NULL));
 }
 
@@ -87,10 +87,6 @@ void GLWidget::keyPressEvent(QKeyEvent *event) {
             resizeMode = 0;
             resizeGL(width, height);
             break;
-        //toggle background
-        case Qt::Key_T:
-            background = !background;
-            break;
         //toggle between using center vs corners for color
         case Qt::Key_E:
             exactColor = !exactColor;
@@ -107,7 +103,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event) {
             background = false;
             exactColor = true;
             mouseFollow = false;
-            size = baseWidth / 40;
+            size = min(baseWidth, baseHeight) / 30;
             break;
         //toggle polygons changing angle to follow mouse
         case Qt::Key_R:

@@ -1,10 +1,9 @@
 Controls
 
 Shape Controls:
-    q- square
-    w- circle
-    e- triangle
-    r- lines
+    1- circles
+    2- random lines centered about mouse click
+    3-9- polygon with n sides
 
 Fill Controls:
     a- uniform fill
@@ -14,11 +13,11 @@ Resizing Controls:
     z- fit width
     x- fit height
     c- fit both
-    v- same size
+    v- no scaling
 
 Misc Controls:
-    u- toggle background
-    i- toggle direct color vs random near color
-    o- clear screen
-    p- toggle follow mouse
-    scroll- make larger or smaller
+    q- clear screen
+    w- reset all settings to default
+    e- toggle center color vs color at corners
+    r- toggle follow mouse(shapes change angle)
+    scroll- make shapes larger or smaller
