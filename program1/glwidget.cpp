@@ -17,7 +17,6 @@ using namespace std;
 GLWidget::GLWidget(char* image, QWidget *parent) : QOpenGLWidget(parent) {
     sides = 4;
     resizeMode = 3;
-    background = false;
     exactColor = true;
     mouseFollow = false;
     num_shapes = 0;
@@ -100,7 +99,6 @@ void GLWidget::keyPressEvent(QKeyEvent *event) {
         case Qt::Key_W:
             sides = 4;
             resizeMode = 3;
-            background = false;
             exactColor = true;
             mouseFollow = false;
             size = min(baseWidth, baseHeight) / 30;
@@ -129,7 +127,6 @@ void GLWidget::keyPressEvent(QKeyEvent *event) {
 
     cout << "Sides: " << sides << endl;
     cout << "Resize: " << resizeMode << endl;
-    cout << "Background: " << background << endl;
     cout << "Exact color: " << exactColor << endl;
     cout << "Mouse follow: " << mouseFollow << endl;
     cout << "Size: " << size << endl << endl;
