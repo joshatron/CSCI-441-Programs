@@ -14,7 +14,7 @@
 using namespace std;
 
 
-GLWidget::GLWidget(char* image, QWidget *parent) : QOpenGLWidget(parent) {
+GLWidget::GLWidget(char const * image, QWidget *parent) : QOpenGLWidget(parent) {
     sides = 4;
     resizeMode = 3;
     exactColor = true;
