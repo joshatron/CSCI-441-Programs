@@ -479,6 +479,10 @@ void GLWidget::addShapePoints(Shape newShape)
         vec2 next;
         for(int k = 0; k < 361; k += anglePer)
         {
+            if(k > 350)
+            {
+                k = 360;
+            }
             //set next point
             next.x = sin(k * PI / 180) * size / 2;
             next.y = -1 * cos(k * PI / 180) * size / 2;
