@@ -465,13 +465,18 @@ void GLWidget::addShapePoints(Shape newShape)
 
         glm::mat2 rotate = glm::mat2(cos(angle), sin(angle), -1 * sin(angle), cos(angle));
 
+        vec2 center(newShape.x, newShape.y);
+        shapes.push_back(center);
+
         vec3 nextColor;
         nextColor.r = newShape.r;
         nextColor.g = newShape.g;
         nextColor.b = newShape.b;
+        colors.push_back(nextColor);
+
 
         vec2 next;
-        for(int k = 0; k <= 361; k += anglePer)
+        for(int k = 0; k < 361; k += anglePer)
         {
             //set next point
             next.x = sin(k * PI / 180) * size / 2;
@@ -645,8 +650,8 @@ void GLWidget::paintGL() {
         //otherwise use triangle fan to fill shape
         else
         {
-            glDrawArrays(GL_TRIANGLE_FAN, start, allShapes[k].sides + 1);
-            start += allShapes[k].sides + 1;
+            glDrawArrays(GL_TRIANGLE_FAN, start, allShapes[k].sides + 2);
+            start += allShapes[k].sides + 2;
         }
     }
 }
