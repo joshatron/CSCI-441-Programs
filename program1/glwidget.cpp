@@ -102,6 +102,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event) {
             exactColor = true;
             mouseFollow = false;
             size = min(baseWidth, baseHeight) / 30;
+            resizeGL(width, height);
             break;
         //toggle polygons changing angle to follow mouse
         case Qt::Key_R:
