@@ -18,16 +18,18 @@ for drawing shapes with sides 3 to 9 and the circle, which has 20 sides. The ran
 15 lines with random angles centered around the clicked point.
 
 Shape Controls:
-+ 1- circles
-+ 2- random lines centered about mouse click
-+ 3-9- polygon with n sides
+
+* 1- circles
+* 2- random lines centered about mouse click
+* 3-9- polygon with n sides
 
 The uniform fill simply places a grid of shapes as close as possible without overlapping. The random
 fill places shapes uniformly random over the image.
 
 Fill Controls:
-+ a- uniform fill
-+ s- random fill
+
+* a- uniform fill
+* s- random fill
 
 There are 4 re-sizing modes. The first 3 scale the image based on the dimensions. Fit width will ensure
 that the entire image's x dimension fits in the window. Height ensures that the image's y dimension
@@ -35,10 +37,11 @@ fits. Both ensures the entire image always fits the window. No scaling will keep
 dimensions, no matter what the window size is.
 
 Re-sizing Controls:
-+ z- fit width
-+ x- fit height
-+ c- fit both
-+ v- no scaling
+
+* z- fit width
+* x- fit height
+* c- fit both
+* v- no scaling
 
 Finally, there are a few controls that don't fit in any category. Clear screen deletes all shapes. Reset
 will change the setting to squares, fitting width and height, center color, no mouse follow, and size is
@@ -48,8 +51,9 @@ Follow mouse means that shapes change angle while dragging so they are pointing 
 shape size, use the scroll wheel.
 
 Misc Controls:
-+ q- clear screen
-+ w- reset all settings to default
-+ e- toggle center color vs color at corners
-+ r- toggle follow mouse(shapes change angle)
-+ scroll- make shapes larger or smaller
+
+* q- clear screen
+* w- reset all settings to default
+* e- toggle center color vs color at corners
+* r- toggle follow mouse(shapes change angle)
+* scroll- make shapes larger or smaller
