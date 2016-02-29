@@ -1,9 +1,15 @@
 The image I chose is a panoramic picture I took from the top of Wilson Peak near Big Sky last August.
 I like it because of how the landscape is reintrepretted with the polygons. The best settings I found
-were circles, at the default size, with colors taken at each corner, and filled randomly. The colors
+were lines, at the default size, with colors taken at each corner, and filled randomly. The colors
 taken at corners helps to give a more paintlike look to the image than each circle being a solid color.
 Since the panoramic is not a very good aspect ratio, I also included an image called pan small, which
 is a piece of the panoramic at a better aspect ratio.
+
+Original:
+![original](pan.jpg)
+
+Rendered:
+![rendered](pan_rendered.png)
 
 Controls
 
