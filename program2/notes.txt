@@ -1,0 +1,19 @@
+shape- holds info about shape
+    brick locations and angles relative to shape center
+    center location
+    internally
+        x diameter
+        y diameter
+        height
+        # of sides
+        angle to rotate everything
+
+    to update values, pass it brick width, brick height, brick depth, spacing, scale, number of bricks deep
+
+structure- holds vector of shapes and transforms them to be correctly created in relation to each other
+    vector of mat4 for each brick
+    mat4 for individual brick shape
+    mat4 for light source
+    location, color, and brightness for light source
+
+    to update values, pass it brick width, brick height, brick depth, spacing, scale, number of bricks deep
