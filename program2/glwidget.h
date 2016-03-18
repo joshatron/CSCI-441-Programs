@@ -6,6 +6,8 @@
 #include <QOpenGLFunctions_3_3_Core>
 #include <QMouseEvent>
 #include <glm/glm.hpp>
+#include "structure.h"
+#include "shape.h"
 
 #define GLM_FORCE_RADIANS
 
@@ -31,6 +33,9 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     private:
         void initializeCube();
         void renderCube();
+        void createCubes();
+
+        vector<vec3> cubes;
 
         GLuint cubeProg;
         GLuint cubeVao;

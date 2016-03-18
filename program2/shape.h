@@ -1,6 +1,7 @@
 #ifndef SHAPE_H
 #define SHAPE_H
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 
 #ifndef PI
@@ -10,6 +11,7 @@
 using std::vector;
 using glm::vec2;
 using glm::mat4;
+using glm::translate;
 
 
 class Shape
@@ -19,6 +21,7 @@ class Shape
         vec2 centerLoc;
 
         void updateBrickLocs(double brickWidth, double brickHeight, double brickDepth, double spacing, int wallDepth);
+        Shape(double xd, double zd, double sy, double h, double a, int s, vec2 center);
     
     private:
         double xDiameter;
