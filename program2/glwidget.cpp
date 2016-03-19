@@ -27,6 +27,8 @@ using std::endl;
 
 GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) { 
     light = vec3(10, 10, 10);
+    numCubes = 0;
+    cubeColor = vec3(1,1,1);
 }
 
 GLWidget::~GLWidget() {
@@ -80,161 +82,16 @@ void GLWidget::initializeCube() {
     glBindVertexArray(cubeVao);
 
     // Create a buffer on the GPU for position data
-    GLuint positionBuffer;
     glGenBuffers(1, &positionBuffer);
-
-    GLuint colorBuffer;
-    glGenBuffers(1, &colorBuffer);
-
-    GLuint indexBuffer;
-    glGenBuffers(1, &indexBuffer);
-
-    GLuint normalBuffer;
     glGenBuffers(1, &normalBuffer);
-
-    vec3 normals[] = {
-        // top phase
-        vec3(0,1,0),
-        vec3(0,1,0),
-        vec3(0,1,0),
-        vec3(0,1,0),
-
-        // bottom
-        vec3(0,-1,0),
-        vec3(0,-1,0),
-        vec3(0,-1,0),
-        vec3(0,-1,0),
-
-        // front
-        vec3(0, 0, 1),
-        vec3(0, 0, 1),
-        vec3(0, 0, 1),
-        vec3(0, 0, 1),
-
-        // back
-        vec3(0, 0, -1),
-        vec3(0, 0, -1),
-        vec3(0, 0, -1),
-        vec3(0, 0, -1),
-
-        // right
-        vec3(1, 0, 0),
-        vec3(1, 0, 0),
-        vec3(1, 0, 0),
-        vec3(1, 0, 0),
-
-        // left
-        vec3(-1, 0, 0),
-        vec3(-1, 0, 0),
-        vec3(-1, 0, 0),
-        vec3(-1, 0, 0),
-    };
-
-    vec3 pts[] = {
-        // top
-        vec3(1,1,1),    // 0
-        vec3(1,1,-1),   // 1
-        vec3(-1,1,-1),  // 2
-        vec3(-1,1,1),   // 3
-
-        // bottom
-        vec3(1,-1,1),   // 4
-        vec3(-1,-1,1),  // 5
-        vec3(-1,-1,-1), // 6
-        vec3(1,-1,-1),  // 7
-
-        // front
-        vec3(1,1,1),    // 8
-        vec3(-1,1,1),   // 9
-        vec3(-1,-1,1),  // 10
-        vec3(1,-1,1),   // 11
-
-        // back
-        vec3(-1,-1,-1), // 12
-        vec3(-1,1,-1),  // 13
-        vec3(1,1,-1),   // 14
-        vec3(1,-1,-1),  // 15
-
-        // right
-        vec3(1,-1,1),   // 16
-        vec3(1,-1,-1),  // 17
-        vec3(1,1,-1),   // 18
-        vec3(1,1,1),     // 19
-
-        // left
-        vec3(-1,-1,1),  // 20
-        vec3(-1,1,1),   // 21
-        vec3(-1,1,-1),  // 22
-        vec3(-1,-1,-1) // 23
-
-    };
-
-    for(int i = 0; i < 24; i++) {
-        pts[i] *= .5;
-    }
-
-    vec3 colors[] = {
-        // top
-        vec3(0,1,0),    
-        vec3(0,1,0),    
-        vec3(0,1,0),    
-        vec3(0,1,0),    
-
-        // bottom
-        vec3(0,.5f,0),  
-        vec3(0,.5f,0),  
-        vec3(0,.5f,0),  
-        vec3(0,.5f,0),  
-
-        // front
-        vec3(0,0,1),    
-        vec3(0,0,1),    
-        vec3(0,0,1),    
-        vec3(0,0,1),    
-
-        // back
-        vec3(0,0,.5f),  
-        vec3(0,0,.5f),  
-        vec3(0,0,.5f),  
-        vec3(0,0,.5f),
-
-        // right
-        vec3(1,0,0),    
-        vec3(1,0,0),    
-        vec3(1,0,0),    
-        vec3(1,0,0),    
-
-
-        // left
-        vec3(.5f,0,0),  
-        vec3(.5f,0,0),  
-        vec3(.5f,0,0),  
-        vec3(.5f,0,0)  
-    };
-
-    GLuint restart = 0xFFFFFFFF;
-    GLuint indices[] = {
-        0,1,2,3, restart,
-        4,5,6,7, restart,
-        8,9,10,11, restart,
-        12,13,14,15, restart,
-        16,17,18,19, restart,
-        20,21,22,23
-    };
 
     // Upload the position data to the GPU, storing
     // it in the buffer we just allocated.
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(pts), pts, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
 
     // Load our vertex and fragment shaders into a program object
     // on the GPU
@@ -257,18 +114,15 @@ void GLWidget::initializeCube() {
     glEnableVertexAttribArray(normalIndex);
     glVertexAttribPointer(normalIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-    GLint colorIndex = glGetAttribLocation(program, "color");
-    glEnableVertexAttribArray(colorIndex);
-    glVertexAttribPointer(colorIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
     cubeProjMatrixLoc = glGetUniformLocation(program, "projection");
     cubeViewMatrixLoc = glGetUniformLocation(program, "view");
     cubeModelMatrixLoc = glGetUniformLocation(program, "model");
     cubeLightPosLoc = glGetUniformLocation(program, "lightPos");
+    cubeColorLoc = glGetUniformLocation(program, "color");
 }
 
-void GLWidget::initializeGL() {
+void GLWidget::initializeGL()
+{
     initializeOpenGLFunctions();
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -281,6 +135,96 @@ void GLWidget::initializeGL() {
 
     initializeCube();
     initializeGrid();
+
+    glUseProgram(cubeProg);
+    createCubes(1);
+    glUniform3fv(cubeColorLoc, 1, value_ptr(cubeColor));
+}
+
+void GLWidget::createCubes(int num)
+{
+    if(num > numCubes)
+    {
+        for(int k = 0; k < num - numCubes; k++)
+        {
+            //points
+            cubes.push_back(vec3(.5,.5,.5));
+            cubes.push_back(vec3(.5,.5,-.5));
+            cubes.push_back(vec3(-.5,.5,-.5));
+            cubes.push_back(vec3(-.5,.5,.5));
+            cubes.push_back(vec3(.5,-.5,.5));
+            cubes.push_back(vec3(-.5,-.5,.5));
+            cubes.push_back(vec3(-.5,-.5,-.5));
+            cubes.push_back(vec3(.5,-.5,-.5));
+            cubes.push_back(vec3(.5,.5,.5));
+            cubes.push_back(vec3(-.5,.5,.5));
+            cubes.push_back(vec3(-.5,-.5,.5));
+            cubes.push_back(vec3(.5,-.5,.5));
+            cubes.push_back(vec3(-.5,-.5,-.5));
+            cubes.push_back(vec3(-.5,.5,-.5));
+            cubes.push_back(vec3(.5,.5,-.5));
+            cubes.push_back(vec3(.5,-.5,-.5));
+            cubes.push_back(vec3(.5,-.5,.5));
+            cubes.push_back(vec3(.5,-.5,-.5));
+            cubes.push_back(vec3(.5,.5,-.5));
+            cubes.push_back(vec3(.5,.5,.5));
+            cubes.push_back(vec3(-.5,-.5,.5));
+            cubes.push_back(vec3(-.5,.5,.5));
+            cubes.push_back(vec3(-.5,.5,-.5));
+            cubes.push_back(vec3(-.5,-.5,-.5));
+
+            //normals
+            normals.push_back(vec3(0,1,0));
+            normals.push_back(vec3(0,1,0));
+            normals.push_back(vec3(0,1,0));
+            normals.push_back(vec3(0,1,0));
+            normals.push_back(vec3(0,-1,0));
+            normals.push_back(vec3(0,-1,0));
+            normals.push_back(vec3(0,-1,0));
+            normals.push_back(vec3(0,-1,0));
+            normals.push_back(vec3(0, 0, 1));
+            normals.push_back(vec3(0, 0, 1));
+            normals.push_back(vec3(0, 0, 1));
+            normals.push_back(vec3(0, 0, 1));
+            normals.push_back(vec3(0, 0, -1));
+            normals.push_back(vec3(0, 0, -1));
+            normals.push_back(vec3(0, 0, -1));
+            normals.push_back(vec3(0, 0, -1));
+            normals.push_back(vec3(1, 0, 0));
+            normals.push_back(vec3(1, 0, 0));
+            normals.push_back(vec3(1, 0, 0));
+            normals.push_back(vec3(1, 0, 0));
+            normals.push_back(vec3(-1, 0, 0));
+            normals.push_back(vec3(-1, 0, 0));
+            normals.push_back(vec3(-1, 0, 0));
+            normals.push_back(vec3(-1, 0, 0));
+        }
+
+        glUseProgram(cubeProg);
+        glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(cubes) * cubes.size(), cubes.data(), GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(normals) * normals.size(), normals.data(), GL_DYNAMIC_DRAW);
+    }
+    else if(numCubes > num)
+    {
+        for(int k = 0; k < num - numCubes; k++)
+        {
+            for(int a = 0; a < 24; a++)
+            {
+                cubes.erase(cubes.begin());
+                normals.erase(normals.begin());
+            }
+        }
+
+        glUseProgram(cubeProg);
+        glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(cubes), cubes.data(), GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals.data(), GL_DYNAMIC_DRAW);
+    }
+
+    numCubes = num;
 }
 
 void GLWidget::resizeGL(int w, int h) {
@@ -314,10 +258,19 @@ void GLWidget::paintGL() {
     renderCube();
 }
 
-void GLWidget::renderCube() {
+void GLWidget::renderCube()
+{
     glUseProgram(cubeProg);
     glBindVertexArray(cubeVao);
-    glDrawElements(GL_TRIANGLE_FAN, 29, GL_UNSIGNED_INT, 0);
+    int start = 0;
+    for(int k = 0; k < numCubes; k++)
+    {
+        for(int a = 0; a < 6; a++)
+        {
+            glDrawArrays(GL_TRIANGLE_FAN, start, 4);
+            start += 4;
+        }
+    }
 }
 
 void GLWidget::renderGrid() {
@@ -404,7 +357,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
     if(length(axis) >= .00001) {
         axis = normalize(axis);
         float angle = acos(dot(vPt,lastVPt));
-        mat4 r = rotate(mat4(1.0f), angle, axis);
+        mat4 r = rotate(mat4(1.0f), (float)(angle * 180. / M_PI), axis);
 
         modelMatrix = r*modelMatrix;
 
@@ -435,8 +388,6 @@ vec3 GLWidget::pointOnVirtualTrackball(const vec2 &pt) {
     } else {
         p.z = rr*.5/sqrt(xx+yy);
     }
-
-//    std::cout << p.x << ", " << p.y << ", " << p.z << std::endl;
 
     return p;
 }

@@ -15,9 +15,9 @@ void Shape::updateBrickLocs(double brickWidth, double brickHeight, double brickD
 {
     brickLocs.clear();
 
-    brickLocs.push_back(translate(0, 0, 0));
-    brickLocs.push_back(translate(5, 0, 0));
-    brickLocs.push_back(translate(-5, 0, 0));
-    brickLocs.push_back(translate(0, 5, 0));
-    brickLocs.push_back(translate(0, -5, 0));
+    brickLocs.push_back(translate(mat4(1.f), vec3(0.f, 0.f, 0.f)));
+    brickLocs.push_back(translate(mat4(1.f), vec3(5.f, 0.f, 0.f)));
+    brickLocs.push_back(translate(mat4(1.f), vec3(-5.f, 0.f, 0.f)));
+    brickLocs.push_back(translate(mat4(1.f), vec3(0.f, 5.f, 0.f)));
+    brickLocs.push_back(translate(mat4(1.f), vec3(0.f, -5.f, 0.f)));
 }

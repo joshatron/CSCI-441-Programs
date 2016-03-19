@@ -18,7 +18,7 @@ using glm::scale;
 class Structure
 {
     public:
-        vector<shape> shapes;
+        vector<Shape> shapes;
         vector<mat4> brickLocs;
         mat4 brickShape;
         mat4 lightTransform;

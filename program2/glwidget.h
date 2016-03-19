@@ -33,16 +33,24 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     private:
         void initializeCube();
         void renderCube();
-        void createCubes();
+        void createCubes(int num);
 
         vector<vec3> cubes;
+        vector<vec3> normals;
+        vec3 cubeColor;
+        int numCubes;
 
+        Structure structure;
+
+        GLuint positionBuffer;
+        GLuint normalBuffer;
         GLuint cubeProg;
         GLuint cubeVao;
         GLint cubeProjMatrixLoc;
         GLint cubeViewMatrixLoc;
         GLint cubeModelMatrixLoc;
         GLint cubeLightPosLoc;
+        GLint cubeColorLoc;
 
         void initializeGrid();
         void renderGrid();

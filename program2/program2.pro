@@ -1,5 +1,5 @@
-HEADERS += glwidget.h 
-SOURCES += glwidget.cpp main.cpp
+HEADERS += glwidget.h shape.h structure.h
+SOURCES += glwidget.cpp main.cpp shape.cpp structure.cpp
 
 QT += opengl designer
 CONFIG -= app_bundle
