@@ -26,14 +26,26 @@ using glm::lookAt;
 using std::cout;
 using std::endl;
 
-GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) { 
-    light = vec3(0, 10, 0);
+GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
+{ 
     numCubes = 0;
     cubeColor = vec3(1,1,1);
+
+    structure.lightLoc = vec3(0,10,0);
+    structure.lightColor = vec3(1,1,1);
+    structure.lightBrightness = 1;
     structure.shapes.push_back(Shape(1,1,1,1,1,1,vec2(5,0)));
     structure.shapes.push_back(Shape(1,1,1,1,1,1,vec2(-5,0)));
-    structure.updateBrickLocs(2,1,1,1,1);
+
     dist = 50;
+
+    brickWidth = 2;
+    brickHeight = 1;
+    brickDepth = 1;
+    spacing = .1;
+    wallDepth = 1;
+
+    structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, wallDepth);
 }
 
 GLWidget::~GLWidget() {
@@ -122,8 +134,13 @@ void GLWidget::initializeCube() {
     cubeProjMatrixLoc = glGetUniformLocation(program, "projection");
     cubeViewMatrixLoc = glGetUniformLocation(program, "view");
     cubeModelMatrixLoc = glGetUniformLocation(program, "model");
-    cubeLightPosLoc = glGetUniformLocation(program, "lightPos");
     cubeColorLoc = glGetUniformLocation(program, "color");
+    cubeLightPosLoc = glGetUniformLocation(program, "lightPos");
+    cubeLightColorLoc = glGetUniformLocation(program, "lightColor");
+    cubeLightBrightnessLoc = glGetUniformLocation(program, "lightBrightness");
+
+    glUniform3fv(cubeLightColorLoc, 1, value_ptr(structure.lightColor));
+    glUniform1f(cubeLightBrightnessLoc, structure.lightBrightness);
 }
 
 void GLWidget::initializeGL()
@@ -245,7 +262,7 @@ void GLWidget::resizeGL(int w, int h) {
     glUniformMatrix4fv(cubeProjMatrixLoc, 1, false, value_ptr(projMatrix));
     glUniformMatrix4fv(cubeViewMatrixLoc, 1, false, value_ptr(viewMatrix));
     glUniformMatrix4fv(cubeModelMatrixLoc, 1, false, value_ptr(modelMatrix));
-    vec3 tempLight = vec3(viewMatrix * modelMatrix * vec4(light, 1));
+    vec3 tempLight = vec3(viewMatrix * modelMatrix * vec4(structure.lightLoc, 1));
     glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
 
 
@@ -269,7 +286,6 @@ void GLWidget::renderCube()
     int start = 0;
     for(int k = 0; k < numCubes; k++)
     {
-        mat4 spot = translate(mat4(1.0), vec3(k * 3, 0, 0));
         mat4 loc = modelMatrix * structure.brickLocs.at(k) * structure.brickShape;
         glUniformMatrix4fv(cubeModelMatrixLoc, 1, false, value_ptr(loc));
         for(int a = 0; a < 6; a++)
@@ -369,7 +385,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
 
         glUseProgram(cubeProg);
         glUniformMatrix4fv(cubeModelMatrixLoc, 1, false, value_ptr(modelMatrix));
-        vec3 tempLight = vec3(viewMatrix * modelMatrix * vec4(light, 1));
+        vec3 tempLight = vec3(viewMatrix * modelMatrix * vec4(structure.lightLoc, 1));
         glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
 
         glUseProgram(gridProg);
@@ -410,7 +426,7 @@ void GLWidget::wheelEvent(QWheelEvent *event)
     glUseProgram(cubeProg);
     viewMatrix = lookAt(vec3(0,0,-1 * dist),vec3(0,0,0),vec3(0,1,0));
     glUniformMatrix4fv(cubeViewMatrixLoc, 1, false, value_ptr(viewMatrix));
-    vec3 tempLight = vec3(viewMatrix * modelMatrix * vec4(light, 1));
+    vec3 tempLight = vec3(viewMatrix * modelMatrix * vec4(structure.lightLoc, 1));
     glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
     glUseProgram(gridProg);
     glUniformMatrix4fv(gridViewMatrixLoc, 1, false, value_ptr(viewMatrix));

@@ -24,7 +24,7 @@ class Structure
         mat4 lightTransform;
         vec3 lightLoc;
         vec3 lightColor;
-        double brightness;
+        double lightBrightness;
 
         void updateBrickLocs(double brickWidth, double brickHeight, double brickDepth, double spacing, int wallDepth);
 };

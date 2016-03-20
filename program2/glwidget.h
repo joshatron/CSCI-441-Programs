@@ -37,6 +37,11 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         void createCubes(int num);
 
         double dist;
+        double brickWidth;
+        double brickHeight;
+        double brickDepth;
+        double spacing;
+        int wallDepth;
 
         vector<vec3> cubes;
         vector<vec3> normals;
@@ -52,8 +57,10 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         GLint cubeProjMatrixLoc;
         GLint cubeViewMatrixLoc;
         GLint cubeModelMatrixLoc;
-        GLint cubeLightPosLoc;
         GLint cubeColorLoc;
+        GLint cubeLightPosLoc;
+        GLint cubeLightColorLoc;
+        GLint cubeLightBrightnessLoc;
 
         void initializeGrid();
         void renderGrid();
