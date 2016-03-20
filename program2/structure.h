@@ -26,7 +26,7 @@ class Structure
         vec3 lightColor;
         double lightBrightness;
 
-        void updateBrickLocs(double brickWidth, double brickHeight, double brickDepth, double spacing, int wallDepth);
+        void updateBrickLocs(double brickWidth, double brickHeight, double brickDepth, double spacing, double scale, int wallDepth);
 };
 
 #endif

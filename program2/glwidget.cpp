@@ -34,18 +34,18 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
     structure.lightLoc = vec3(0,10,0);
     structure.lightColor = vec3(1,1,1);
     structure.lightBrightness = 1;
-    structure.shapes.push_back(Shape(1,1,1,1,1,1,vec2(5,0)));
-    structure.shapes.push_back(Shape(1,1,1,1,1,1,vec2(-5,0)));
+    structure.shapes.push_back(Shape(.5,1,0,1,0,1,vec2(0, 2)));
+    structure.shapes.push_back(Shape(1,1,0,.5,0,1,vec2(0, -2)));
 
     dist = 50;
 
-    brickWidth = 2;
-    brickHeight = 1;
-    brickDepth = 1;
-    spacing = .1;
+    brickWidth = 1;
+    brickHeight = .5;
+    brickDepth = .5;
+    spacing = .01;
     wallDepth = 1;
 
-    structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, wallDepth);
+    structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, 10, wallDepth);
 }
 
 GLWidget::~GLWidget() {
