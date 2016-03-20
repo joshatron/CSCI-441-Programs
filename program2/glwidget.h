@@ -29,11 +29,14 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
         void mousePressEvent(QMouseEvent *event);
         void mouseMoveEvent(QMouseEvent *event);
+        void wheelEvent(QWheelEvent *event);
 
     private:
         void initializeCube();
         void renderCube();
         void createCubes(int num);
+
+        double dist;
 
         vector<vec3> cubes;
         vector<vec3> normals;

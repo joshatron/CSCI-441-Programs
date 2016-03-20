@@ -20,15 +20,20 @@ using glm::length;
 using glm::cross;
 using glm::dot;
 using glm::rotate;
+using glm::translate;
 using glm::value_ptr;
 using glm::lookAt;
 using std::cout;
 using std::endl;
 
 GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) { 
-    light = vec3(10, 10, 10);
+    light = vec3(0, 10, 0);
     numCubes = 0;
     cubeColor = vec3(1,1,1);
+    structure.shapes.push_back(Shape(1,1,1,1,1,1,vec2(5,0)));
+    structure.shapes.push_back(Shape(1,1,1,1,1,1,vec2(-5,0)));
+    structure.updateBrickLocs(1,1,1,1,1);
+    dist = 50;
 }
 
 GLWidget::~GLWidget() {
@@ -137,8 +142,8 @@ void GLWidget::initializeGL()
     initializeGrid();
 
     glUseProgram(cubeProg);
-    createCubes(1);
     glUniform3fv(cubeColorLoc, 1, value_ptr(cubeColor));
+    createCubes(structure.brickLocs.size());
 }
 
 void GLWidget::createCubes(int num)
@@ -234,8 +239,7 @@ void GLWidget::resizeGL(int w, int h) {
     float aspect = (float)w/h;
 
     projMatrix = perspective(45.0f, aspect, 1.0f, 100.0f);
-    viewMatrix = lookAt(vec3(0,0,-10),vec3(0,0,0),vec3(0,1,0));
-    modelMatrix = mat4(1.0f);
+    viewMatrix = lookAt(vec3(0,0,-1 * dist),vec3(0,0,0),vec3(0,1,0));
 
     glUseProgram(cubeProg);
     glUniformMatrix4fv(cubeProjMatrixLoc, 1, false, value_ptr(projMatrix));
@@ -265,6 +269,9 @@ void GLWidget::renderCube()
     int start = 0;
     for(int k = 0; k < numCubes; k++)
     {
+        mat4 spot = translate(mat4(1.0), vec3(k * 3, 0, 0));
+        mat4 loc = modelMatrix * structure.brickLocs.at(k);
+        glUniformMatrix4fv(cubeModelMatrixLoc, 1, false, value_ptr(loc));
         for(int a = 0; a < 6; a++)
         {
             glDrawArrays(GL_TRIANGLE_FAN, start, 4);
@@ -353,7 +360,6 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
     vec3 vPt = normalize(pointOnVirtualTrackball(pt));
 
     vec3 axis = cross(lastVPt, vPt);
-//    vec3 axis = cross(vPt, lastVPt);
     if(length(axis) >= .00001) {
         axis = normalize(axis);
         float angle = acos(dot(vPt,lastVPt));
@@ -390,4 +396,24 @@ vec3 GLWidget::pointOnVirtualTrackball(const vec2 &pt) {
     }
 
     return p;
+}
+
+void GLWidget::wheelEvent(QWheelEvent *event)
+{
+    float numSteps = event->delta() / 8.f / 15.f;
+    dist -= numSteps;
+    if(dist < 1)
+    {
+        dist = 1;
+    }
+
+    glUseProgram(cubeProg);
+    viewMatrix = lookAt(vec3(0,0,-1 * dist),vec3(0,0,0),vec3(0,1,0));
+    glUniformMatrix4fv(cubeViewMatrixLoc, 1, false, value_ptr(viewMatrix));
+    vec3 tempLight = vec3(viewMatrix * modelMatrix * vec4(light, 1));
+    glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
+    glUseProgram(gridProg);
+    glUniformMatrix4fv(gridViewMatrixLoc, 1, false, value_ptr(viewMatrix));
+
+    update();
 }

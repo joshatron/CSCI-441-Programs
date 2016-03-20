@@ -18,6 +18,6 @@ void Shape::updateBrickLocs(double brickWidth, double brickHeight, double brickD
     brickLocs.push_back(translate(mat4(1.f), vec3(0.f, 0.f, 0.f)));
     brickLocs.push_back(translate(mat4(1.f), vec3(5.f, 0.f, 0.f)));
     brickLocs.push_back(translate(mat4(1.f), vec3(-5.f, 0.f, 0.f)));
-    brickLocs.push_back(translate(mat4(1.f), vec3(0.f, 5.f, 0.f)));
-    brickLocs.push_back(translate(mat4(1.f), vec3(0.f, -5.f, 0.f)));
+    brickLocs.push_back(translate(mat4(1.f), vec3(0.f, 0.f, 5.f)));
+    brickLocs.push_back(translate(mat4(1.f), vec3(0.f, 0.f, -5.f)));
 }
