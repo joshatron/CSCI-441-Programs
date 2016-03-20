@@ -30,6 +30,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         void mousePressEvent(QMouseEvent *event);
         void mouseMoveEvent(QMouseEvent *event);
         void wheelEvent(QWheelEvent *event);
+        void keyPressEvent(QKeyEvent *event);
 
     private:
         void initializeCube();
@@ -41,7 +42,22 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         double brickHeight;
         double brickDepth;
         double spacing;
+        double scaleX;
+        double scaleY;
+        double scaleZ;
         int wallDepth;
+
+        //0- zoom
+        //1- brickWidth
+        //2- brickHeight
+        //3- brickDepth
+        //4- uniform brick scale
+        //5- scale x
+        //6- scale y
+        //7- scale z
+        //8- uniform scale
+        //9- scale x and z
+        int scaler;
 
         vector<vec3> cubes;
         vector<vec3> normals;

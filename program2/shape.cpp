@@ -11,16 +11,16 @@ Shape::Shape(double xd, double zd, double sy, double h, double a, int s, vec2 ce
     centerLoc = center;
 }
 
-void Shape::updateBrickLocs(double brickWidth, double brickHeight, double brickDepth, double spacing, double scale, int wallDepth)
+void Shape::updateBrickLocs(double brickWidth, double brickHeight, double brickDepth, double spacing, double scaleX, double scaleY, double scaleZ, int wallDepth)
 {
     brickLocs.clear();
 
     bool even = false;
-    float yLoc = scale * startY;
-    for(int k = 0; k < (int)(scale * height); k++)
+    float yLoc = scaleY * startY;
+    for(int k = 0; k < (int)(scaleY * height); k++)
     {
-        float loc = scale * xDiameter * -.5 * brickWidth + ((brickWidth + spacing) * .5);
-        int num = (int)(scale * xDiameter);
+        float loc = ((int)(scaleX * xDiameter) * (brickWidth + spacing)) * -.5;
+        int num = (int)(scaleX * xDiameter);
         if(even)
         {
             loc += (brickWidth + spacing) * .5;

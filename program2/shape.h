@@ -21,7 +21,7 @@ class Shape
         vector<mat4> brickLocs;
         vec2 centerLoc;
 
-        void updateBrickLocs(double brickWidth, double brickHeight, double brickDepth, double spacing, double scale, int wallDepth);
+        void updateBrickLocs(double brickWidth, double brickHeight, double brickDepth, double spacing, double scaleX, double scaleY, double scaleZ, int wallDepth);
         Shape(double xd, double zd, double sy, double h, double a, int s, vec2 center);
     
     private:

@@ -30,6 +30,7 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
 { 
     numCubes = 0;
     cubeColor = vec3(1,1,1);
+    scaler = 0;
 
     structure.lightLoc = vec3(0,10,0);
     structure.lightColor = vec3(1,1,1);
@@ -43,9 +44,12 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
     brickHeight = .5;
     brickDepth = .5;
     spacing = .01;
+    scaleX = 20;
+    scaleY = 10;
+    scaleZ = 10;
     wallDepth = 1;
 
-    structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, 10, wallDepth);
+    structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
 }
 
 GLWidget::~GLWidget() {
@@ -230,7 +234,7 @@ void GLWidget::createCubes(int num)
     }
     else if(numCubes > num)
     {
-        for(int k = 0; k < num - numCubes; k++)
+        for(int k = 0; k < numCubes - num; k++)
         {
             for(int a = 0; a < 24; a++)
             {
@@ -241,9 +245,9 @@ void GLWidget::createCubes(int num)
 
         glUseProgram(cubeProg);
         glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(cubes), cubes.data(), GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(cubes) * cubes.size(), cubes.data(), GL_DYNAMIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals.data(), GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(normals) * normals.size(), normals.data(), GL_DYNAMIC_DRAW);
     }
 
     numCubes = num;
@@ -414,22 +418,134 @@ vec3 GLWidget::pointOnVirtualTrackball(const vec2 &pt) {
     return p;
 }
 
+//0- zoom
+//1- brickWidth
+//2- brickHeight
+//3- brickDepth
+//4- uniform brick scale
+//5- scale x
+//6- scale y
+//7- scale z
+//8- uniform scale
+//9- scale x and z
 void GLWidget::wheelEvent(QWheelEvent *event)
 {
     float numSteps = event->delta() / 8.f / 15.f;
-    dist -= numSteps;
-    if(dist < 1)
+    if(scaler == 0)
     {
-        dist = 1;
-    }
+        dist -= numSteps;
+        if(dist < 1)
+        {
+            dist = 1;
+        }
 
-    glUseProgram(cubeProg);
-    viewMatrix = lookAt(vec3(0,0,-1 * dist),vec3(0,0,0),vec3(0,1,0));
-    glUniformMatrix4fv(cubeViewMatrixLoc, 1, false, value_ptr(viewMatrix));
-    vec3 tempLight = vec3(viewMatrix * modelMatrix * vec4(structure.lightLoc, 1));
-    glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
-    glUseProgram(gridProg);
-    glUniformMatrix4fv(gridViewMatrixLoc, 1, false, value_ptr(viewMatrix));
+        glUseProgram(cubeProg);
+        viewMatrix = lookAt(vec3(0,0,-1 * dist),vec3(0,0,0),vec3(0,1,0));
+        glUniformMatrix4fv(cubeViewMatrixLoc, 1, false, value_ptr(viewMatrix));
+        vec3 tempLight = vec3(viewMatrix * modelMatrix * vec4(structure.lightLoc, 1));
+        glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
+        glUseProgram(gridProg);
+        glUniformMatrix4fv(gridViewMatrixLoc, 1, false, value_ptr(viewMatrix));
+    }
+    else
+    {
+        switch(scaler)
+        {
+            case 1:
+                brickWidth += numSteps * .1;
+                if(brickWidth < .1)
+                {
+                    brickWidth = .1;
+                }
+                break;
+            case 2:
+                brickHeight += numSteps * .1;
+                if(brickHeight < .1)
+                {
+                    brickHeight = .1;
+                }
+                break;
+            case 3:
+                brickDepth += numSteps * .1;
+                if(brickDepth < .1)
+                {
+                    brickDepth = .1;
+                }
+                break;
+            case 5:
+                scaleX += numSteps;
+                if(scaleX < 1)
+                {
+                    scaleX = 1;
+                }
+                break;
+            case 6:
+                scaleY += numSteps;
+                if(scaleY < 1)
+                {
+                    scaleY = 1;
+                }
+                break;
+            case 7:
+                scaleZ += numSteps;
+                if(scaleZ < 1)
+                {
+                    scaleZ = 1;
+                }
+                break;
+        }
+
+        structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
+        createCubes(structure.brickLocs.size());
+    }
 
     update();
 }
+
+void GLWidget::keyPressEvent(QKeyEvent *event)
+{
+    switch(event->key())
+    {
+        //zoom
+        case Qt::Key_Z:
+            scaler = 0;
+            break;
+        //brickWidth
+        case Qt::Key_T:
+            scaler = 1;
+            break;
+        //brickHeight
+        case Qt::Key_Y:
+            scaler = 2;
+            break;
+        //brickDepth
+        case Qt::Key_U:
+            scaler = 3;
+            break;
+        //uniform brick scale
+        case Qt::Key_B:
+            scaler = 4;
+            break;
+        //scale x
+        case Qt::Key_G:
+            scaler = 5;
+            break;
+        //scale y
+        case Qt::Key_H:
+            scaler = 6;
+            break;
+        //scale z
+        case Qt::Key_J:
+            scaler = 7;
+            break;
+        //uniform scale
+        case Qt::Key_N:
+            scaler = 8;
+            break;
+        //scale x and z
+        case Qt::Key_M:
+            scaler = 9;
+            break;
+    }
+}
+
