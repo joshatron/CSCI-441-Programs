@@ -17,7 +17,7 @@ void main() {
     float specular = 0;
     if(dot(normal, l) >= 0)
     {
-        specular = .4 * pow(max(0, dot(v, r)), 200);
+        specular = .1 * pow(max(0, dot(v, r)), 100);
     }
     float ambient = .1;
     color_out = vec4(fcolor * diffuse + fcolor * ambient + vec3(specular), 1);

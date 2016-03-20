@@ -32,7 +32,7 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
     cubeColor = vec3(1,1,1);
     structure.shapes.push_back(Shape(1,1,1,1,1,1,vec2(5,0)));
     structure.shapes.push_back(Shape(1,1,1,1,1,1,vec2(-5,0)));
-    structure.updateBrickLocs(1,1,1,1,1);
+    structure.updateBrickLocs(2,1,1,1,1);
     dist = 50;
 }
 
@@ -270,7 +270,7 @@ void GLWidget::renderCube()
     for(int k = 0; k < numCubes; k++)
     {
         mat4 spot = translate(mat4(1.0), vec3(k * 3, 0, 0));
-        mat4 loc = modelMatrix * structure.brickLocs.at(k);
+        mat4 loc = modelMatrix * structure.brickLocs.at(k) * structure.brickShape;
         glUniformMatrix4fv(cubeModelMatrixLoc, 1, false, value_ptr(loc));
         for(int a = 0; a < 6; a++)
         {
