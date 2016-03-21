@@ -552,7 +552,7 @@ void GLWidget::wheelEvent(QWheelEvent *event)
                 break;
             //spacing
             case 10:
-                spacing += numSteps * .05;
+                spacing += numSteps * .01;
                 if(spacing < 0)
                 {
                     spacing = 0;
