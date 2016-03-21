@@ -428,9 +428,11 @@ vec3 GLWidget::pointOnVirtualTrackball(const vec2 &pt) {
 //7- scale z
 //8- uniform scale
 //9- scale x and z
+//10- spacing
 void GLWidget::wheelEvent(QWheelEvent *event)
 {
     float numSteps = event->delta() / 8.f / 15.f;
+    //zoom
     if(scaler == 0)
     {
         dist -= numSteps;
@@ -451,6 +453,7 @@ void GLWidget::wheelEvent(QWheelEvent *event)
     {
         switch(scaler)
         {
+            //brick width
             case 1:
                 brickWidth += numSteps * .1;
                 if(brickWidth < .1)
@@ -458,6 +461,7 @@ void GLWidget::wheelEvent(QWheelEvent *event)
                     brickWidth = .1;
                 }
                 break;
+            //brick height
             case 2:
                 brickHeight += numSteps * .1;
                 if(brickHeight < .1)
@@ -465,6 +469,7 @@ void GLWidget::wheelEvent(QWheelEvent *event)
                     brickHeight = .1;
                 }
                 break;
+            //brick depth
             case 3:
                 brickDepth += numSteps * .1;
                 if(brickDepth < .1)
@@ -472,6 +477,25 @@ void GLWidget::wheelEvent(QWheelEvent *event)
                     brickDepth = .1;
                 }
                 break;
+            //uniform brick scale
+            case 4:
+                brickHeight += numSteps * .1 * (brickHeight / brickWidth);
+                brickDepth += numSteps * .1 * (brickDepth / brickWidth);
+                brickWidth += numSteps * .1;
+                if(brickWidth < .1)
+                {
+                    brickWidth = .1;
+                }
+                if(brickHeight < .1)
+                {
+                    brickHeight = .1;
+                }
+                if(brickDepth < .1)
+                {
+                    brickDepth = .1;
+                }
+                break;
+            //scale x
             case 5:
                 scaleX += numSteps;
                 if(scaleX < 1)
@@ -479,6 +503,7 @@ void GLWidget::wheelEvent(QWheelEvent *event)
                     scaleX = 1;
                 }
                 break;
+            //scale y
             case 6:
                 scaleY += numSteps;
                 if(scaleY < 1)
@@ -486,11 +511,51 @@ void GLWidget::wheelEvent(QWheelEvent *event)
                     scaleY = 1;
                 }
                 break;
+            //scale z
             case 7:
                 scaleZ += numSteps;
                 if(scaleZ < 1)
                 {
                     scaleZ = 1;
+                }
+                break;
+            //uniform scale
+            case 8:
+                scaleY += numSteps * (scaleY / scaleX);
+                scaleZ += numSteps * (scaleZ / scaleX);
+                scaleX += numSteps;
+                if(scaleX < 1)
+                {
+                    scaleX = 1;
+                }
+                if(scaleY < 1)
+                {
+                    scaleY = 1;
+                }
+                if(scaleZ < 1)
+                {
+                    scaleZ = 1;
+                }
+                break;
+            //scale x and z
+            case 9:
+                scaleZ += numSteps * (scaleZ / scaleX);
+                scaleX += numSteps;
+                if(scaleX < 1)
+                {
+                    scaleX = 1;
+                }
+                if(scaleZ < 1)
+                {
+                    scaleZ = 1;
+                }
+                break;
+            //spacing
+            case 10:
+                spacing += numSteps * .05;
+                if(spacing < 0)
+                {
+                    spacing = 0;
                 }
                 break;
         }
@@ -545,6 +610,10 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         //scale x and z
         case Qt::Key_M:
             scaler = 9;
+            break;
+        //spacing
+        case Qt::Key_X:
+            scaler = 10;
             break;
     }
 }
