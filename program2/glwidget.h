@@ -110,7 +110,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         glm::vec3 lastVPt;
         glm::vec3 pointOnVirtualTrackball(const glm::vec2 &pt);
 
-        vec3 light;
+        vec3 tempLight;
 };
 
 #endif

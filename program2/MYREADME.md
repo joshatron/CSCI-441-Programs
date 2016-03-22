@@ -6,6 +6,12 @@ Camera Controls
 
 Light Controls
 
+* w- move light in positive z
+* s- move light in negative z
+* d- move light in positive x
+* a- move light in negative x
+* e- move light in positive y
+* c- move light in negative y
 
 Brick Controls
 
@@ -22,8 +28,6 @@ Brick Controls
 
 TODO:
     light
-        displaying light cube
-        moving light around
         changing light brightness
         changing light color
 
