@@ -27,9 +27,6 @@ TODO:
         changing light brightness
         changing light color
 
-    camera
-        move camera center
-
     bricks
         shapes and lines working
         list of structures to scroll through

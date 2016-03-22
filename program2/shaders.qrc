@@ -4,5 +4,7 @@
         <file>vert.glsl</file>
         <file>grid_frag.glsl</file>
         <file>grid_vert.glsl</file>
+        <file>light_frag.glsl</file>
+        <file>light_vert.glsl</file>
     </qresource>
 </RCC>

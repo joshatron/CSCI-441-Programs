@@ -101,8 +101,6 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
     normals[22] = vec3(-1, 0, 0);
     normals[23] = vec3(-1, 0, 0);
 
-    bufferSize = 10000;
-
     structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
 }
 
@@ -150,6 +148,40 @@ void GLWidget::initializeGrid() {
     gridModelMatrixLoc = glGetUniformLocation(program, "model");
 }
 
+void GLWidget::initializeLight()
+{
+    glGenVertexArrays(1, &lightVao);
+    glBindVertexArray(lightVao);
+
+    // Create a buffer on the GPU for position data
+    GLuint positionBuffer;
+    glGenBuffers(1, &positionBuffer);
+
+    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
+
+    GLuint program = loadShaders(":/light_vert.glsl", ":/light_frag.glsl");
+    glUseProgram(program);
+    lightProg = program;
+
+    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+    GLint positionIndex = glGetAttribLocation(program, "position");
+    glEnableVertexAttribArray(positionIndex);
+    glVertexAttribPointer(positionIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+    lightProjMatrixLoc = glGetUniformLocation(program, "projection");
+    lightViewMatrixLoc = glGetUniformLocation(program, "view");
+    lightModelMatrixLoc = glGetUniformLocation(program, "model");
+    lightLightMatrixLoc = glGetUniformLocation(program, "light");
+    lightColorLoc = glGetUniformLocation(program, "color");
+    lightBrightnessLoc = glGetUniformLocation(program, "brightness");
+
+    glUniform3fv(lightColorLoc, 1, value_ptr(structure.lightColor));
+    glUniform1f(lightBrightnessLoc, structure.lightBrightness);
+    lightMatrix = translate(mat4(1.f), structure.lightLoc) * scale(mat4(1.f), vec3(.5, .5, .5));
+    glUniformMatrix4fv(lightLightMatrixLoc, 1, false, value_ptr(lightMatrix));
+}
+
 void GLWidget::initializeCube() {
     // Create a new Vertex Array Object on the GPU which
     // saves the attribute layout of our vertices.
@@ -157,16 +189,18 @@ void GLWidget::initializeCube() {
     glBindVertexArray(cubeVao);
 
     // Create a buffer on the GPU for position data
+    GLuint positionBuffer;
     glGenBuffers(1, &positionBuffer);
+    GLuint normalBuffer;
     glGenBuffers(1, &normalBuffer);
 
     // Upload the position data to the GPU, storing
     // it in the buffer we just allocated.
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals, GL_STATIC_DRAW);
 
     // Load our vertex and fragment shaders into a program object
     // on the GPU
@@ -182,14 +216,12 @@ void GLWidget::initializeCube() {
     GLint positionIndex = glGetAttribLocation(program, "position");
     glEnableVertexAttribArray(positionIndex);
     glVertexAttribPointer(positionIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * 24 * bufferSize, NULL, GL_DYNAMIC_DRAW);
 
     // assign normal data
     glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
     GLint normalIndex = glGetAttribLocation(program, "normal");
     glEnableVertexAttribArray(normalIndex);
     glVertexAttribPointer(normalIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * 24 * bufferSize, NULL, GL_DYNAMIC_DRAW);
 
     cubeProjMatrixLoc = glGetUniformLocation(program, "projection");
     cubeViewMatrixLoc = glGetUniformLocation(program, "view");
@@ -217,60 +249,10 @@ void GLWidget::initializeGL()
 
     initializeCube();
     initializeGrid();
+    initializeLight();
 
     glUseProgram(cubeProg);
     glUniform3fv(cubeColorLoc, 1, value_ptr(cubeColor));
-    updateBuffer(structure.brickLocs.size());
-}
-
-void GLWidget::updateBuffer(int num)
-{
-    glUseProgram(cubeProg);
-
-    if(num > numCubes)
-    {
-        if(num >= bufferSize)
-        {
-            bufferSize *= 2;
-
-            glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * 24 * bufferSize, NULL, GL_DYNAMIC_DRAW);
-            glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * 24 * bufferSize, NULL, GL_DYNAMIC_DRAW);
-            numCubes = 0;
-        }
-
-
-        while(numCubes < num)
-        {
-            for(int k = 0; k < 24; k++)
-            {
-                glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-                glBufferSubData(GL_ARRAY_BUFFER, (sizeof(vec3) * 24 * numCubes) + (sizeof(vec3) * k), sizeof(vec3), &cube[k]);
-                glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-                glBufferSubData(GL_ARRAY_BUFFER, (sizeof(vec3) * 24 * numCubes) + (sizeof(vec3) * k), sizeof(vec3), &normals[k]);
-            }
-
-            numCubes++;
-        }
-    }
-    else if(numCubes > num)
-    {
-        while(numCubes > num)
-        {
-            numCubes--;
-
-            for(int k = 0; k < 24; k++)
-            {
-                glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-                glBufferSubData(GL_ARRAY_BUFFER, (sizeof(vec3) * 24 * numCubes) + (sizeof(vec3) * k), sizeof(vec3), NULL);
-                glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-                glBufferSubData(GL_ARRAY_BUFFER, (sizeof(vec3) * 24 * numCubes) + (sizeof(vec3) * k), sizeof(vec3), NULL);
-            }
-        }
-    }
-
-    numCubes = num;
 }
 
 void GLWidget::resizeGL(int w, int h) {
@@ -289,6 +271,10 @@ void GLWidget::resizeGL(int w, int h) {
     vec3 tempLight = vec3(viewMatrix * modelMatrix * vec4(structure.lightLoc, 1));
     glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
 
+    glUseProgram(lightProg);
+    glUniformMatrix4fv(lightProjMatrixLoc, 1, false, value_ptr(projMatrix));
+    glUniformMatrix4fv(lightViewMatrixLoc, 1, false, value_ptr(viewMatrix));
+    glUniformMatrix4fv(lightModelMatrixLoc, 1, false, value_ptr(modelMatrix));
 
     glUseProgram(gridProg);
     glUniformMatrix4fv(gridProjMatrixLoc, 1, false, value_ptr(projMatrix));
@@ -301,22 +287,31 @@ void GLWidget::paintGL() {
 
     renderGrid();
     renderCube();
+    renderLight();
 }
 
 void GLWidget::renderCube()
 {
     glUseProgram(cubeProg);
     glBindVertexArray(cubeVao);
-    int start = 0;
-    for(int k = 0; k < numCubes; k++)
+    for(unsigned int k = 0; k < structure.brickLocs.size(); k++)
     {
         mat4 loc = modelMatrix * structure.brickLocs.at(k) * structure.brickShape;
         glUniformMatrix4fv(cubeModelMatrixLoc, 1, false, value_ptr(loc));
         for(int a = 0; a < 6; a++)
         {
-            glDrawArrays(GL_TRIANGLE_FAN, start, 4);
-            start += 4;
+            glDrawArrays(GL_TRIANGLE_FAN, a * 4, 4);
         }
+    }
+}
+
+void GLWidget::renderLight()
+{
+    glUseProgram(lightProg);
+    glBindVertexArray(lightVao);
+    for(int k = 0; k < 6; k++)
+    {
+        glDrawArrays(GL_TRIANGLE_FAN, k * 4, 4);
     }
 }
 
@@ -411,6 +406,9 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
         glUniformMatrix4fv(cubeModelMatrixLoc, 1, false, value_ptr(modelMatrix));
         vec3 tempLight = vec3(viewMatrix * modelMatrix * vec4(structure.lightLoc, 1));
         glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
+
+        glUseProgram(lightProg);
+        glUniformMatrix4fv(lightModelMatrixLoc, 1, false, value_ptr(modelMatrix));
 
         glUseProgram(gridProg);
         glUniformMatrix4fv(gridModelMatrixLoc, 1, false, value_ptr(modelMatrix));
@@ -581,7 +579,6 @@ void GLWidget::wheelEvent(QWheelEvent *event)
         }
 
         structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
-        updateBuffer(structure.brickLocs.size());
     }
 
     update();

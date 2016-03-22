@@ -33,7 +33,9 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         void keyPressEvent(QKeyEvent *event);
 
     private:
+        void initializeLight();
         void initializeCube();
+        void renderLight();
         void renderCube();
         void updateBuffer(int num);
 
@@ -63,7 +65,6 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         vec3 normals[24];
         vec3 cubeColor;
         int numCubes;
-        int bufferSize;
 
         Structure structure;
 
@@ -87,6 +88,17 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         GLint gridProjMatrixLoc;
         GLint gridViewMatrixLoc;
         GLint gridModelMatrixLoc;
+
+        GLuint lightProg;
+        GLuint lightVao;
+        GLint lightProjMatrixLoc;
+        GLint lightViewMatrixLoc;
+        GLint lightModelMatrixLoc;
+        GLint lightLightMatrixLoc;
+        GLint lightColorLoc;
+        GLint lightBrightnessLoc;
+
+        mat4 lightMatrix;
 
         mat4 projMatrix;
         mat4 viewMatrix;
