@@ -13,6 +13,9 @@ Light Controls
 * e- move light in positive y
 * c- move light in negative y
 * i and scroll- brightness
+* r and scroll- red value
+* f and scroll- green value
+* v and scroll- blue value
 
 Brick Controls
 
@@ -28,9 +31,6 @@ Brick Controls
 * x and scroll- spacing
 
 TODO:
-    light
-        changing light color
-
     bricks
         shapes and lines working
         list of structures to scroll through

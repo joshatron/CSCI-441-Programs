@@ -590,6 +590,55 @@ void GLWidget::wheelEvent(QWheelEvent *event)
                 glUniform1f(lightBrightnessLoc, structure.lightBrightness);
                 glUseProgram(cubeProg);
                 glUniform1f(cubeLightBrightnessLoc, structure.lightBrightness);
+                break;
+            //red light
+            case 12:
+                structure.lightColor.r += numSteps * .01;
+                if(structure.lightColor.r < 0)
+                {
+                    structure.lightColor.r = 0;
+                }
+                if(structure.lightColor.r > 1)
+                {
+                    structure.lightColor.r = 1;
+                }
+                glUseProgram(lightProg);
+                glUniform3fv(lightColorLoc, 1, value_ptr(structure.lightColor));
+                glUseProgram(cubeProg);
+                glUniform3fv(cubeLightColorLoc, 1, value_ptr(structure.lightColor));
+                break;
+            //green light
+            case 13:
+                structure.lightColor.g += numSteps * .01;
+                if(structure.lightColor.g < 0)
+                {
+                    structure.lightColor.g = 0;
+                }
+                if(structure.lightColor.g > 1)
+                {
+                    structure.lightColor.g = 1;
+                }
+                glUseProgram(lightProg);
+                glUniform3fv(lightColorLoc, 1, value_ptr(structure.lightColor));
+                glUseProgram(cubeProg);
+                glUniform3fv(cubeLightColorLoc, 1, value_ptr(structure.lightColor));
+                break;
+            //blue light
+            case 14:
+                structure.lightColor.b += numSteps * .01;
+                if(structure.lightColor.b < 0)
+                {
+                    structure.lightColor.b = 0;
+                }
+                if(structure.lightColor.b > 1)
+                {
+                    structure.lightColor.b = 1;
+                }
+                glUseProgram(lightProg);
+                glUniform3fv(lightColorLoc, 1, value_ptr(structure.lightColor));
+                glUseProgram(cubeProg);
+                glUniform3fv(cubeLightColorLoc, 1, value_ptr(structure.lightColor));
+                break;
         }
 
         structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
@@ -649,6 +698,18 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         //brightness
         case Qt::Key_I:
             scaler = 11;
+            break;
+        //red light
+        case Qt::Key_R:
+            scaler = 12;
+            break;
+        //green light
+        case Qt::Key_F:
+            scaler = 13;
+            break;
+        //blue light
+        case Qt::Key_V:
+            scaler = 14;
             break;
         case Qt::Key_W:
             structure.lightLoc.z += .1;
