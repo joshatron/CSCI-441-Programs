@@ -12,6 +12,7 @@ Light Controls
 * a- move light in negative x
 * e- move light in positive y
 * c- move light in negative y
+* i and scroll- brightness
 
 Brick Controls
 
@@ -28,7 +29,6 @@ Brick Controls
 
 TODO:
     light
-        changing light brightness
         changing light color
 
     bricks

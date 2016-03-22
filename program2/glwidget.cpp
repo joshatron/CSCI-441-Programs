@@ -575,6 +575,21 @@ void GLWidget::wheelEvent(QWheelEvent *event)
                     spacing = 0;
                 }
                 break;
+            //brightness
+            case 11:
+                structure.lightBrightness += numSteps * .01;
+                if(structure.lightBrightness < 0)
+                {
+                    structure.lightBrightness = 0;
+                }
+                if(structure.lightBrightness > 1)
+                {
+                    structure.lightBrightness = 1;
+                }
+                glUseProgram(lightProg);
+                glUniform1f(lightBrightnessLoc, structure.lightBrightness);
+                glUseProgram(cubeProg);
+                glUniform1f(cubeLightBrightnessLoc, structure.lightBrightness);
         }
 
         structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
@@ -630,6 +645,10 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         //spacing
         case Qt::Key_X:
             scaler = 10;
+            break;
+        //brightness
+        case Qt::Key_I:
+            scaler = 11;
             break;
         case Qt::Key_W:
             structure.lightLoc.z += .1;
