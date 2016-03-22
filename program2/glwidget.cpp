@@ -49,6 +49,60 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
     scaleZ = 10;
     wallDepth = 1;
 
+    //initialize cube vertices
+    cube[0] = vec3(.5,.5,.5);
+    cube[1] = vec3(.5,.5,-.5);
+    cube[2] = vec3(-.5,.5,-.5);
+    cube[3] = vec3(-.5,.5,.5);
+    cube[4] = vec3(.5,-.5,.5);
+    cube[5] = vec3(-.5,-.5,.5);
+    cube[6] = vec3(-.5,-.5,-.5);
+    cube[7] = vec3(.5,-.5,-.5);
+    cube[8] = vec3(.5,.5,.5);
+    cube[9] = vec3(-.5,.5,.5);
+    cube[10] = vec3(-.5,-.5,.5);
+    cube[11] = vec3(.5,-.5,.5);
+    cube[12] = vec3(-.5,-.5,-.5);
+    cube[13] = vec3(-.5,.5,-.5);
+    cube[14] = vec3(.5,.5,-.5);
+    cube[15] = vec3(.5,-.5,-.5);
+    cube[16] = vec3(.5,-.5,.5);
+    cube[17] = vec3(.5,-.5,-.5);
+    cube[18] = vec3(.5,.5,-.5);
+    cube[19] = vec3(.5,.5,.5);
+    cube[20] = vec3(-.5,-.5,.5);
+    cube[21] = vec3(-.5,.5,.5);
+    cube[22] = vec3(-.5,.5,-.5);
+    cube[23] = vec3(-.5,-.5,-.5);
+
+    //initialize normals
+    normals[0] = vec3(0,1,0);
+    normals[1] = vec3(0,1,0);
+    normals[2] = vec3(0,1,0);
+    normals[3] = vec3(0,1,0);
+    normals[4] = vec3(0,-1,0);
+    normals[5] = vec3(0,-1,0);
+    normals[6] = vec3(0,-1,0);
+    normals[7] = vec3(0,-1,0);
+    normals[8] = vec3(0, 0, 1);
+    normals[9] = vec3(0, 0, 1);
+    normals[10] = vec3(0, 0, 1);
+    normals[11] = vec3(0, 0, 1);
+    normals[12] = vec3(0, 0, -1);
+    normals[13] = vec3(0, 0, -1);
+    normals[14] = vec3(0, 0, -1);
+    normals[15] = vec3(0, 0, -1);
+    normals[16] = vec3(1, 0, 0);
+    normals[17] = vec3(1, 0, 0);
+    normals[18] = vec3(1, 0, 0);
+    normals[19] = vec3(1, 0, 0);
+    normals[20] = vec3(-1, 0, 0);
+    normals[21] = vec3(-1, 0, 0);
+    normals[22] = vec3(-1, 0, 0);
+    normals[23] = vec3(-1, 0, 0);
+
+    bufferSize = 10000;
+
     structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
 }
 
@@ -128,12 +182,14 @@ void GLWidget::initializeCube() {
     GLint positionIndex = glGetAttribLocation(program, "position");
     glEnableVertexAttribArray(positionIndex);
     glVertexAttribPointer(positionIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * 24 * bufferSize, NULL, GL_DYNAMIC_DRAW);
 
     // assign normal data
     glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
     GLint normalIndex = glGetAttribLocation(program, "normal");
     glEnableVertexAttribArray(normalIndex);
     glVertexAttribPointer(normalIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * 24 * bufferSize, NULL, GL_DYNAMIC_DRAW);
 
     cubeProjMatrixLoc = glGetUniformLocation(program, "projection");
     cubeViewMatrixLoc = glGetUniformLocation(program, "view");
@@ -164,90 +220,54 @@ void GLWidget::initializeGL()
 
     glUseProgram(cubeProg);
     glUniform3fv(cubeColorLoc, 1, value_ptr(cubeColor));
-    createCubes(structure.brickLocs.size());
+    updateBuffer(structure.brickLocs.size());
 }
 
-void GLWidget::createCubes(int num)
+void GLWidget::updateBuffer(int num)
 {
+    glUseProgram(cubeProg);
+
     if(num > numCubes)
     {
-        for(int k = 0; k < num - numCubes; k++)
+        if(num >= bufferSize)
         {
-            //points
-            cubes.push_back(vec3(.5,.5,.5));
-            cubes.push_back(vec3(.5,.5,-.5));
-            cubes.push_back(vec3(-.5,.5,-.5));
-            cubes.push_back(vec3(-.5,.5,.5));
-            cubes.push_back(vec3(.5,-.5,.5));
-            cubes.push_back(vec3(-.5,-.5,.5));
-            cubes.push_back(vec3(-.5,-.5,-.5));
-            cubes.push_back(vec3(.5,-.5,-.5));
-            cubes.push_back(vec3(.5,.5,.5));
-            cubes.push_back(vec3(-.5,.5,.5));
-            cubes.push_back(vec3(-.5,-.5,.5));
-            cubes.push_back(vec3(.5,-.5,.5));
-            cubes.push_back(vec3(-.5,-.5,-.5));
-            cubes.push_back(vec3(-.5,.5,-.5));
-            cubes.push_back(vec3(.5,.5,-.5));
-            cubes.push_back(vec3(.5,-.5,-.5));
-            cubes.push_back(vec3(.5,-.5,.5));
-            cubes.push_back(vec3(.5,-.5,-.5));
-            cubes.push_back(vec3(.5,.5,-.5));
-            cubes.push_back(vec3(.5,.5,.5));
-            cubes.push_back(vec3(-.5,-.5,.5));
-            cubes.push_back(vec3(-.5,.5,.5));
-            cubes.push_back(vec3(-.5,.5,-.5));
-            cubes.push_back(vec3(-.5,-.5,-.5));
+            bufferSize *= 2;
 
-            //normals
-            normals.push_back(vec3(0,1,0));
-            normals.push_back(vec3(0,1,0));
-            normals.push_back(vec3(0,1,0));
-            normals.push_back(vec3(0,1,0));
-            normals.push_back(vec3(0,-1,0));
-            normals.push_back(vec3(0,-1,0));
-            normals.push_back(vec3(0,-1,0));
-            normals.push_back(vec3(0,-1,0));
-            normals.push_back(vec3(0, 0, 1));
-            normals.push_back(vec3(0, 0, 1));
-            normals.push_back(vec3(0, 0, 1));
-            normals.push_back(vec3(0, 0, 1));
-            normals.push_back(vec3(0, 0, -1));
-            normals.push_back(vec3(0, 0, -1));
-            normals.push_back(vec3(0, 0, -1));
-            normals.push_back(vec3(0, 0, -1));
-            normals.push_back(vec3(1, 0, 0));
-            normals.push_back(vec3(1, 0, 0));
-            normals.push_back(vec3(1, 0, 0));
-            normals.push_back(vec3(1, 0, 0));
-            normals.push_back(vec3(-1, 0, 0));
-            normals.push_back(vec3(-1, 0, 0));
-            normals.push_back(vec3(-1, 0, 0));
-            normals.push_back(vec3(-1, 0, 0));
+            glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * 24 * bufferSize, NULL, GL_DYNAMIC_DRAW);
+            glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * 24 * bufferSize, NULL, GL_DYNAMIC_DRAW);
+            numCubes = 0;
         }
 
-        glUseProgram(cubeProg);
-        glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(cubes) * cubes.size(), cubes.data(), GL_DYNAMIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(normals) * normals.size(), normals.data(), GL_DYNAMIC_DRAW);
+
+        while(numCubes < num)
+        {
+            for(int k = 0; k < 24; k++)
+            {
+                glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+                glBufferSubData(GL_ARRAY_BUFFER, (sizeof(vec3) * 24 * numCubes) + (sizeof(vec3) * k), sizeof(vec3), &cube[k]);
+                glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
+                glBufferSubData(GL_ARRAY_BUFFER, (sizeof(vec3) * 24 * numCubes) + (sizeof(vec3) * k), sizeof(vec3), &normals[k]);
+            }
+
+            numCubes++;
+        }
     }
     else if(numCubes > num)
     {
-        for(int k = 0; k < numCubes - num; k++)
+        while(numCubes > num)
         {
-            for(int a = 0; a < 24; a++)
+            numCubes--;
+
+            for(int k = 0; k < 24; k++)
             {
-                cubes.erase(cubes.begin());
-                normals.erase(normals.begin());
+                glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+                glBufferSubData(GL_ARRAY_BUFFER, (sizeof(vec3) * 24 * numCubes) + (sizeof(vec3) * k), sizeof(vec3), NULL);
+                glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
+                glBufferSubData(GL_ARRAY_BUFFER, (sizeof(vec3) * 24 * numCubes) + (sizeof(vec3) * k), sizeof(vec3), NULL);
             }
         }
-
-        glUseProgram(cubeProg);
-        glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(cubes) * cubes.size(), cubes.data(), GL_DYNAMIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(normals) * normals.size(), normals.data(), GL_DYNAMIC_DRAW);
     }
 
     numCubes = num;
@@ -561,7 +581,7 @@ void GLWidget::wheelEvent(QWheelEvent *event)
         }
 
         structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
-        createCubes(structure.brickLocs.size());
+        updateBuffer(structure.brickLocs.size());
     }
 
     update();

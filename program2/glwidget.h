@@ -35,7 +35,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     private:
         void initializeCube();
         void renderCube();
-        void createCubes(int num);
+        void updateBuffer(int num);
 
         double dist;
         double brickWidth;
@@ -59,10 +59,11 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         //9- scale x and z
         int scaler;
 
-        vector<vec3> cubes;
-        vector<vec3> normals;
+        vec3 cube[24];
+        vec3 normals[24];
         vec3 cubeColor;
         int numCubes;
+        int bufferSize;
 
         Structure structure;
 
