@@ -4,8 +4,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 
-#ifndef PI
-    #define PI 3.14159265
+#ifndef M_PI
+    #define M_PI 3.14159265
 #endif
 
 using std::vector;
@@ -13,6 +13,7 @@ using glm::vec2;
 using glm::vec3;
 using glm::mat4;
 using glm::translate;
+using glm::rotate;
 
 
 class Shape
@@ -22,15 +23,19 @@ class Shape
         vec2 centerLoc;
 
         void updateBrickLocs(double brickWidth, double brickHeight, double brickDepth, double spacing, double scaleX, double scaleY, double scaleZ, int wallDepth);
-        Shape(double xd, double zd, double sy, double h, double a, int s, vec2 center);
+        Shape(double xd, double zd, double sy, double h, double a, int s, vec2 center, bool st);
     
     private:
+        void updateBrickLocsLine(double brickWidth, double brickHeight, double brickDepth, double spacing, double scaleX, double scaleY, double scaleZ, int wallDepth);
+        void updateBrickLocsRect(double brickWidth, double brickHeight, double brickDepth, double spacing, double scaleX, double scaleY, double scaleZ, int wallDepth);
+        
         double xDiameter;
         double zDiameter;
         double startY;
         double height;
         double angle;//radians
         int sides;
+        bool starting;
 };
 
 #endif

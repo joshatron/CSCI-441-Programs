@@ -35,8 +35,7 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
     lightLoc = vec3(0,10,0);
     lightColor = vec3(1,1,1);
     lightBrightness = 1;
-    structure.shapes.push_back(Shape(.5,1,0,1,0,1,vec2(0, 2)));
-    structure.shapes.push_back(Shape(1,1,0,.5,0,1,vec2(0, -2)));
+    structure.shapes.push_back(Shape(1,1,0,1,0,4,vec2(0, 0),true));
 
     dist = 50;
     brickWidth = 1;
