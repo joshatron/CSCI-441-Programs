@@ -32,19 +32,18 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
     cubeColor = vec3(1,1,1);
     scaler = 0;
 
-    structure.lightLoc = vec3(0,10,0);
-    structure.lightColor = vec3(1,1,1);
-    structure.lightBrightness = 1;
+    lightLoc = vec3(0,10,0);
+    lightColor = vec3(1,1,1);
+    lightBrightness = 1;
     structure.shapes.push_back(Shape(.5,1,0,1,0,1,vec2(0, 2)));
     structure.shapes.push_back(Shape(1,1,0,.5,0,1,vec2(0, -2)));
 
     dist = 50;
-
     brickWidth = 1;
     brickHeight = .5;
     brickDepth = .5;
     spacing = .01;
-    scaleX = 20;
+    scaleX = 10;
     scaleY = 10;
     scaleZ = 10;
     wallDepth = 1;
@@ -176,9 +175,9 @@ void GLWidget::initializeLight()
     lightColorLoc = glGetUniformLocation(program, "color");
     lightBrightnessLoc = glGetUniformLocation(program, "brightness");
 
-    glUniform3fv(lightColorLoc, 1, value_ptr(structure.lightColor));
-    glUniform1f(lightBrightnessLoc, structure.lightBrightness);
-    lightMatrix = translate(mat4(1.f), structure.lightLoc) * scale(mat4(1.f), vec3(.5, .5, .5));
+    glUniform3fv(lightColorLoc, 1, value_ptr(lightColor));
+    glUniform1f(lightBrightnessLoc, lightBrightness);
+    lightMatrix = translate(mat4(1.f), lightLoc) * scale(mat4(1.f), vec3(.5, .5, .5));
     glUniformMatrix4fv(lightLightMatrixLoc, 1, false, value_ptr(lightMatrix));
 }
 
@@ -231,8 +230,8 @@ void GLWidget::initializeCube() {
     cubeLightColorLoc = glGetUniformLocation(program, "lightColor");
     cubeLightBrightnessLoc = glGetUniformLocation(program, "lightBrightness");
 
-    glUniform3fv(cubeLightColorLoc, 1, value_ptr(structure.lightColor));
-    glUniform1f(cubeLightBrightnessLoc, structure.lightBrightness);
+    glUniform3fv(cubeLightColorLoc, 1, value_ptr(lightColor));
+    glUniform1f(cubeLightBrightnessLoc, lightBrightness);
 }
 
 void GLWidget::initializeGL()
@@ -265,7 +264,7 @@ void GLWidget::resizeGL(int w, int h) {
     glUniformMatrix4fv(cubeProjMatrixLoc, 1, false, value_ptr(projMatrix));
     glUniformMatrix4fv(cubeViewMatrixLoc, 1, false, value_ptr(viewMatrix));
     glUniformMatrix4fv(cubeModelMatrixLoc, 1, false, value_ptr(modelMatrix));
-    tempLight = vec3(viewMatrix * modelMatrix * vec4(structure.lightLoc, 1));
+    tempLight = vec3(viewMatrix * modelMatrix * vec4(lightLoc, 1));
     glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
 
     glUseProgram(lightProg);
@@ -401,7 +400,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
 
         glUseProgram(cubeProg);
         glUniformMatrix4fv(cubeModelMatrixLoc, 1, false, value_ptr(modelMatrix));
-        tempLight = vec3(viewMatrix * modelMatrix * vec4(structure.lightLoc, 1));
+        tempLight = vec3(viewMatrix * modelMatrix * vec4(lightLoc, 1));
         glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
 
         glUseProgram(lightProg);
@@ -459,7 +458,7 @@ void GLWidget::wheelEvent(QWheelEvent *event)
         glUseProgram(cubeProg);
         viewMatrix = lookAt(vec3(0,0,-1 * dist),vec3(0,0,0),vec3(0,1,0));
         glUniformMatrix4fv(cubeViewMatrixLoc, 1, false, value_ptr(viewMatrix));
-        tempLight = vec3(viewMatrix * modelMatrix * vec4(structure.lightLoc, 1));
+        tempLight = vec3(viewMatrix * modelMatrix * vec4(lightLoc, 1));
         glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
         glUseProgram(lightProg);
         glUniformMatrix4fv(lightViewMatrixLoc, 1, false, value_ptr(viewMatrix));
@@ -577,67 +576,67 @@ void GLWidget::wheelEvent(QWheelEvent *event)
                 break;
             //brightness
             case 11:
-                structure.lightBrightness += numSteps * .01;
-                if(structure.lightBrightness < 0)
+                lightBrightness += numSteps * .01;
+                if(lightBrightness < 0)
                 {
-                    structure.lightBrightness = 0;
+                    lightBrightness = 0;
                 }
-                if(structure.lightBrightness > 1)
+                if(lightBrightness > 1)
                 {
-                    structure.lightBrightness = 1;
+                    lightBrightness = 1;
                 }
                 glUseProgram(lightProg);
-                glUniform1f(lightBrightnessLoc, structure.lightBrightness);
+                glUniform1f(lightBrightnessLoc, lightBrightness);
                 glUseProgram(cubeProg);
-                glUniform1f(cubeLightBrightnessLoc, structure.lightBrightness);
+                glUniform1f(cubeLightBrightnessLoc, lightBrightness);
                 break;
             //red light
             case 12:
-                structure.lightColor.r += numSteps * .01;
-                if(structure.lightColor.r < 0)
+                lightColor.r += numSteps * .01;
+                if(lightColor.r < 0)
                 {
-                    structure.lightColor.r = 0;
+                    lightColor.r = 0;
                 }
-                if(structure.lightColor.r > 1)
+                if(lightColor.r > 1)
                 {
-                    structure.lightColor.r = 1;
+                    lightColor.r = 1;
                 }
                 glUseProgram(lightProg);
-                glUniform3fv(lightColorLoc, 1, value_ptr(structure.lightColor));
+                glUniform3fv(lightColorLoc, 1, value_ptr(lightColor));
                 glUseProgram(cubeProg);
-                glUniform3fv(cubeLightColorLoc, 1, value_ptr(structure.lightColor));
+                glUniform3fv(cubeLightColorLoc, 1, value_ptr(lightColor));
                 break;
             //green light
             case 13:
-                structure.lightColor.g += numSteps * .01;
-                if(structure.lightColor.g < 0)
+                lightColor.g += numSteps * .01;
+                if(lightColor.g < 0)
                 {
-                    structure.lightColor.g = 0;
+                    lightColor.g = 0;
                 }
-                if(structure.lightColor.g > 1)
+                if(lightColor.g > 1)
                 {
-                    structure.lightColor.g = 1;
+                    lightColor.g = 1;
                 }
                 glUseProgram(lightProg);
-                glUniform3fv(lightColorLoc, 1, value_ptr(structure.lightColor));
+                glUniform3fv(lightColorLoc, 1, value_ptr(lightColor));
                 glUseProgram(cubeProg);
-                glUniform3fv(cubeLightColorLoc, 1, value_ptr(structure.lightColor));
+                glUniform3fv(cubeLightColorLoc, 1, value_ptr(lightColor));
                 break;
             //blue light
             case 14:
-                structure.lightColor.b += numSteps * .01;
-                if(structure.lightColor.b < 0)
+                lightColor.b += numSteps * .01;
+                if(lightColor.b < 0)
                 {
-                    structure.lightColor.b = 0;
+                    lightColor.b = 0;
                 }
-                if(structure.lightColor.b > 1)
+                if(lightColor.b > 1)
                 {
-                    structure.lightColor.b = 1;
+                    lightColor.b = 1;
                 }
                 glUseProgram(lightProg);
-                glUniform3fv(lightColorLoc, 1, value_ptr(structure.lightColor));
+                glUniform3fv(lightColorLoc, 1, value_ptr(lightColor));
                 glUseProgram(cubeProg);
-                glUniform3fv(cubeLightColorLoc, 1, value_ptr(structure.lightColor));
+                glUniform3fv(cubeLightColorLoc, 1, value_ptr(lightColor));
                 break;
         }
 
@@ -711,58 +710,99 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         case Qt::Key_V:
             scaler = 14;
             break;
+        //return to defaults
+        case Qt::Key_Q:
+            dist = 50;
+
+            brickWidth = 1;
+            brickHeight = .5;
+            brickDepth = .5;
+            spacing = .01;
+            scaleX = 10;
+            scaleY = 10;
+            scaleZ = 10;
+            wallDepth = 1;
+
+            lightLoc = vec3(0,10,0);
+            lightColor = vec3(1,1,1);
+            lightBrightness = 1;
+
+            modelMatrix = mat4(1.f);
+            viewMatrix = lookAt(vec3(0,0,-1 * dist),vec3(0,0,0),vec3(0,1,0));
+
+            structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
+
+            glUseProgram(cubeProg);
+            glUniformMatrix4fv(cubeViewMatrixLoc, 1, false, value_ptr(viewMatrix));
+            tempLight = vec3(viewMatrix * modelMatrix * vec4(lightLoc, 1));
+            glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
+            glUniformMatrix4fv(cubeModelMatrixLoc, 1, false, value_ptr(modelMatrix));
+            glUseProgram(lightProg);
+            glUniformMatrix4fv(lightViewMatrixLoc, 1, false, value_ptr(viewMatrix));
+            glUniformMatrix4fv(lightModelMatrixLoc, 1, false, value_ptr(modelMatrix));
+            glUseProgram(gridProg);
+            glUniformMatrix4fv(gridViewMatrixLoc, 1, false, value_ptr(viewMatrix));
+            glUniformMatrix4fv(gridModelMatrixLoc, 1, false, value_ptr(modelMatrix));
+
+            break;
+        //light positive z
         case Qt::Key_W:
-            structure.lightLoc.z += .1;
+            lightLoc.z += .1;
             glUseProgram(lightProg);
-            lightMatrix = translate(mat4(1.f), structure.lightLoc) * scale(mat4(1.f), vec3(.5, .5, .5));
+            lightMatrix = translate(mat4(1.f), lightLoc) * scale(mat4(1.f), vec3(.5, .5, .5));
             glUniformMatrix4fv(lightLightMatrixLoc, 1, false, value_ptr(lightMatrix));
             glUseProgram(cubeProg);
-            tempLight = vec3(viewMatrix * modelMatrix * vec4(structure.lightLoc, 1));
+            tempLight = vec3(viewMatrix * modelMatrix * vec4(lightLoc, 1));
             glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
             break;
+        //light negative z
         case Qt::Key_S:
-            structure.lightLoc.z -= .1;
+            lightLoc.z -= .1;
             glUseProgram(lightProg);
-            lightMatrix = translate(mat4(1.f), structure.lightLoc) * scale(mat4(1.f), vec3(.5, .5, .5));
+            lightMatrix = translate(mat4(1.f), lightLoc) * scale(mat4(1.f), vec3(.5, .5, .5));
             glUniformMatrix4fv(lightLightMatrixLoc, 1, false, value_ptr(lightMatrix));
             glUseProgram(cubeProg);
-            tempLight = vec3(viewMatrix * modelMatrix * vec4(structure.lightLoc, 1));
+            tempLight = vec3(viewMatrix * modelMatrix * vec4(lightLoc, 1));
             glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
             break;
+        //light negative x
         case Qt::Key_A:
-            structure.lightLoc.x -= .1;
+            lightLoc.x -= .1;
             glUseProgram(lightProg);
-            lightMatrix = translate(mat4(1.f), structure.lightLoc) * scale(mat4(1.f), vec3(.5, .5, .5));
+            lightMatrix = translate(mat4(1.f), lightLoc) * scale(mat4(1.f), vec3(.5, .5, .5));
             glUniformMatrix4fv(lightLightMatrixLoc, 1, false, value_ptr(lightMatrix));
             glUseProgram(cubeProg);
-            tempLight = vec3(viewMatrix * modelMatrix * vec4(structure.lightLoc, 1));
+            tempLight = vec3(viewMatrix * modelMatrix * vec4(lightLoc, 1));
             glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
             break;
+        //light positive x
         case Qt::Key_D:
-            structure.lightLoc.x += .1;
+            lightLoc.x += .1;
             glUseProgram(lightProg);
-            lightMatrix = translate(mat4(1.f), structure.lightLoc) * scale(mat4(1.f), vec3(.5, .5, .5));
+            lightMatrix = translate(mat4(1.f), lightLoc) * scale(mat4(1.f), vec3(.5, .5, .5));
             glUniformMatrix4fv(lightLightMatrixLoc, 1, false, value_ptr(lightMatrix));
             glUseProgram(cubeProg);
-            tempLight = vec3(viewMatrix * modelMatrix * vec4(structure.lightLoc, 1));
+            tempLight = vec3(viewMatrix * modelMatrix * vec4(lightLoc, 1));
             glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
             break;
+        //light positive y
         case Qt::Key_E:
-            structure.lightLoc.y += .1;
+            lightLoc.y += .1;
             glUseProgram(lightProg);
-            lightMatrix = translate(mat4(1.f), structure.lightLoc) * scale(mat4(1.f), vec3(.5, .5, .5));
+            lightMatrix = translate(mat4(1.f), lightLoc) * scale(mat4(1.f), vec3(.5, .5, .5));
             glUniformMatrix4fv(lightLightMatrixLoc, 1, false, value_ptr(lightMatrix));
             glUseProgram(cubeProg);
-            tempLight = vec3(viewMatrix * modelMatrix * vec4(structure.lightLoc, 1));
+            tempLight = vec3(viewMatrix * modelMatrix * vec4(lightLoc, 1));
             glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
             break;
+        //light negative y
         case Qt::Key_C:
-            structure.lightLoc.y -= .1;
+            lightLoc.y -= .1;
             glUseProgram(lightProg);
-            lightMatrix = translate(mat4(1.f), structure.lightLoc) * scale(mat4(1.f), vec3(.5, .5, .5));
+            lightMatrix = translate(mat4(1.f), lightLoc) * scale(mat4(1.f), vec3(.5, .5, .5));
             glUniformMatrix4fv(lightLightMatrixLoc, 1, false, value_ptr(lightMatrix));
             glUseProgram(cubeProg);
-            tempLight = vec3(viewMatrix * modelMatrix * vec4(structure.lightLoc, 1));
+            tempLight = vec3(viewMatrix * modelMatrix * vec4(lightLoc, 1));
             glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
             break;
     }

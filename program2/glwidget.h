@@ -66,6 +66,11 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         vec3 cubeColor;
         int numCubes;
 
+        mat4 lightTransform;
+        vec3 lightLoc;
+        vec3 lightColor;
+        double lightBrightness;
+
         Structure structure;
 
         GLuint positionBuffer;

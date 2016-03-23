@@ -30,6 +30,10 @@ Brick Controls
 * m and scroll- scale number of bricks in x and z dimensions
 * x and scroll- spacing
 
+Misc Controls
+
+* q- reset everything
+
 TODO:
     bricks
         shapes and lines working

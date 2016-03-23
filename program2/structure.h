@@ -21,10 +21,6 @@ class Structure
         vector<Shape> shapes;
         vector<mat4> brickLocs;
         mat4 brickShape;
-        mat4 lightTransform;
-        vec3 lightLoc;
-        vec3 lightColor;
-        double lightBrightness;
 
         void updateBrickLocs(double brickWidth, double brickHeight, double brickDepth, double spacing, double scaleX, double scaleY, double scaleZ, int wallDepth);
 };
