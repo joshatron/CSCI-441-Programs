@@ -1,5 +1,6 @@
 #include "glwidget.h"
 #include <iostream>
+#include <math.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -393,20 +394,23 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
     if(length(axis) >= .00001) {
         axis = normalize(axis);
         float angle = acos(dot(vPt,lastVPt));
-        mat4 r = rotate(mat4(1.0f), (float)(angle * 180. / M_PI), axis);
+        if(!isnan(angle))
+        {
+            mat4 r = rotate(mat4(1.0f), (float)(angle * 180. / M_PI), axis);
 
-        modelMatrix = r*modelMatrix;
+            modelMatrix = r*modelMatrix;
 
-        glUseProgram(cubeProg);
-        glUniformMatrix4fv(cubeModelMatrixLoc, 1, false, value_ptr(modelMatrix));
-        tempLight = vec3(viewMatrix * modelMatrix * vec4(lightLoc, 1));
-        glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
+            glUseProgram(cubeProg);
+            glUniformMatrix4fv(cubeModelMatrixLoc, 1, false, value_ptr(modelMatrix));
+            tempLight = vec3(viewMatrix * modelMatrix * vec4(lightLoc, 1));
+            glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
 
-        glUseProgram(lightProg);
-        glUniformMatrix4fv(lightModelMatrixLoc, 1, false, value_ptr(modelMatrix));
+            glUseProgram(lightProg);
+            glUniformMatrix4fv(lightModelMatrixLoc, 1, false, value_ptr(modelMatrix));
 
-        glUseProgram(gridProg);
-        glUniformMatrix4fv(gridModelMatrixLoc, 1, false, value_ptr(modelMatrix));
+            glUseProgram(gridProg);
+            glUniformMatrix4fv(gridModelMatrixLoc, 1, false, value_ptr(modelMatrix));
+        }
     }
     lastVPt = vPt;
     update();
