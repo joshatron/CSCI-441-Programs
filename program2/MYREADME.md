@@ -39,4 +39,5 @@ TODO:
         shapes and lines working
         list of structures to scroll through
         wall depth(and control for it)
+        arranging structure to account for spacing
 

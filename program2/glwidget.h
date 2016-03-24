@@ -1,6 +1,10 @@
 #ifndef __GLWIDGET__INCLUDE__
 #define __GLWIDGET__INCLUDE__
 
+#ifndef GLM_FORCE_RADIANS
+    #define GLM_FORCE_RADIANS
+#endif
+
 #include <QGLWidget>
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_3_3_Core>
@@ -9,7 +13,6 @@
 #include "structure.h"
 #include "shape.h"
 
-#define GLM_FORCE_RADIANS
 
 using glm::mat4;
 using glm::vec3;

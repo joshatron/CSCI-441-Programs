@@ -1,5 +1,10 @@
 #ifndef SHAPE_H
 #define SHAPE_H
+
+#ifndef GLM_FORCE_RADIANS
+    #define GLM_FORCE_RADIANS
+#endif
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
@@ -21,6 +26,7 @@ class Shape
     public:
         vector<mat4> brickLocs;
         vec2 centerLoc;
+        double angle;//radians
 
         void updateBrickLocs(double brickWidth, double brickHeight, double brickDepth, double spacing, double scaleX, double scaleY, double scaleZ, int wallDepth);
         Shape(double xd, double zd, double sy, double h, double a, int s, vec2 center, bool st);
@@ -33,7 +39,6 @@ class Shape
         double zDiameter;
         double startY;
         double height;
-        double angle;//radians
         int sides;
         bool starting;
 };

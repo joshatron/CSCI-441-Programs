@@ -1,5 +1,10 @@
 #ifndef STRUCTURE_H
 #define STRUCTURE_H
+
+#ifndef GLM_FORCE_RADIANS
+    #define GLM_FORCE_RADIANS
+#endif
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
@@ -13,6 +18,7 @@ using std::vector;
 using glm::vec3;
 using glm::mat4;
 using glm::translate;
+using glm::rotate;
 using glm::scale;
 
 class Structure

@@ -37,6 +37,11 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
     lightColor = vec3(1,1,1);
     lightBrightness = 1;
     structure.shapes.push_back(Shape(1,1,0,1,0,4,vec2(0, 0),true));
+    structure.shapes.push_back(Shape(.1,.1,0,1.2,M_PI / 4,4,vec2(.40, .40),true));
+    structure.shapes.push_back(Shape(.1,.1,0,1.2,M_PI / 4,4,vec2(-.40, .40),true));
+    structure.shapes.push_back(Shape(.1,.1,0,1.2,M_PI / 4,4,vec2(.40, -.40),true));
+    structure.shapes.push_back(Shape(.1,.1,0,1.2,M_PI / 4,4,vec2(-.40, -.40),true));
+    structure.shapes.push_back(Shape(.5,.5,0,.75,0,4,vec2(0, 0),true));
 
     dist = 50;
     brickWidth = 1;
@@ -257,7 +262,7 @@ void GLWidget::resizeGL(int w, int h) {
 
     float aspect = (float)w/h;
 
-    projMatrix = perspective(45.0f, aspect, 1.0f, 100.0f);
+    projMatrix = perspective(45.0f, aspect, 1.0f, 300.0f);
     viewMatrix = lookAt(vec3(0,0,-1 * dist),vec3(0,0,0),vec3(0,1,0));
 
     glUseProgram(cubeProg);
@@ -396,7 +401,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
         float angle = acos(dot(vPt,lastVPt));
         if(!isnan(angle))
         {
-            mat4 r = rotate(mat4(1.0f), (float)(angle * 180. / M_PI), axis);
+            mat4 r = rotate(mat4(1.0f), (float)(angle), axis);
 
             modelMatrix = r*modelMatrix;
 
@@ -574,7 +579,7 @@ void GLWidget::wheelEvent(QWheelEvent *event)
                 spacing += numSteps * .01;
                 if(spacing < 0)
                 {
-                    spacing = 0;
+                    spacing = -.0001;
                 }
                 break;
             //brightness

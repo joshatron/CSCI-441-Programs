@@ -74,8 +74,8 @@ void Shape::updateBrickLocsRect(double brickWidth, double brickHeight, double br
 
         for(int a = 0; a < widthNum; a++)
         {
-            brickLocs.push_back(translate(mat4(1.f), vec3(loc, yLoc, startZ - (brickDepth / 2))) * rotate(mat4(1.f), (float)angle, vec3(0,1,0)));
-            brickLocs.push_back(translate(mat4(1.f), vec3(loc, yLoc, startZ * -1 + (brickDepth / 2))) * rotate(mat4(1.f), (float)angle, vec3(0,1,0)));
+            brickLocs.push_back(translate(mat4(1.f), vec3(loc, yLoc, startZ - (brickDepth / 2))) * rotate(mat4(1.f), 0.f, vec3(0,1,0)));
+            brickLocs.push_back(translate(mat4(1.f), vec3(loc, yLoc, startZ * -1 + (brickDepth / 2))) * rotate(mat4(1.f), 0.f, vec3(0,1,0)));
             loc += brickWidth + spacing;
         }
 
@@ -90,8 +90,8 @@ void Shape::updateBrickLocsRect(double brickWidth, double brickHeight, double br
 
         for(int a = 0; a < depthNum; a++)
         {
-            brickLocs.push_back(translate(mat4(1.f), vec3(startX - (brickDepth / 2), yLoc, loc)) * rotate(mat4(1.f), (float)(90. + angle), vec3(0,1,0)));
-            brickLocs.push_back(translate(mat4(1.f), vec3(startX * -1 + (brickDepth / 2), yLoc, loc)) * rotate(mat4(1.f), (float)(90. + angle), vec3(0,1,0)));
+            brickLocs.push_back(translate(mat4(1.f), vec3(startX - (brickDepth / 2), yLoc, loc)) * rotate(mat4(1.f), (float)(M_PI / 2), vec3(0,1,0)));
+            brickLocs.push_back(translate(mat4(1.f), vec3(startX * -1 + (brickDepth / 2), yLoc, loc)) * rotate(mat4(1.f), (float)(M_PI / 2), vec3(0,1,0)));
             loc += brickWidth + spacing;
         }
 
