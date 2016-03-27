@@ -18,11 +18,18 @@ void Shape::updateBrickLocs(double brickWidth, double brickHeight, double brickD
 
     if(sides == 1)
     {
-        updateBrickLocsLine(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
+        //updateBrickLocsLine(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
     }
     else if(sides == 4)
     {
         updateBrickLocsRect(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
+    }
+    else if(sides == 5)
+    {
+        drawWall(brickWidth, brickHeight, brickDepth, spacing, vec3(-10, 0, -10), vec3(10, 10, -10), true);
+        drawWall(brickWidth, brickHeight, brickDepth, spacing, vec3(10, 0, -10), vec3(10, 10, 10), false);
+        drawWall(brickWidth, brickHeight, brickDepth, spacing, vec3(10, 0, 10), vec3(-10, 10, 10), true);
+        drawWall(brickWidth, brickHeight, brickDepth, spacing, vec3(-10, 0, 10), vec3(-10, 10, -10), false);
     }
     else
     {
@@ -49,8 +56,35 @@ void Shape::updateBrickLocs(double brickWidth, double brickHeight, double brickD
     }
 }
 
-void Shape::updateBrickLocsLine(double brickWidth, double brickHeight, double brickDepth, double spacing, double scaleX, double scaleY, double scaleZ, int wallDepth)
+void Shape::drawWall(double brickWidth, double brickHeight, double brickDepth, double spacing, vec3 startLoc, vec3 endLoc, bool start)
 {
+    double length = distance(startLoc, endLoc) - brickWidth;
+    double angle = atan((endLoc.z - startLoc.z) / (endLoc.x - startLoc.x));
+    vec3 center = vec3((startLoc.x + endLoc.x) / 2, 0, (startLoc.z + endLoc.z) / 2);
+    double num = (int)(length / (brickWidth + spacing));
+    double startX = -1 * (((num - 1) / 2.) * (brickWidth + spacing));
+    mat4 transform = translate(mat4(1.f), vec3(center.x, 0, center.z)) * rotate(mat4(1.f), (float)angle, vec3(0,1,0));
+
+    double y = startLoc.y;
+    bool even = start;
+    while(y < endLoc.y)
+    {
+        double loc = startX;
+        int rowNum = num;
+        if(even)
+        {
+            loc += (brickWidth + spacing) / 2.;
+            rowNum--;
+        }
+        for(int k = 0; k < rowNum; k++)
+        {
+            brickLocs.push_back(transform * translate(mat4(1.f), vec3(loc, y, 0)));
+            loc += brickWidth + spacing;
+        }
+        
+        y += brickHeight + spacing;
+        even = !even;
+    }
 }
 
 void Shape::updateBrickLocsRect(double brickWidth, double brickHeight, double brickDepth, double spacing, double scaleX, double scaleY, double scaleZ, int wallDepth)

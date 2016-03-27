@@ -19,6 +19,7 @@ using glm::vec3;
 using glm::mat4;
 using glm::translate;
 using glm::rotate;
+using glm::distance;
 
 
 class Shape
@@ -32,9 +33,8 @@ class Shape
         Shape(double xd, double zd, double sy, double h, double a, int s, vec2 center, bool st);
     
     private:
-        void updateBrickLocsLine(double brickWidth, double brickHeight, double brickDepth, double spacing, double scaleX, double scaleY, double scaleZ, int wallDepth);
+        void drawWall(double brickWidth, double brickHeight, double brickDepth, double spacing, vec3 startLoc, vec3 endLoc, bool start);
         void updateBrickLocsRect(double brickWidth, double brickHeight, double brickDepth, double spacing, double scaleX, double scaleY, double scaleZ, int wallDepth);
-        
         double xDiameter;
         double zDiameter;
         double startY;
