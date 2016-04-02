@@ -4,11 +4,10 @@
 using std::cout;
 using std::endl;
 
-Shape::Shape(double xd, double zd, double sy, double h, double a, int s, vec2 center, bool st)
+Shape::Shape(double xd, double zd, double h, double a, int s, vec3 center, bool st)
 {
     xDiameter = xd;
     zDiameter = zd;
-    startY = sy;
     height = h;
     angle = a;
     sides = s;
@@ -22,7 +21,7 @@ void Shape::updateBrickLocs(double brickWidth, double brickHeight, double brickD
 
     if(sides == 1)
     {
-        drawWall(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, vec3(-1 * (xDiameter / 2), 0, -1 * (zDiameter / 2)), vec3((xDiameter / 2), height, (zDiameter / 2)), true);
+        drawWall(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, vec3(-1 * (xDiameter / 2), 0, -1 * (zDiameter / 2)), vec3((xDiameter / 2), height, (zDiameter / 2)), starting);
     }
     else if(sides == 4)
     {
@@ -31,7 +30,7 @@ void Shape::updateBrickLocs(double brickWidth, double brickHeight, double brickD
     else
     {
         bool even = starting;
-        float yLoc = scaleY * startY;
+        float yLoc = 0;
         for(int k = 0; k < (int)(scaleY * height); k++)
         {
             float loc = ((int)(scaleX * xDiameter) * (brickWidth + spacing)) * -.5;
@@ -92,7 +91,7 @@ void Shape::updateBrickLocsRect(double brickWidth, double brickHeight, double br
     double startZ = -1 * (((depth - 1) / 2.) * (brickWidth + spacing));
 
     bool even = starting;
-    float yLoc = scaleY * startY;
+    float yLoc = 0;
     for(int k = 0; k < (int)(scaleY * height); k++)
     {
         float loc = startX;
