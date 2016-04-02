@@ -1,4 +1,8 @@
 #include "shape.h"
+#include <iostream>
+
+using std::cout;
+using std::endl;
 
 Shape::Shape(double xd, double zd, double sy, double h, double a, int s, vec2 center, bool st)
 {
@@ -18,18 +22,11 @@ void Shape::updateBrickLocs(double brickWidth, double brickHeight, double brickD
 
     if(sides == 1)
     {
-        //updateBrickLocsLine(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
+        drawWall(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, vec3(-1 * (xDiameter / 2), 0, -1 * (zDiameter / 2)), vec3((xDiameter / 2), height, (zDiameter / 2)), true);
     }
     else if(sides == 4)
     {
         updateBrickLocsRect(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
-    }
-    else if(sides == 5)
-    {
-        drawWall(brickWidth, brickHeight, brickDepth, spacing, vec3(-10, 0, -10), vec3(10, 10, -10), true);
-        drawWall(brickWidth, brickHeight, brickDepth, spacing, vec3(10, 0, -10), vec3(10, 10, 10), false);
-        drawWall(brickWidth, brickHeight, brickDepth, spacing, vec3(10, 0, 10), vec3(-10, 10, 10), true);
-        drawWall(brickWidth, brickHeight, brickDepth, spacing, vec3(-10, 0, 10), vec3(-10, 10, -10), false);
     }
     else
     {
@@ -56,18 +53,18 @@ void Shape::updateBrickLocs(double brickWidth, double brickHeight, double brickD
     }
 }
 
-void Shape::drawWall(double brickWidth, double brickHeight, double brickDepth, double spacing, vec3 startLoc, vec3 endLoc, bool start)
+void Shape::drawWall(double brickWidth, double brickHeight, double brickDepth, double spacing, double scale, double scaleY, vec3 startLoc, vec3 endLoc, bool start)
 {
-    double length = distance(startLoc, endLoc) - brickWidth;
+    double length = (distance(startLoc, endLoc) * scale * (brickWidth + spacing)) - brickWidth;
     double angle = atan((endLoc.z - startLoc.z) / (endLoc.x - startLoc.x));
-    vec3 center = vec3((startLoc.x + endLoc.x) / 2, 0, (startLoc.z + endLoc.z) / 2);
+    vec3 center = vec3(scale * (startLoc.x + endLoc.x) / 2, 0, scale * (startLoc.z + endLoc.z) / 2);
     double num = (int)(length / (brickWidth + spacing));
     double startX = -1 * (((num - 1) / 2.) * (brickWidth + spacing));
     mat4 transform = translate(mat4(1.f), vec3(center.x, 0, center.z)) * rotate(mat4(1.f), (float)angle, vec3(0,1,0));
 
     double y = startLoc.y;
     bool even = start;
-    while(y < endLoc.y)
+    while(y < endLoc.y * scaleY * (brickHeight + spacing) - brickHeight)
     {
         double loc = startX;
         int rowNum = num;

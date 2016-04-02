@@ -36,14 +36,16 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
     lightLoc = vec3(0,10,0);
     lightColor = vec3(1,1,1);
     lightBrightness = 1;
-    /*structure.shapes.push_back(Shape(1,1,0,1,0,4,vec2(0, 0),true));
+    /*
+    structure.shapes.push_back(Shape(1,1,0,1,0,4,vec2(0, 0),true));
     structure.shapes.push_back(Shape(.1,.1,0,1.2,M_PI / 4,4,vec2(.40, .40),true));
     structure.shapes.push_back(Shape(.1,.1,0,1.2,M_PI / 4,4,vec2(-.40, .40),true));
     structure.shapes.push_back(Shape(.1,.1,0,1.2,M_PI / 4,4,vec2(.40, -.40),true));
     structure.shapes.push_back(Shape(.1,.1,0,1.2,M_PI / 4,4,vec2(-.40, -.40),true));
     structure.shapes.push_back(Shape(.5,.5,0,.75,0,4,vec2(0, 0),true));
-    */
     structure.shapes.push_back(Shape(.5,.5,0,.75,0,5,vec2(0, 0),true));
+    */
+    structure.shapes.push_back(Shape(1,0,0,1,0,1,vec2(0, 0),true));
 
     dist = 50;
     brickWidth = 1;
@@ -581,7 +583,7 @@ void GLWidget::wheelEvent(QWheelEvent *event)
                 spacing += numSteps * .01;
                 if(spacing < 0)
                 {
-                    spacing = -.0001;
+                    spacing = 0;
                 }
                 break;
             //brightness
