@@ -73,7 +73,7 @@ void Shape::drawWall(double brickWidth, double brickHeight, double brickDepth, d
         double zScale = (zDiameter * scaleZ * scaleRow) * (brickWidth + spacing);
         double length = sqrt(pow((startLoc.x - endLoc.x) * xScale, 2) + pow((startLoc.z - endLoc.z) * zScale, 2)) + brickWidth;
         vec3 center = vec3((startLoc.x + endLoc.x) * xScale / 2, 0, (startLoc.z + endLoc.z) * zScale / 2);
-        double num = length / (brickWidth + spacing);
+        double num = (int)(length / (brickWidth + spacing));
         double startX = -1 * (((num - 1) / 2.) * (brickWidth + spacing));
         mat4 transform = translate(mat4(1.f), center) * rot;
 
