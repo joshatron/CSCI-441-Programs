@@ -4,6 +4,7 @@
 #include <memory>
 #include "linear_function.h"
 #include "sin_function.h"
+#include "cir_function.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -52,7 +53,7 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
     //structure.shapes.push_back(Shape(1,0,1,0,1,vec3(0, 0, 0),true));
     //structure.shapes.push_back(Shape(1,1,1,0,2,vec3(0, 0, 0),true));
     //structure.shapes.push_back(Shape(1,1,2,0,100,vec3(0, 0, 0),true, 1, 0, 1, make_shared<LinearFunction>()));
-    structure.shapes.push_back(Shape(1,1,2,0,6,vec3(0, 0, 0),true, 1, 0, 1, make_shared<LinearFunction>()));
+    structure.shapes.push_back(Shape(1,1,2,0,100,vec3(0, 0, 0),true, -1, 1, 1, make_shared<CircleFunction>()));
 
     dist = 50;
     brickWidth = 1;
