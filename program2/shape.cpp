@@ -58,11 +58,7 @@ void Shape::updateBrickLocs(double brickWidth, double brickHeight, double brickD
 
 void Shape::drawWall(double brickWidth, double brickHeight, double brickDepth, double spacing, double scaleX, double scaleY, double scaleZ, vec3 startLoc, vec3 endLoc, bool start)
 {
-    double length = sqrt(pow((startLoc.x - endLoc.x) * (xDiameter * scaleX) * (brickWidth + spacing), 2) + pow((startLoc.z - endLoc.z) * (zDiameter * scaleZ) * (brickWidth + spacing), 2)) + brickWidth;
     double angle = -1 * atan2((startLoc.z - endLoc.z) * (scaleZ / scaleX), (startLoc.x - endLoc.x));
-    vec3 center = vec3((startLoc.x + endLoc.x) * (xDiameter * scaleX) * (brickWidth + spacing) / 2, 0, (startLoc.z + endLoc.z) * (zDiameter * scaleZ) * (brickWidth + spacing) / 2);
-    double num = length / (brickWidth + spacing);
-    double startX = -1 * (((num - 1) / 2.) * (brickWidth + spacing));
     mat4 rot = rotate(mat4(1.f), (float)angle, vec3(0,1,0));
 
     double y = startLoc.y;
@@ -73,10 +69,12 @@ void Shape::drawWall(double brickWidth, double brickHeight, double brickDepth, d
         scaleRow = functionBegin + (scaleRow * (functionEnd - functionBegin));
         scaleRow = function->compute(functionScale, scaleRow);
 
-        length = sqrt(pow((startLoc.x - endLoc.x) * (xDiameter * scaleX * scaleRow) * (brickWidth + spacing), 2) + pow((startLoc.z - endLoc.z) * (zDiameter * scaleZ * scaleRow) * (brickWidth + spacing), 2)) + brickWidth;
-        center = vec3((startLoc.x + endLoc.x) * (xDiameter * scaleX * scaleRow) * (brickWidth + spacing) / 2, 0, (startLoc.z + endLoc.z) * (zDiameter * scaleZ * scaleRow) * (brickWidth + spacing) / 2);
-        num = length / (brickWidth + spacing);
-        startX = -1 * (((num - 1) / 2.) * (brickWidth + spacing));
+        double xScale = (xDiameter * scaleX * scaleRow) * (brickWidth + spacing);
+        double zScale = (zDiameter * scaleZ * scaleRow) * (brickWidth + spacing);
+        double length = sqrt(pow((startLoc.x - endLoc.x) * xScale, 2) + pow((startLoc.z - endLoc.z) * zScale, 2)) + brickWidth;
+        vec3 center = vec3((startLoc.x + endLoc.x) * xScale / 2, 0, (startLoc.z + endLoc.z) * zScale / 2);
+        double num = length / (brickWidth + spacing);
+        double startX = -1 * (((num - 1) / 2.) * (brickWidth + spacing));
         mat4 transform = translate(mat4(1.f), center) * rot;
 
         double loc = startX;
