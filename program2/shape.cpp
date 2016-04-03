@@ -21,7 +21,12 @@ void Shape::updateBrickLocs(double brickWidth, double brickHeight, double brickD
 
     if(sides == 1)
     {
-        drawWall(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, vec3(-1 * (xDiameter / 2), 0, -1 * (zDiameter / 2)), vec3((xDiameter / 2), height, (zDiameter / 2)), starting);
+        drawWall(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, vec3(-1 * (xDiameter / 2), 0, -1 * (zDiameter / 2)), vec3((xDiameter / 2), height, (zDiameter / 2)), starting);
+    }
+    else if(sides == 2)
+    {
+        drawWall(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, vec3(-1 * (xDiameter / 2), 0, -1 * (zDiameter / 2)), vec3((xDiameter / 2), height, (zDiameter / 2)), starting);
+        drawWall(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, vec3(-1 * (xDiameter / 2), 0, (zDiameter / 2)), vec3((xDiameter / 2), height, -1 * (zDiameter / 2)), starting);
     }
     else if(sides == 4)
     {
@@ -29,34 +34,29 @@ void Shape::updateBrickLocs(double brickWidth, double brickHeight, double brickD
     }
     else
     {
-        bool even = starting;
-        float yLoc = 0;
-        for(int k = 0; k < (int)(scaleY * height); k++)
+        vector<vec2> points;
+        double ang = M_PI / (sides / 2);
+        for(double k = ang / 2; k < 2 * M_PI; k += ang)
         {
-            float loc = ((int)(scaleX * xDiameter) * (brickWidth + spacing)) * -.5;
-            int num = (int)(scaleX * xDiameter);
-            if(even)
-            {
-                loc += (brickWidth + spacing) * .5;
-                num--;
-            }
+            points.push_back(vec2(sin(k) * xDiameter, cos(k) * zDiameter));
+        }
+
+        bool even = starting;
+        for(int k = 0; k < sides; k++)
+        {
+            vec3 start((float)points.at(k).x, 0.f, (float)points.at(k).y);
+            vec3 end((float)points.at((k + 1) % points.size()).x, (float)height, (float)points.at((k + 1) % points.size()).y);
+            drawWall(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, start, end, even);
             even = !even;
-            
-            for(int a = 0; a < num; a++)
-            {
-                brickLocs.push_back(translate(mat4(1.f), vec3(loc, yLoc, 0.f)));
-                loc += brickWidth + spacing;
-            }
-            yLoc += brickHeight + spacing;
         }
     }
 }
 
-void Shape::drawWall(double brickWidth, double brickHeight, double brickDepth, double spacing, double scale, double scaleY, vec3 startLoc, vec3 endLoc, bool start)
+void Shape::drawWall(double brickWidth, double brickHeight, double brickDepth, double spacing, double scaleX, double scaleY, double scaleZ, vec3 startLoc, vec3 endLoc, bool start)
 {
-    double length = (distance(startLoc, endLoc) * scale * (brickWidth + spacing)) - brickWidth;
-    double angle = atan((endLoc.z - startLoc.z) / (endLoc.x - startLoc.x));
-    vec3 center = vec3(scale * (startLoc.x + endLoc.x) / 2, 0, scale * (startLoc.z + endLoc.z) / 2);
+    double length = sqrt(pow((startLoc.x - endLoc.x) * (xDiameter * scaleX) * (brickWidth + spacing), 2) + pow((startLoc.z - endLoc.z) * (zDiameter * scaleZ) * (brickWidth + spacing), 2)) + brickWidth;
+    double angle = -1 * atan2((startLoc.z - endLoc.z) * (scaleZ / scaleX), (startLoc.x - endLoc.x));
+    vec3 center = vec3((startLoc.x + endLoc.x) * (xDiameter * scaleX) * (brickWidth + spacing) / 2, 0, (startLoc.z + endLoc.z) * (zDiameter * scaleZ) * (brickWidth + spacing) / 2);
     double num = (int)(length / (brickWidth + spacing));
     double startX = -1 * (((num - 1) / 2.) * (brickWidth + spacing));
     mat4 transform = translate(mat4(1.f), vec3(center.x, 0, center.z)) * rotate(mat4(1.f), (float)angle, vec3(0,1,0));

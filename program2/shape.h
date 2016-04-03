@@ -33,7 +33,7 @@ class Shape
         Shape(double xd, double zd, double h, double a, int s, vec3 center, bool st);
     
     private:
-        void drawWall(double brickWidth, double brickHeight, double brickDepth, double spacing, double scale, double scaleY, vec3 startLoc, vec3 endLoc, bool start);
+        void drawWall(double brickWidth, double brickHeight, double brickDepth, double spacing, double scaleX, double scaleY, double scaleZ, vec3 startLoc, vec3 endLoc, bool start);
         void updateBrickLocsRect(double brickWidth, double brickHeight, double brickDepth, double spacing, double scaleX, double scaleY, double scaleZ, int wallDepth);
         double xDiameter;
         double zDiameter;
