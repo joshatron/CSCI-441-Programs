@@ -1,4 +1,4 @@
-HEADERS += glwidget.h shape.h structure.h
+HEADERS += glwidget.h shape.h structure.h function.h linear_function.h sin_function.h
 SOURCES += glwidget.cpp main.cpp shape.cpp structure.cpp
 
 QT += opengl designer

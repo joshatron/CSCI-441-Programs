@@ -1,6 +1,9 @@
 #include "glwidget.h"
 #include <iostream>
 #include <math.h>
+#include <memory>
+#include "linear_function.h"
+#include "sin_function.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -26,6 +29,7 @@ using glm::value_ptr;
 using glm::lookAt;
 using std::cout;
 using std::endl;
+using std::make_shared;
 
 GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
 { 
@@ -47,7 +51,8 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
     //structure.shapes.push_back(Shape(.5,.5,0,.75,0,5,vec2(0, 0),true));
     //structure.shapes.push_back(Shape(1,0,1,0,1,vec3(0, 0, 0),true));
     //structure.shapes.push_back(Shape(1,1,1,0,2,vec3(0, 0, 0),true));
-    structure.shapes.push_back(Shape(1,1,1,0,100,vec3(0, 0, 0),true));
+    //structure.shapes.push_back(Shape(1,1,2,0,100,vec3(0, 0, 0),true, 1, 0, 1, make_shared<LinearFunction>()));
+    structure.shapes.push_back(Shape(1,1,2,0,100,vec3(0, 0, 0),true, 1, 0, .5, make_shared<SinFunction>()));
 
     dist = 50;
     brickWidth = 1;

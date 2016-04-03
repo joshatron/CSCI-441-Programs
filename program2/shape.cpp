@@ -4,7 +4,7 @@
 using std::cout;
 using std::endl;
 
-Shape::Shape(double xd, double zd, double h, double a, int s, vec3 center, bool st)
+Shape::Shape(double xd, double zd, double h, double a, int s, vec3 center, bool st, double fb, double fe, double fs, shared_ptr<Function> func)
 {
     xDiameter = xd;
     zDiameter = zd;
@@ -13,6 +13,10 @@ Shape::Shape(double xd, double zd, double h, double a, int s, vec3 center, bool 
     sides = s;
     centerLoc = center;
     starting = st;
+    functionBegin = fb;
+    functionEnd = fe;
+    functionScale = fs;
+    function = func;
 }
 
 void Shape::updateBrickLocs(double brickWidth, double brickHeight, double brickDepth, double spacing, double scaleX, double scaleY, double scaleZ, int wallDepth)
@@ -57,14 +61,24 @@ void Shape::drawWall(double brickWidth, double brickHeight, double brickDepth, d
     double length = sqrt(pow((startLoc.x - endLoc.x) * (xDiameter * scaleX) * (brickWidth + spacing), 2) + pow((startLoc.z - endLoc.z) * (zDiameter * scaleZ) * (brickWidth + spacing), 2)) + brickWidth;
     double angle = -1 * atan2((startLoc.z - endLoc.z) * (scaleZ / scaleX), (startLoc.x - endLoc.x));
     vec3 center = vec3((startLoc.x + endLoc.x) * (xDiameter * scaleX) * (brickWidth + spacing) / 2, 0, (startLoc.z + endLoc.z) * (zDiameter * scaleZ) * (brickWidth + spacing) / 2);
-    double num = (int)(length / (brickWidth + spacing));
+    double num = length / (brickWidth + spacing);
     double startX = -1 * (((num - 1) / 2.) * (brickWidth + spacing));
-    mat4 transform = translate(mat4(1.f), vec3(center.x, 0, center.z)) * rotate(mat4(1.f), (float)angle, vec3(0,1,0));
+    mat4 rot = rotate(mat4(1.f), (float)angle, vec3(0,1,0));
 
     double y = startLoc.y;
     bool even = start;
     while(y < endLoc.y * scaleY * (brickHeight + spacing) - brickHeight)
     {
+        double scaleRow = (y - startLoc.y) / ((endLoc.y * scaleY * (brickHeight + spacing) - brickHeight) - startLoc.y);
+        scaleRow = functionBegin + (scaleRow * (functionEnd - functionBegin));
+        scaleRow = function->compute(functionScale, scaleRow);
+
+        length = sqrt(pow((startLoc.x - endLoc.x) * (xDiameter * scaleX * scaleRow) * (brickWidth + spacing), 2) + pow((startLoc.z - endLoc.z) * (zDiameter * scaleZ * scaleRow) * (brickWidth + spacing), 2)) + brickWidth;
+        center = vec3((startLoc.x + endLoc.x) * (xDiameter * scaleX * scaleRow) * (brickWidth + spacing) / 2, 0, (startLoc.z + endLoc.z) * (zDiameter * scaleZ * scaleRow) * (brickWidth + spacing) / 2);
+        num = length / (brickWidth + spacing);
+        startX = -1 * (((num - 1) / 2.) * (brickWidth + spacing));
+        mat4 transform = translate(mat4(1.f), center) * rot;
+
         double loc = startX;
         int rowNum = num;
         if(even)
