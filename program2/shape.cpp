@@ -97,15 +97,19 @@ void Shape::drawWall(double brickWidth, double brickHeight, double brickDepth, d
 
 void Shape::updateBrickLocsRect(double brickWidth, double brickHeight, double brickDepth, double spacing, double scaleX, double scaleY, double scaleZ, int wallDepth)
 {
-    int width = (int)(scaleX * xDiameter);
-    int depth = (int)(scaleZ * zDiameter);
-    double startX = -1 * (((width - 1) / 2.) * (brickWidth + spacing));
-    double startZ = -1 * (((depth - 1) / 2.) * (brickWidth + spacing));
-
     bool even = starting;
     float yLoc = 0;
     for(int k = 0; k < (int)(scaleY * height); k++)
     {
+        double scaleRow = k / (double)((int)(scaleY * height));
+        scaleRow = functionBegin + (scaleRow * (functionEnd - functionBegin));
+        scaleRow = function->compute(functionScale, scaleRow);
+
+        int width = (int)(scaleX * xDiameter * scaleRow);
+        int depth = (int)(scaleZ * zDiameter * scaleRow);
+        double startX = -1 * (((width - 1) / 2.) * (brickWidth + spacing));
+        double startZ = -1 * (((depth - 1) / 2.) * (brickWidth + spacing));
+
         float loc = startX;
         int widthNum = width;
         if(even)
