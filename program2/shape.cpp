@@ -39,7 +39,7 @@ void Shape::updateBrickLocs(double brickWidth, double brickHeight, double brickD
     else
     {
         vector<vec2> points;
-        double ang = M_PI / (sides / 2);
+        double ang = M_PI / (sides / 2.);
         for(double k = ang / 2; k < 2 * M_PI; k += ang)
         {
             points.push_back(vec2(sin(k) * xDiameter, cos(k) * zDiameter));

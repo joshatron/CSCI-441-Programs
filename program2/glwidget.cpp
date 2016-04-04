@@ -43,23 +43,7 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
     lightLoc = vec3(0,10,0);
     lightColor = vec3(1,1,1);
     lightBrightness = 1;
-    /*castle*/
-    structure.shapes.push_back(Shape(1,1,.75,0,4,vec3(0, 0, 0),true, 1, 0, 1, make_shared<Function>()));
-    structure.shapes.push_back(Shape(.2,.2,1.2,0,10,vec3(.35, 0, .35),true, 0, 1, 1, make_shared<TowerFunction>()));
-    structure.shapes.push_back(Shape(.2,.2,1.2,0,10,vec3(-.35, 0, .35),true, 0, 1, 1, make_shared<TowerFunction>()));
-    structure.shapes.push_back(Shape(.2,.2,1.2,0,10,vec3(.35, 0, -.35),true, 0, 1, 1, make_shared<TowerFunction>()));
-    structure.shapes.push_back(Shape(.2,.2,1.2,0,10,vec3(-.35, 0, -.35),true, 0, 1, 1, make_shared<TowerFunction>()));
-    structure.shapes.push_back(Shape(.5,.5,.5,0,4,vec3(0, 0, 0),true, 0, 1, 1, make_shared<DomeFunction>()));
-    /*stadium
-    structure.shapes.push_back(Shape(.75,1,1.5,0,1000,vec3(0, 0, 0),true, 0, 1, 1, make_shared<Function>()));
-    structure.shapes.push_back(Shape(.75,1,1,0,1000,vec3(0, .25, 0),true, .5, 1, 1, make_shared<LinearFunction>()));
-    structure.shapes.push_back(Shape(.75 *.75,.75,.5,0,1000,vec3(0, 0, 0),true, 0, 1, 1, make_shared<Function>()));
-    */
-    //structure.shapes.push_back(Shape(.5,.5,0,.75,0,5,vec2(0, 0),true));
-    //structure.shapes.push_back(Shape(1,0,1,0,1,vec3(0, 0, 0),true));
-    //structure.shapes.push_back(Shape(1,1,1,0,2,vec3(0, 0, 0),true));
-    //structure.shapes.push_back(Shape(1,1,2,0,100,vec3(0, 0, 0),true, 1, 0, 1, make_shared<LinearFunction>()));
-    //structure.shapes.push_back(Shape(1,1,2,0,100,vec3(0, 0, 0),true, 0, 1, .3, make_shared<SinFunction>()));
+    structure.shapes.push_back(Shape(1,0,1,0,1,vec3(0, 0, 0),true, 0, 1, 1, make_shared<Function>()));
 
     dist = 50;
     brickWidth = .4;
@@ -830,6 +814,72 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
             glUseProgram(cubeProg);
             tempLight = vec3(viewMatrix * modelMatrix * vec4(lightLoc, 1));
             glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
+            break;
+        //line
+        case Qt::Key_1:
+            structure.shapes.clear();
+            structure.shapes.push_back(Shape(1,0,1,0,1,vec3(0, 0, 0),true, 0, 1, 1, make_shared<Function>()));
+            structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
+            break;
+        //square
+        case Qt::Key_2:
+            structure.shapes.clear();
+            structure.shapes.push_back(Shape(1,1,1,0,4,vec3(0, 0, 0),true, 0, 1, 1, make_shared<Function>()));
+            structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
+            break;
+        //6 sides
+        case Qt::Key_3:
+            structure.shapes.clear();
+            structure.shapes.push_back(Shape(1,1,1,0,6,vec3(0, 0, 0),true, 0, 1, 1, make_shared<Function>()));
+            structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
+            break;
+        //100 sides
+        case Qt::Key_4:
+            structure.shapes.clear();
+            structure.shapes.push_back(Shape(1,1,1,0,100,vec3(0, 0, 0),true, 0, 1, 1, make_shared<Function>()));
+            structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
+            break;
+        //8 sided funnel
+        case Qt::Key_5:
+            structure.shapes.clear();
+            structure.shapes.push_back(Shape(1,1,1,0,8,vec3(0, 0, 0),true, 0, 1, 1, make_shared<LinearFunction>()));
+            structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
+            break;
+        //4 sided pyramid
+        case Qt::Key_6:
+            structure.shapes.clear();
+            structure.shapes.push_back(Shape(1,1,1,0,4,vec3(0, 0, 0),true, 1, 0, 1, make_shared<LinearFunction>()));
+            structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
+            break;
+        //castle
+        case Qt::Key_7:
+            structure.shapes.clear();
+            structure.shapes.push_back(Shape(1,1,.75,0,4,vec3(0, 0, 0),true, 1, 0, 1, make_shared<Function>()));
+            structure.shapes.push_back(Shape(.2,.2,1.2,0,10,vec3(.35, 0, .35),true, 0, 1, 1, make_shared<TowerFunction>()));
+            structure.shapes.push_back(Shape(.2,.2,1.2,0,10,vec3(-.35, 0, .35),true, 0, 1, 1, make_shared<TowerFunction>()));
+            structure.shapes.push_back(Shape(.2,.2,1.2,0,10,vec3(.35, 0, -.35),true, 0, 1, 1, make_shared<TowerFunction>()));
+            structure.shapes.push_back(Shape(.2,.2,1.2,0,10,vec3(-.35, 0, -.35),true, 0, 1, 1, make_shared<TowerFunction>()));
+            structure.shapes.push_back(Shape(.5,.5,.5,0,4,vec3(0, 0, 0),true, 0, 1, 1, make_shared<DomeFunction>()));
+            structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
+            break;
+        //stadium
+        case Qt::Key_8:
+            structure.shapes.clear();
+            structure.shapes.push_back(Shape(.75,1,1.5,0,1000,vec3(0, 0, 0),true, 0, 1, 1, make_shared<Function>()));
+            structure.shapes.push_back(Shape(.75,1,1,0,1000,vec3(0, .25, 0),true, .5, 1, 1, make_shared<LinearFunction>()));
+            structure.shapes.push_back(Shape(.75 *.75,.75,.5,0,1000,vec3(0, 0, 0),true, 0, 1, 1, make_shared<Function>()));
+            structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
+            break;
+        //scale problem
+        case Qt::Key_9:
+            structure.shapes.clear();
+            structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
+            break;
+        //odd problem
+        case Qt::Key_0:
+            structure.shapes.clear();
+            structure.shapes.push_back(Shape(1,1,1,0,3,vec3(0, 0, 0),true, 0, 1, 1, make_shared<Function>()));
+            structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
             break;
     }
 
