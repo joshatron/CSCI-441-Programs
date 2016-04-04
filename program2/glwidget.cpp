@@ -723,14 +723,13 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         //return to defaults
         case Qt::Key_Q:
             dist = 50;
-
-            brickWidth = 1;
-            brickHeight = .5;
-            brickDepth = .5;
+            brickWidth = .4;
+            brickHeight = .2;
+            brickDepth = .2;
             spacing = .01;
-            scaleX = 10;
-            scaleY = 10;
-            scaleZ = 10;
+            scaleX = 30;
+            scaleY = 30;
+            scaleZ = 30;
             wallDepth = 1;
 
             lightLoc = vec3(0,10,0);
@@ -865,9 +864,9 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         //stadium
         case Qt::Key_8:
             structure.shapes.clear();
-            structure.shapes.push_back(Shape(.75,1,1.5,0,1000,vec3(0, 0, 0),true, 0, 1, 1, make_shared<Function>()));
-            structure.shapes.push_back(Shape(.75,1,1,0,1000,vec3(0, .25, 0),true, .5, 1, 1, make_shared<LinearFunction>()));
-            structure.shapes.push_back(Shape(.75 *.75,.75,.5,0,1000,vec3(0, 0, 0),true, 0, 1, 1, make_shared<Function>()));
+            structure.shapes.push_back(Shape(.75,1,1.5,0,500,vec3(0, 0, 0),true, 0, 1, 1, make_shared<Function>()));
+            structure.shapes.push_back(Shape(.75,1,1,0,500,vec3(0, .25, 0),true, .5, 1, 1, make_shared<LinearFunction>()));
+            structure.shapes.push_back(Shape(.75 *.75,.75,.5,0,500,vec3(0, 0, 0),true, 0, 1, 1, make_shared<Function>()));
             structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
             break;
         //scale problem
