@@ -1,3 +1,7 @@
+For this project, my main focus was on construction algorithms.
+The bricks are held in shape classes.
+An overall structure is a construction of one or more shapes which are translated to relative positions in the structure.
+
 Controls
 
 Camera Controls
