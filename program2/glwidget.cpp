@@ -5,6 +5,8 @@
 #include "linear_function.h"
 #include "sin_function.h"
 #include "cir_function.h"
+#include "tower_function.h"
+#include "dome_function.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -33,7 +35,7 @@ using std::endl;
 using std::make_shared;
 
 GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
-{ 
+{
     numCubes = 0;
     cubeColor = vec3(1,1,1);
     scaler = 0;
@@ -41,28 +43,32 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
     lightLoc = vec3(0,10,0);
     lightColor = vec3(1,1,1);
     lightBrightness = 1;
-    /*
-    structure.shapes.push_back(Shape(1,1,1,0,4,vec3(0, 0, 0),true));
-    structure.shapes.push_back(Shape(.2,.2,1.2,M_PI / 4,8,vec3(.40, 0, .40),true));
-    structure.shapes.push_back(Shape(.2,.2,1.2,M_PI / 4,8,vec3(-.40, 0, .40),true));
-    structure.shapes.push_back(Shape(.2,.2,1.2,M_PI / 4,8,vec3(.40, 0, -.40),true));
-    structure.shapes.push_back(Shape(.2,.2,1.2,M_PI / 4,8,vec3(-.40, 0, -.40),true));
-    structure.shapes.push_back(Shape(.5,.5,.75,0,4,vec3(0, 0, 0),true));
+    /*castle*/
+    structure.shapes.push_back(Shape(1,1,.75,0,4,vec3(0, 0, 0),true, 1, 0, 1, make_shared<Function>()));
+    structure.shapes.push_back(Shape(.2,.2,1.2,0,10,vec3(.35, 0, .35),true, 0, 1, 1, make_shared<TowerFunction>()));
+    structure.shapes.push_back(Shape(.2,.2,1.2,0,10,vec3(-.35, 0, .35),true, 0, 1, 1, make_shared<TowerFunction>()));
+    structure.shapes.push_back(Shape(.2,.2,1.2,0,10,vec3(.35, 0, -.35),true, 0, 1, 1, make_shared<TowerFunction>()));
+    structure.shapes.push_back(Shape(.2,.2,1.2,0,10,vec3(-.35, 0, -.35),true, 0, 1, 1, make_shared<TowerFunction>()));
+    structure.shapes.push_back(Shape(.5,.5,.5,0,4,vec3(0, 0, 0),true, 0, 1, 1, make_shared<DomeFunction>()));
+    /*stadium
+    structure.shapes.push_back(Shape(.75,1,1.5,0,1000,vec3(0, 0, 0),true, 0, 1, 1, make_shared<Function>()));
+    structure.shapes.push_back(Shape(.75,1,1,0,1000,vec3(0, .25, 0),true, .5, 1, 1, make_shared<LinearFunction>()));
+    structure.shapes.push_back(Shape(.75 *.75,.75,.5,0,1000,vec3(0, 0, 0),true, 0, 1, 1, make_shared<Function>()));
     */
     //structure.shapes.push_back(Shape(.5,.5,0,.75,0,5,vec2(0, 0),true));
     //structure.shapes.push_back(Shape(1,0,1,0,1,vec3(0, 0, 0),true));
     //structure.shapes.push_back(Shape(1,1,1,0,2,vec3(0, 0, 0),true));
     //structure.shapes.push_back(Shape(1,1,2,0,100,vec3(0, 0, 0),true, 1, 0, 1, make_shared<LinearFunction>()));
-    structure.shapes.push_back(Shape(1,1,2,0,4,vec3(0, 0, 0),true, 1, 0, .3, make_shared<SinFunction>()));
+    //structure.shapes.push_back(Shape(1,1,2,0,100,vec3(0, 0, 0),true, 0, 1, .3, make_shared<SinFunction>()));
 
     dist = 50;
-    brickWidth = 1;
-    brickHeight = .5;
-    brickDepth = .5;
+    brickWidth = .4;
+    brickHeight = .2;
+    brickDepth = .2;
     spacing = .01;
-    scaleX = 10;
-    scaleY = 10;
-    scaleZ = 10;
+    scaleX = 30;
+    scaleY = 30;
+    scaleZ = 30;
     wallDepth = 1;
 
     //initialize cube vertices

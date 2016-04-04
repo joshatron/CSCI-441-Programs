@@ -21,7 +21,7 @@ void main() {
     float specular = 0;
     if(dot(normal, l) >= 0)
     {
-        specular = .1 * pow(max(0, dot(v, r)), 100);
+        specular = .1 * pow(max(0, dot(v, r)), 5);
     }
 
     float ambient = .1;
