@@ -30,10 +30,11 @@ class Shape
     public:
         vector<mat4> brickLocs;
         vec3 centerLoc;
+        vec3 allRotate;
         double angle;//radians
 
         void updateBrickLocs(double brickWidth, double brickHeight, double brickDepth, double spacing, double scaleX, double scaleY, double scaleZ, int wallDepth);
-        Shape(double xd, double zd, double h, double a, int s, vec3 center, bool st, double fb, double fe, double fs, shared_ptr<Function> func);
+        Shape(double xd, double zd, double h, int s, vec3 center, vec3 rot, bool st, double fb, double fe, double fs, shared_ptr<Function> func);
     
     private:
         void drawWall(double brickWidth, double brickHeight, double brickDepth, double spacing, double scaleX, double scaleY, double scaleZ, vec3 startLoc, vec3 endLoc, bool start);

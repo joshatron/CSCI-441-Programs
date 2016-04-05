@@ -4,14 +4,14 @@
 using std::cout;
 using std::endl;
 
-Shape::Shape(double xd, double zd, double h, double a, int s, vec3 center, bool st, double fb, double fe, double fs, shared_ptr<Function> func)
+Shape::Shape(double xd, double zd, double h, int s, vec3 center, vec3 rot, bool st, double fb, double fe, double fs, shared_ptr<Function> func)
 {
     xDiameter = xd;
     zDiameter = zd;
     height = h;
-    angle = a;
     sides = s;
     centerLoc = center;
+    allRotate = rot;
     starting = st;
     functionBegin = fb;
     functionEnd = fe;
