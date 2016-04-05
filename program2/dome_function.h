@@ -7,6 +7,7 @@
     #define M_PI 3.14159265358979323846
 #endif
 
+//step function where first half is scale and second is top half of circle
 class DomeFunction: public Function
 {
     public:

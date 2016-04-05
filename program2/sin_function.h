@@ -7,6 +7,7 @@
     #define M_PI 3.14159265358979323846
 #endif
 
+//sin function scaled by scale and translated over by 1
 class SinFunction: public Function
 {
     public:

@@ -7,6 +7,7 @@
     #define M_PI 3.14159265358979323846
 #endif
 
+//equation for a circle, only use from -scale to scale
 class CircleFunction: public Function
 {
     public:

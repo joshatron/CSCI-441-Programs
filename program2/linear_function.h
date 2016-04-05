@@ -3,6 +3,7 @@
 #include <math.h>
 #include "function.h"
 
+//linear function with a slope of scale
 class LinearFunction: public Function
 {
     public:

@@ -42,6 +42,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         void renderCube();
         void updateBuffer(int num);
 
+        //scale values
         double dist;
         double brickWidth;
         double brickHeight;
@@ -52,28 +53,22 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         double scaleZ;
         int wallDepth;
 
-        //0- zoom
-        //1- brickWidth
-        //2- brickHeight
-        //3- brickDepth
-        //4- uniform brick scale
-        //5- scale x
-        //6- scale y
-        //7- scale z
-        //8- uniform scale
-        //9- scale x and z
+        //what to scale
         int scaler;
 
+        //cube info
         vec3 cube[24];
         vec3 normals[24];
         vec3 cubeColor;
         int numCubes;
 
+        //light info
         mat4 lightTransform;
         vec3 lightLoc;
         vec3 lightColor;
         double lightBrightness;
 
+        //structure which holds shape
         Structure structure;
 
         GLuint positionBuffer;

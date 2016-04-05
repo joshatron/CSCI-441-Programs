@@ -1,6 +1,6 @@
 #include "glwidget.h"
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include <memory>
 #include "linear_function.h"
 #include "sin_function.h"
@@ -33,6 +33,7 @@ using glm::lookAt;
 using std::cout;
 using std::endl;
 using std::make_shared;
+using std::isnan;
 
 GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
 {
@@ -40,11 +41,15 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
     cubeColor = vec3(1,1,1);
     scaler = 0;
 
+    //initialize light
     lightLoc = vec3(0,10,0);
     lightColor = vec3(1,1,1);
     lightBrightness = 1;
+
+    //add a basic wall
     structure.shapes.push_back(Shape(1,0,1,1,vec3(0, 0, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
 
+    //initialize scales
     dist = 50;
     brickWidth = .4;
     brickHeight = .2;
@@ -107,6 +112,7 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
     normals[22] = vec3(-1, 0, 0);
     normals[23] = vec3(-1, 0, 0);
 
+    //create brick locations for shape
     structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
 }
 
@@ -297,10 +303,13 @@ void GLWidget::renderCube()
 {
     glUseProgram(cubeProg);
     glBindVertexArray(cubeVao);
+    //for each brickLoc
     for(unsigned int k = 0; k < structure.brickLocs.size(); k++)
     {
+        //get transform and upload to shader
         mat4 loc = modelMatrix * structure.brickLocs.at(k) * structure.brickShape;
         glUniformMatrix4fv(cubeModelMatrixLoc, 1, false, value_ptr(loc));
+        //for each face, render it
         for(int a = 0; a < 6; a++)
         {
             glDrawArrays(GL_TRIANGLE_FAN, a * 4, 4);
@@ -312,6 +321,7 @@ void GLWidget::renderLight()
 {
     glUseProgram(lightProg);
     glBindVertexArray(lightVao);
+    //draw each face of light cube
     for(int k = 0; k < 6; k++)
     {
         glDrawArrays(GL_TRIANGLE_FAN, k * 4, 4);
@@ -442,17 +452,6 @@ vec3 GLWidget::pointOnVirtualTrackball(const vec2 &pt) {
     return p;
 }
 
-//0- zoom
-//1- brickWidth
-//2- brickHeight
-//3- brickDepth
-//4- uniform brick scale
-//5- scale x
-//6- scale y
-//7- scale z
-//8- uniform scale
-//9- scale x and z
-//10- spacing
 void GLWidget::wheelEvent(QWheelEvent *event)
 {
     float numSteps = event->delta() / 8.f / 15.f;
@@ -650,6 +649,7 @@ void GLWidget::wheelEvent(QWheelEvent *event)
                 break;
         }
 
+        //update all brick locations of all shapes
         structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
     }
 
@@ -835,7 +835,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         //8 sided funnel
         case Qt::Key_4:
             structure.shapes.clear();
-            structure.shapes.push_back(Shape(1,1,1,8,vec3(0, 0, 0),vec3(0,0,0),true,0,1,1,make_shared<LinearFunction>()));
+            structure.shapes.push_back(Shape(1,1,1,8,vec3(0, 0, 0),vec3(0,0,0),true,0,1,.5,make_shared<LinearFunction>()));
             structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
             break;
         //4 sided pyramid
@@ -874,8 +874,6 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
             structure.shapes.clear();
             structure.shapes.push_back(Shape(1,1,1,4,vec3(0, 0, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
             structure.shapes.push_back(Shape(1,1,1,4,vec3(0, 0, 0),vec3(M_PI/4,0,0),true,0,1,1,make_shared<Function>()));
-            structure.shapes.push_back(Shape(1,1,1,4,vec3(0, 0, 0),vec3(0,M_PI/4,0),true,0,1,1,make_shared<Function>()));
-            structure.shapes.push_back(Shape(1,1,1,4,vec3(0, 0, 0),vec3(0,0,M_PI/4),true,0,1,1,make_shared<Function>()));
             structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
             break;
         //odd problem
