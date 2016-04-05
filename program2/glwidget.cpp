@@ -1,6 +1,6 @@
 #include "glwidget.h"
 #include <iostream>
-#include <cmath>
+#include <math.h>
 #include <memory>
 #include "linear_function.h"
 #include "sin_function.h"
@@ -840,7 +840,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         //4 sided pyramid
         case Qt::Key_5:
             structure.shapes.clear();
-            structure.shapes.push_back(Shape(1,1,1,4,vec3(0, 0, 0),vec3(0,0,0),true,1,0,1,make_shared<LinearFunction>()));
+            structure.shapes.push_back(Shape(1,1,1.05,4,vec3(0, 0, 0),vec3(0,0,0),true,1,0,1,make_shared<LinearFunction>()));
             structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
             break;
         //100 sides sin
