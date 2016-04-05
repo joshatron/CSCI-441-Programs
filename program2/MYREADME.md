@@ -13,7 +13,7 @@ For example, combining a wall, four towers, and a dome roofed building will make
 Using 2 oval walls with 500 sides each and 1 linear wall with 500 sides makes a stadium (press 8).
 
 Scaling can be done by brick size and number of bricks.
-This scaling can be done independantly on the x, y, and z axis, but may produce strange results if done in a structure with rotated parts (press 9).
+This scaling can be done independantly on the x, y, and z axis, but may produce strange results if done in a structure with rotated shapes (press 9, then g and scroll).
 The shapes are drawn around an oval so the x and z axis can be scaled independantly.
 The way shapes are built can lead to a strange looking corner.
 The walls switch whether even or odd rows are longer.
@@ -23,7 +23,7 @@ It was decided not to fix this because you have to look closely for it to be not
 The lighting was also improved. There are controls to move the light around, change its color, and change its brightness.
 A cube is also placed on screen to give an idea of where the light is and what color it is.
 
-Controls
+Controls:
 
 Camera Controls
 

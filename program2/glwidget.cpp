@@ -874,8 +874,6 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
             structure.shapes.clear();
             structure.shapes.push_back(Shape(1,1,1,4,vec3(0, 0, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
             structure.shapes.push_back(Shape(1,1,1,4,vec3(0, 0, 0),vec3(M_PI/4,0,0),true,0,1,1,make_shared<Function>()));
-            structure.shapes.push_back(Shape(1,1,1,4,vec3(0, 0, 0),vec3(0,M_PI/4,0),true,0,1,1,make_shared<Function>()));
-            structure.shapes.push_back(Shape(1,1,1,4,vec3(0, 0, 0),vec3(0,0,M_PI/4),true,0,1,1,make_shared<Function>()));
             structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
             break;
         //odd problem
