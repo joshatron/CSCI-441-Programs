@@ -24,10 +24,14 @@ using glm::scale;
 class Structure
 {
     public:
+        //all shapes in structure
         vector<Shape> shapes;
+        //brick locs for all bricks in all shapes
         vector<mat4> brickLocs;
+        //uniform scale to send to shader
         mat4 brickShape;
 
+        //for each shape, tranform all the locations and add to brickLocs
         void updateBrickLocs(double brickWidth, double brickHeight, double brickDepth, double spacing, double scaleX, double scaleY, double scaleZ, int wallDepth);
 };
 

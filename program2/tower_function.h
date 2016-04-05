@@ -3,6 +3,7 @@
 #include <math.h>
 #include "function.h"
 
+//step function that is scale width with a cone on top
 class TowerFunction: public Function
 {
     public:

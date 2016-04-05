@@ -28,16 +28,21 @@ using glm::distance;
 class Shape
 {
     public:
+        //transforms for each brick
         vector<mat4> brickLocs;
+        //center of shape
         vec3 centerLoc;
+        //rotation for shape
         vec3 allRotate;
-        double angle;//radians
 
+        //given parameters, set brickLocs
         void updateBrickLocs(double brickWidth, double brickHeight, double brickDepth, double spacing, double scaleX, double scaleY, double scaleZ, int wallDepth);
         Shape(double xd, double zd, double h, int s, vec3 center, vec3 rot, bool st, double fb, double fe, double fs, shared_ptr<Function> func);
     
     private:
+        //given parameters, start, and end, draw wall
         void drawWall(double brickWidth, double brickHeight, double brickDepth, double spacing, double scaleX, double scaleY, double scaleZ, vec3 startLoc, vec3 endLoc, bool start);
+        //given parameters, draw 4 walls in rectangle
         void updateBrickLocsRect(double brickWidth, double brickHeight, double brickDepth, double spacing, double scaleX, double scaleY, double scaleZ, int wallDepth);
         double xDiameter;
         double zDiameter;
