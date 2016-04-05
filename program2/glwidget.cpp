@@ -33,7 +33,6 @@ using glm::lookAt;
 using std::cout;
 using std::endl;
 using std::make_shared;
-using std::isnan;
 
 GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
 {
