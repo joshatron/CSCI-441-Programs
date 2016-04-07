@@ -1,5 +1,10 @@
 #ifndef STRUCTURE_H
 #define STRUCTURE_H
+
+#ifndef GLM_FORCE_RADIANS
+    #define GLM_FORCE_RADIANS
+#endif
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
@@ -13,20 +18,21 @@ using std::vector;
 using glm::vec3;
 using glm::mat4;
 using glm::translate;
+using glm::rotate;
 using glm::scale;
 
 class Structure
 {
     public:
-        vector<shape> shapes;
+        //all shapes in structure
+        vector<Shape> shapes;
+        //brick locs for all bricks in all shapes
         vector<mat4> brickLocs;
+        //uniform scale to send to shader
         mat4 brickShape;
-        mat4 lightTransform;
-        vec3 lightLoc;
-        vec3 lightColor;
-        double brightness;
 
-        void updateBrickLocs(double brickWidth, double brickHeight, double brickDepth, double spacing, int wallDepth);
+        //for each shape, tranform all the locations and add to brickLocs
+        void updateBrickLocs(double brickWidth, double brickHeight, double brickDepth, double spacing, double scaleX, double scaleY, double scaleZ, int wallDepth);
 };
 
 #endif

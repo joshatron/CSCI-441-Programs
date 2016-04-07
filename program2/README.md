@@ -1,81 +1,61 @@
-# Lab 6 - Materials and Lights
+For this project, my main focus was on construction algorithms.
+The bricks are held in shape classes.
+Each shape is composed of walls (press 1).
+Most shapes are composed of walls being stitched together with the exception of 4 sides, where specific work was done to prevent collisions (press 2).
+Other shapes have collisions because they tended to look better when the walls were combined (press 3).
+Along with straight walls, a function can be applied to the width at different heights, for example of a linear function (press 4).
+A function can also be run backward (press 5).
+Any function can be created.
+For example, the sin function can be translated and scaled down creates a nice vase shape (press 6).
+You can also make step functions.
+A structure is a construction of one or more shapes which are translated to relative positions in the structure.
+For example, combining a wall, four towers, and a dome roofed building will make a simple castle (press 7).
+Using 2 oval walls with 500 sides each and 1 linear wall with 500 sides makes a stadium (press 8).
 
-*You may work in pairs on this assignment. To receive credit, demonstrate your completed program during lab or push your code
-up to Bitbucket prior to class on the due date. See the [syllabus](https://bitbucket.org/msucsc441spring2016/syllabus) for an
-up-to-date schedule of assignments and due dates.*
+Scaling can be done by brick size and number of bricks.
+This scaling can be done independantly on the x, y, and z axis, but may produce strange results if done in a structure with rotated parts (press 9).
+The shapes are drawn around an oval so the x and z axis can be scaled independantly.
+The way shapes are built can lead to a strange looking corner.
+The walls switch whether even or odd rows are longer.
+Because of this, an odd number of sides leads to one of the connections not lining up well (press 0).
+It was decided not to fix this because you have to look closely for it to be noticeable and would required a more involved construction algorithm.
 
-In this lab, you’ll be implementing the Phong reflection model to shade the cube from previous labs. The Phong reflection model combines 
-diffuse reflections which mimic rough surfaces, specular reflections which mimic shiny surfaces and ambient reflections which mimic the 
-small amount of light that is uniformly scattered around the scene.
+The lighting was also improved. There are controls to move the light around, change its color, and change its brightness.
+A cube is also placed on screen to give an idea of where the light is and what color it is.
 
-## Part 1 - Normals
+Controls
 
-To calculate any of the lighting equations, we need to have the normal at the point we’re shading. The normal is part of the underlying 
-geometry. We need to specify the normal at each point, just like we specify position. Modify the initializeCube method to create a normal 
-buffer, just like we’re doing for position. You’ll need a normal for every vertex, so I recommend copying the position array and modifying 
-the vectors to represent the normal at each point. The normal at each point should be a unit vector that is perpendicular to the face that
-the point is a part of. For example, the top face of our cube has a normal of (0,1,0), so all points that define the top face of the cube
-should have that normal assigned to them.
+Camera Controls
 
-## Part 2 - Vertex Shader
+* z and scoll- zoom
 
-We’ll be calculating our lighting equations in our fragment shader, but we’ll need access to the cube’s position and normal data first. 
-First, add a normal input variable on your vertex shader. Then, create position and normal outputs in the vertex shader and copy over the 
-corresponding data. Be sure to transform the data into eye space first. To transform normal vectors you’ll need to multiply by the 
-inverse transpose of the transformation matrix and normalize the resulting vector, whereas your position vectors can just be multiplied by the 
-transformation matrix. If you just multiplied the normals by the transformation matrix, you’d see shading errors when your model matrix 
-includes scaling.
+Light Controls
 
-## Part 3 - Fragment Shader
+* w- move light in positive z
+* s- move light in negative z
+* d- move light in positive x
+* a- move light in negative x
+* e- move light in positive y
+* c- move light in negative y
+* i and scroll- brightness
+* r and scroll- red value
+* f and scroll- green value
+* v and scroll- blue value
 
-### Light
+Brick Controls
 
-#### Position
+* t and scroll- brick width
+* y and scroll- brick height
+* u and scroll- brick width
+* b and scroll- uniform brick scale
+* g and scroll- scale number of bricks in x dimension
+* h and scroll- scale number of bricks in y dimension
+* j and scroll- scale number of bricks in y dimension
+* n and scroll- scale number of bricks in in all dimensions
+* m and scroll- scale number of bricks in x and z dimensions
+* x and scroll- spacing
 
-We’ll need a light source if we want to shade our cube. In your fragment shader, create a uniform vec3 variable that will store our light 
-position. Make sure to initialize it in initializeCube (a good starting value is 0,10,0). In your fragment shader, transform the light position
-into eye space. Any uniform variables you have in your vertex shader can also be used in your fragment shader as long as you declare them as
-uniform variables exactly like you did in your vertex shader (no changes are needed in your C++ code).
+Misc Controls
 
-#### Color and intensity (optional)
-
-The color of your light can be another uniform vec3 variable that represents the color of your light source. It can be multiplied in to your
-lighting equations anywhere material color is multiplied in. If you don't specify a light color, the result will be as if the light is fully
-white (1,1,1). Another option would be to add a uniform float intensity variable as a multiplier on the brightness of your light. These are
-just ways to adjust the lighting in your scene from your program. For this lab, just do these if you're interested in playing around with it.
-
-### Material
-
-#### Diffuse reflections
-
-Implement diffuse reflections using the light position and the position and normals on your cube. You’ll need to calculate the light direction 
-(a unit vector that points in the direction of your light source), and then take the dot product of that vector with your normal. Clamp the dot
-product between 0 and 1, as we don’t want any negative values. Multiply the resulting value by the color of your cube and assign that color to
-the output color.
-
-#### Specular reflections
-
-To calculate specular reflections we’ll need to calculate the view direction (a unit vector that points toward the camera) and a reflection 
-direction (a unit vector of our light direction reflected about the normal). We’ll also need a shininess uniform variable, which is a floating point 
-or integer value. The higher the shininess value the shinier the surface (0 would be not shiny and all, 128 would be very shiny). Take the 
-dot product of the view direction and reflection direction vectors, clamp the value to between 0 and 1 and raise it to the power of your 
-shininess variable. Since specular reflections represents shiny reflections, it should mostly reflect the color of your light source. If you added
-a light color, multiply the value you just calculated by the light color and add it to the diffuse color before assigning it to the output color. If
-you didn't make a light color variable, just multiply by white (1,1,1).
-
-#### Ambient reflections
-
-Ambient reflections can be implemented by adding a small amount of color to your output color. Use a multiplier such as .1, and multiply it by the
-cube's color and add it to the specular and diffuse components before assigning it to the output color.
-
-## Things to notice
-
-When the light is directly above a surface is when the diffuse shading will be brightest. Rotate the cube around and see how the cube looks 
-from different angles. If you’ve implemented specular reflections, you should be able to see a specular highlight when the camera is in 
-line with the light’s reflection. When the material is very shiny, the highlight will be small, whereas when the material isn’t 
-very shiny the highlight will be larger. To maintain realism, you'll need to dial back the intensity of the specular highlight for objects that
-aren't very shiny.
-
-## Recommended Reading
-
-[Phong reflection model](http://en.wikipedia.org/wiki/Phong_reflection_model)
+* q- reset everything
+* 0-9- example structures

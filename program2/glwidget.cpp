@@ -1,5 +1,12 @@
 #include "glwidget.h"
 #include <iostream>
+#include <math.h>
+#include <memory>
+#include "linear_function.h"
+#include "sin_function.h"
+#include "cir_function.h"
+#include "tower_function.h"
+#include "dome_function.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -20,13 +27,92 @@ using glm::length;
 using glm::cross;
 using glm::dot;
 using glm::rotate;
+using glm::translate;
 using glm::value_ptr;
 using glm::lookAt;
 using std::cout;
 using std::endl;
+using std::make_shared;
 
-GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) { 
-    light = vec3(10, 10, 10);
+GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
+{
+    numCubes = 0;
+    cubeColor = vec3(1,1,1);
+    scaler = 0;
+
+    //initialize light
+    lightLoc = vec3(0,10,0);
+    lightColor = vec3(1,1,1);
+    lightBrightness = 1;
+
+    //add a basic wall
+    structure.shapes.push_back(Shape(1,0,1,1,vec3(0, 0, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+
+    //initialize scales
+    dist = 50;
+    brickWidth = .4;
+    brickHeight = .2;
+    brickDepth = .2;
+    spacing = .01;
+    scaleX = 30;
+    scaleY = 30;
+    scaleZ = 30;
+    wallDepth = 1;
+
+    //initialize cube vertices
+    cube[0] = vec3(.5,.5,.5);
+    cube[1] = vec3(.5,.5,-.5);
+    cube[2] = vec3(-.5,.5,-.5);
+    cube[3] = vec3(-.5,.5,.5);
+    cube[4] = vec3(.5,-.5,.5);
+    cube[5] = vec3(-.5,-.5,.5);
+    cube[6] = vec3(-.5,-.5,-.5);
+    cube[7] = vec3(.5,-.5,-.5);
+    cube[8] = vec3(.5,.5,.5);
+    cube[9] = vec3(-.5,.5,.5);
+    cube[10] = vec3(-.5,-.5,.5);
+    cube[11] = vec3(.5,-.5,.5);
+    cube[12] = vec3(-.5,-.5,-.5);
+    cube[13] = vec3(-.5,.5,-.5);
+    cube[14] = vec3(.5,.5,-.5);
+    cube[15] = vec3(.5,-.5,-.5);
+    cube[16] = vec3(.5,-.5,.5);
+    cube[17] = vec3(.5,-.5,-.5);
+    cube[18] = vec3(.5,.5,-.5);
+    cube[19] = vec3(.5,.5,.5);
+    cube[20] = vec3(-.5,-.5,.5);
+    cube[21] = vec3(-.5,.5,.5);
+    cube[22] = vec3(-.5,.5,-.5);
+    cube[23] = vec3(-.5,-.5,-.5);
+
+    //initialize normals
+    normals[0] = vec3(0,1,0);
+    normals[1] = vec3(0,1,0);
+    normals[2] = vec3(0,1,0);
+    normals[3] = vec3(0,1,0);
+    normals[4] = vec3(0,-1,0);
+    normals[5] = vec3(0,-1,0);
+    normals[6] = vec3(0,-1,0);
+    normals[7] = vec3(0,-1,0);
+    normals[8] = vec3(0, 0, 1);
+    normals[9] = vec3(0, 0, 1);
+    normals[10] = vec3(0, 0, 1);
+    normals[11] = vec3(0, 0, 1);
+    normals[12] = vec3(0, 0, -1);
+    normals[13] = vec3(0, 0, -1);
+    normals[14] = vec3(0, 0, -1);
+    normals[15] = vec3(0, 0, -1);
+    normals[16] = vec3(1, 0, 0);
+    normals[17] = vec3(1, 0, 0);
+    normals[18] = vec3(1, 0, 0);
+    normals[19] = vec3(1, 0, 0);
+    normals[20] = vec3(-1, 0, 0);
+    normals[21] = vec3(-1, 0, 0);
+    normals[22] = vec3(-1, 0, 0);
+    normals[23] = vec3(-1, 0, 0);
+
+    //create brick locations for shape
+    structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
 }
 
 GLWidget::~GLWidget() {
@@ -73,6 +159,40 @@ void GLWidget::initializeGrid() {
     gridModelMatrixLoc = glGetUniformLocation(program, "model");
 }
 
+void GLWidget::initializeLight()
+{
+    glGenVertexArrays(1, &lightVao);
+    glBindVertexArray(lightVao);
+
+    // Create a buffer on the GPU for position data
+    GLuint positionBuffer;
+    glGenBuffers(1, &positionBuffer);
+
+    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
+
+    GLuint program = loadShaders(":/light_vert.glsl", ":/light_frag.glsl");
+    glUseProgram(program);
+    lightProg = program;
+
+    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+    GLint positionIndex = glGetAttribLocation(program, "position");
+    glEnableVertexAttribArray(positionIndex);
+    glVertexAttribPointer(positionIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+    lightProjMatrixLoc = glGetUniformLocation(program, "projection");
+    lightViewMatrixLoc = glGetUniformLocation(program, "view");
+    lightModelMatrixLoc = glGetUniformLocation(program, "model");
+    lightLightMatrixLoc = glGetUniformLocation(program, "light");
+    lightColorLoc = glGetUniformLocation(program, "color");
+    lightBrightnessLoc = glGetUniformLocation(program, "brightness");
+
+    glUniform3fv(lightColorLoc, 1, value_ptr(lightColor));
+    glUniform1f(lightBrightnessLoc, lightBrightness);
+    lightMatrix = translate(mat4(1.f), lightLoc) * scale(mat4(1.f), vec3(.5, .5, .5));
+    glUniformMatrix4fv(lightLightMatrixLoc, 1, false, value_ptr(lightMatrix));
+}
+
 void GLWidget::initializeCube() {
     // Create a new Vertex Array Object on the GPU which
     // saves the attribute layout of our vertices.
@@ -82,156 +202,13 @@ void GLWidget::initializeCube() {
     // Create a buffer on the GPU for position data
     GLuint positionBuffer;
     glGenBuffers(1, &positionBuffer);
-
-    GLuint colorBuffer;
-    glGenBuffers(1, &colorBuffer);
-
-    GLuint indexBuffer;
-    glGenBuffers(1, &indexBuffer);
-
     GLuint normalBuffer;
     glGenBuffers(1, &normalBuffer);
-
-    vec3 normals[] = {
-        // top phase
-        vec3(0,1,0),
-        vec3(0,1,0),
-        vec3(0,1,0),
-        vec3(0,1,0),
-
-        // bottom
-        vec3(0,-1,0),
-        vec3(0,-1,0),
-        vec3(0,-1,0),
-        vec3(0,-1,0),
-
-        // front
-        vec3(0, 0, 1),
-        vec3(0, 0, 1),
-        vec3(0, 0, 1),
-        vec3(0, 0, 1),
-
-        // back
-        vec3(0, 0, -1),
-        vec3(0, 0, -1),
-        vec3(0, 0, -1),
-        vec3(0, 0, -1),
-
-        // right
-        vec3(1, 0, 0),
-        vec3(1, 0, 0),
-        vec3(1, 0, 0),
-        vec3(1, 0, 0),
-
-        // left
-        vec3(-1, 0, 0),
-        vec3(-1, 0, 0),
-        vec3(-1, 0, 0),
-        vec3(-1, 0, 0),
-    };
-
-    vec3 pts[] = {
-        // top
-        vec3(1,1,1),    // 0
-        vec3(1,1,-1),   // 1
-        vec3(-1,1,-1),  // 2
-        vec3(-1,1,1),   // 3
-
-        // bottom
-        vec3(1,-1,1),   // 4
-        vec3(-1,-1,1),  // 5
-        vec3(-1,-1,-1), // 6
-        vec3(1,-1,-1),  // 7
-
-        // front
-        vec3(1,1,1),    // 8
-        vec3(-1,1,1),   // 9
-        vec3(-1,-1,1),  // 10
-        vec3(1,-1,1),   // 11
-
-        // back
-        vec3(-1,-1,-1), // 12
-        vec3(-1,1,-1),  // 13
-        vec3(1,1,-1),   // 14
-        vec3(1,-1,-1),  // 15
-
-        // right
-        vec3(1,-1,1),   // 16
-        vec3(1,-1,-1),  // 17
-        vec3(1,1,-1),   // 18
-        vec3(1,1,1),     // 19
-
-        // left
-        vec3(-1,-1,1),  // 20
-        vec3(-1,1,1),   // 21
-        vec3(-1,1,-1),  // 22
-        vec3(-1,-1,-1) // 23
-
-    };
-
-    for(int i = 0; i < 24; i++) {
-        pts[i] *= .5;
-    }
-
-    vec3 colors[] = {
-        // top
-        vec3(0,1,0),    
-        vec3(0,1,0),    
-        vec3(0,1,0),    
-        vec3(0,1,0),    
-
-        // bottom
-        vec3(0,.5f,0),  
-        vec3(0,.5f,0),  
-        vec3(0,.5f,0),  
-        vec3(0,.5f,0),  
-
-        // front
-        vec3(0,0,1),    
-        vec3(0,0,1),    
-        vec3(0,0,1),    
-        vec3(0,0,1),    
-
-        // back
-        vec3(0,0,.5f),  
-        vec3(0,0,.5f),  
-        vec3(0,0,.5f),  
-        vec3(0,0,.5f),
-
-        // right
-        vec3(1,0,0),    
-        vec3(1,0,0),    
-        vec3(1,0,0),    
-        vec3(1,0,0),    
-
-
-        // left
-        vec3(.5f,0,0),  
-        vec3(.5f,0,0),  
-        vec3(.5f,0,0),  
-        vec3(.5f,0,0)  
-    };
-
-    GLuint restart = 0xFFFFFFFF;
-    GLuint indices[] = {
-        0,1,2,3, restart,
-        4,5,6,7, restart,
-        8,9,10,11, restart,
-        12,13,14,15, restart,
-        16,17,18,19, restart,
-        20,21,22,23
-    };
 
     // Upload the position data to the GPU, storing
     // it in the buffer we just allocated.
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(pts), pts, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals, GL_STATIC_DRAW);
@@ -257,30 +234,33 @@ void GLWidget::initializeCube() {
     glEnableVertexAttribArray(normalIndex);
     glVertexAttribPointer(normalIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-    GLint colorIndex = glGetAttribLocation(program, "color");
-    glEnableVertexAttribArray(colorIndex);
-    glVertexAttribPointer(colorIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
     cubeProjMatrixLoc = glGetUniformLocation(program, "projection");
     cubeViewMatrixLoc = glGetUniformLocation(program, "view");
     cubeModelMatrixLoc = glGetUniformLocation(program, "model");
+    cubeColorLoc = glGetUniformLocation(program, "color");
     cubeLightPosLoc = glGetUniformLocation(program, "lightPos");
+    cubeLightColorLoc = glGetUniformLocation(program, "lightColor");
+    cubeLightBrightnessLoc = glGetUniformLocation(program, "lightBrightness");
+
+    glUniform3fv(cubeLightColorLoc, 1, value_ptr(lightColor));
+    glUniform1f(cubeLightBrightnessLoc, lightBrightness);
 }
 
-void GLWidget::initializeGL() {
+void GLWidget::initializeGL()
+{
     initializeOpenGLFunctions();
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glPointSize(4.0f);
 
     glEnable(GL_DEPTH_TEST);
-    GLuint restart = 0xFFFFFFFF;
-    glPrimitiveRestartIndex(restart);
-    glEnable(GL_PRIMITIVE_RESTART);
 
     initializeCube();
     initializeGrid();
+    initializeLight();
+
+    glUseProgram(cubeProg);
+    glUniform3fv(cubeColorLoc, 1, value_ptr(cubeColor));
 }
 
 void GLWidget::resizeGL(int w, int h) {
@@ -289,17 +269,20 @@ void GLWidget::resizeGL(int w, int h) {
 
     float aspect = (float)w/h;
 
-    projMatrix = perspective(45.0f, aspect, 1.0f, 100.0f);
-    viewMatrix = lookAt(vec3(0,0,-10),vec3(0,0,0),vec3(0,1,0));
-    modelMatrix = mat4(1.0f);
+    projMatrix = perspective(45.0f, aspect, 1.0f, 300.0f);
+    viewMatrix = lookAt(vec3(0,0,-1 * dist),vec3(0,0,0),vec3(0,1,0));
 
     glUseProgram(cubeProg);
     glUniformMatrix4fv(cubeProjMatrixLoc, 1, false, value_ptr(projMatrix));
     glUniformMatrix4fv(cubeViewMatrixLoc, 1, false, value_ptr(viewMatrix));
     glUniformMatrix4fv(cubeModelMatrixLoc, 1, false, value_ptr(modelMatrix));
-    vec3 tempLight = vec3(viewMatrix * modelMatrix * vec4(light, 1));
+    tempLight = vec3(viewMatrix * modelMatrix * vec4(lightLoc, 1));
     glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
 
+    glUseProgram(lightProg);
+    glUniformMatrix4fv(lightProjMatrixLoc, 1, false, value_ptr(projMatrix));
+    glUniformMatrix4fv(lightViewMatrixLoc, 1, false, value_ptr(viewMatrix));
+    glUniformMatrix4fv(lightModelMatrixLoc, 1, false, value_ptr(modelMatrix));
 
     glUseProgram(gridProg);
     glUniformMatrix4fv(gridProjMatrixLoc, 1, false, value_ptr(projMatrix));
@@ -312,12 +295,36 @@ void GLWidget::paintGL() {
 
     renderGrid();
     renderCube();
+    renderLight();
 }
 
-void GLWidget::renderCube() {
+void GLWidget::renderCube()
+{
     glUseProgram(cubeProg);
     glBindVertexArray(cubeVao);
-    glDrawElements(GL_TRIANGLE_FAN, 29, GL_UNSIGNED_INT, 0);
+    //for each brickLoc
+    for(unsigned int k = 0; k < structure.brickLocs.size(); k++)
+    {
+        //get transform and upload to shader
+        mat4 loc = modelMatrix * structure.brickLocs.at(k) * structure.brickShape;
+        glUniformMatrix4fv(cubeModelMatrixLoc, 1, false, value_ptr(loc));
+        //for each face, render it
+        for(int a = 0; a < 6; a++)
+        {
+            glDrawArrays(GL_TRIANGLE_FAN, a * 4, 4);
+        }
+    }
+}
+
+void GLWidget::renderLight()
+{
+    glUseProgram(lightProg);
+    glBindVertexArray(lightVao);
+    //draw each face of light cube
+    for(int k = 0; k < 6; k++)
+    {
+        glDrawArrays(GL_TRIANGLE_FAN, k * 4, 4);
+    }
 }
 
 void GLWidget::renderGrid() {
@@ -400,21 +407,26 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
     vec3 vPt = normalize(pointOnVirtualTrackball(pt));
 
     vec3 axis = cross(lastVPt, vPt);
-//    vec3 axis = cross(vPt, lastVPt);
     if(length(axis) >= .00001) {
         axis = normalize(axis);
         float angle = acos(dot(vPt,lastVPt));
-        mat4 r = rotate(mat4(1.0f), angle, axis);
+        if(!isnan(angle))
+        {
+            mat4 r = rotate(mat4(1.0f), (float)(angle), axis);
 
-        modelMatrix = r*modelMatrix;
+            modelMatrix = r*modelMatrix;
 
-        glUseProgram(cubeProg);
-        glUniformMatrix4fv(cubeModelMatrixLoc, 1, false, value_ptr(modelMatrix));
-        vec3 tempLight = vec3(viewMatrix * modelMatrix * vec4(light, 1));
-        glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
+            glUseProgram(cubeProg);
+            glUniformMatrix4fv(cubeModelMatrixLoc, 1, false, value_ptr(modelMatrix));
+            tempLight = vec3(viewMatrix * modelMatrix * vec4(lightLoc, 1));
+            glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
 
-        glUseProgram(gridProg);
-        glUniformMatrix4fv(gridModelMatrixLoc, 1, false, value_ptr(modelMatrix));
+            glUseProgram(lightProg);
+            glUniformMatrix4fv(lightModelMatrixLoc, 1, false, value_ptr(modelMatrix));
+
+            glUseProgram(gridProg);
+            glUniformMatrix4fv(gridModelMatrixLoc, 1, false, value_ptr(modelMatrix));
+        }
     }
     lastVPt = vPt;
     update();
@@ -436,7 +448,441 @@ vec3 GLWidget::pointOnVirtualTrackball(const vec2 &pt) {
         p.z = rr*.5/sqrt(xx+yy);
     }
 
-//    std::cout << p.x << ", " << p.y << ", " << p.z << std::endl;
-
     return p;
 }
+
+void GLWidget::wheelEvent(QWheelEvent *event)
+{
+    float numSteps = event->delta() / 8.f / 15.f;
+    //zoom
+    if(scaler == 0)
+    {
+        dist -= numSteps;
+        if(dist < 1)
+        {
+            dist = 1;
+        }
+
+        glUseProgram(cubeProg);
+        viewMatrix = lookAt(vec3(0,0,-1 * dist),vec3(0,0,0),vec3(0,1,0));
+        glUniformMatrix4fv(cubeViewMatrixLoc, 1, false, value_ptr(viewMatrix));
+        tempLight = vec3(viewMatrix * modelMatrix * vec4(lightLoc, 1));
+        glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
+        glUseProgram(lightProg);
+        glUniformMatrix4fv(lightViewMatrixLoc, 1, false, value_ptr(viewMatrix));
+        glUseProgram(gridProg);
+        glUniformMatrix4fv(gridViewMatrixLoc, 1, false, value_ptr(viewMatrix));
+    }
+    else
+    {
+        switch(scaler)
+        {
+            //brick width
+            case 1:
+                brickWidth += numSteps * .1;
+                if(brickWidth < .1)
+                {
+                    brickWidth = .1;
+                }
+                break;
+            //brick height
+            case 2:
+                brickHeight += numSteps * .1;
+                if(brickHeight < .1)
+                {
+                    brickHeight = .1;
+                }
+                break;
+            //brick depth
+            case 3:
+                brickDepth += numSteps * .1;
+                if(brickDepth < .1)
+                {
+                    brickDepth = .1;
+                }
+                break;
+            //uniform brick scale
+            case 4:
+                brickHeight += numSteps * .1 * (brickHeight / brickWidth);
+                brickDepth += numSteps * .1 * (brickDepth / brickWidth);
+                brickWidth += numSteps * .1;
+                if(brickWidth < .1)
+                {
+                    brickWidth = .1;
+                }
+                if(brickHeight < .1)
+                {
+                    brickHeight = .1;
+                }
+                if(brickDepth < .1)
+                {
+                    brickDepth = .1;
+                }
+                break;
+            //scale x
+            case 5:
+                scaleX += numSteps;
+                if(scaleX < 1)
+                {
+                    scaleX = 1;
+                }
+                break;
+            //scale y
+            case 6:
+                scaleY += numSteps;
+                if(scaleY < 1)
+                {
+                    scaleY = 1;
+                }
+                break;
+            //scale z
+            case 7:
+                scaleZ += numSteps;
+                if(scaleZ < 1)
+                {
+                    scaleZ = 1;
+                }
+                break;
+            //uniform scale
+            case 8:
+                scaleY += numSteps * (scaleY / scaleX);
+                scaleZ += numSteps * (scaleZ / scaleX);
+                scaleX += numSteps;
+                if(scaleX < 1)
+                {
+                    scaleX = 1;
+                }
+                if(scaleY < 1)
+                {
+                    scaleY = 1;
+                }
+                if(scaleZ < 1)
+                {
+                    scaleZ = 1;
+                }
+                break;
+            //scale x and z
+            case 9:
+                scaleZ += numSteps * (scaleZ / scaleX);
+                scaleX += numSteps;
+                if(scaleX < 1)
+                {
+                    scaleX = 1;
+                }
+                if(scaleZ < 1)
+                {
+                    scaleZ = 1;
+                }
+                break;
+            //spacing
+            case 10:
+                spacing += numSteps * .01;
+                if(spacing < 0)
+                {
+                    spacing = 0;
+                }
+                break;
+            //brightness
+            case 11:
+                lightBrightness += numSteps * .01;
+                if(lightBrightness < 0)
+                {
+                    lightBrightness = 0;
+                }
+                if(lightBrightness > 1)
+                {
+                    lightBrightness = 1;
+                }
+                glUseProgram(lightProg);
+                glUniform1f(lightBrightnessLoc, lightBrightness);
+                glUseProgram(cubeProg);
+                glUniform1f(cubeLightBrightnessLoc, lightBrightness);
+                break;
+            //red light
+            case 12:
+                lightColor.r += numSteps * .01;
+                if(lightColor.r < 0)
+                {
+                    lightColor.r = 0;
+                }
+                if(lightColor.r > 1)
+                {
+                    lightColor.r = 1;
+                }
+                glUseProgram(lightProg);
+                glUniform3fv(lightColorLoc, 1, value_ptr(lightColor));
+                glUseProgram(cubeProg);
+                glUniform3fv(cubeLightColorLoc, 1, value_ptr(lightColor));
+                break;
+            //green light
+            case 13:
+                lightColor.g += numSteps * .01;
+                if(lightColor.g < 0)
+                {
+                    lightColor.g = 0;
+                }
+                if(lightColor.g > 1)
+                {
+                    lightColor.g = 1;
+                }
+                glUseProgram(lightProg);
+                glUniform3fv(lightColorLoc, 1, value_ptr(lightColor));
+                glUseProgram(cubeProg);
+                glUniform3fv(cubeLightColorLoc, 1, value_ptr(lightColor));
+                break;
+            //blue light
+            case 14:
+                lightColor.b += numSteps * .01;
+                if(lightColor.b < 0)
+                {
+                    lightColor.b = 0;
+                }
+                if(lightColor.b > 1)
+                {
+                    lightColor.b = 1;
+                }
+                glUseProgram(lightProg);
+                glUniform3fv(lightColorLoc, 1, value_ptr(lightColor));
+                glUseProgram(cubeProg);
+                glUniform3fv(cubeLightColorLoc, 1, value_ptr(lightColor));
+                break;
+        }
+
+        //update all brick locations of all shapes
+        structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
+    }
+
+    update();
+}
+
+void GLWidget::keyPressEvent(QKeyEvent *event)
+{
+    switch(event->key())
+    {
+        //zoom
+        case Qt::Key_Z:
+            scaler = 0;
+            break;
+        //brickWidth
+        case Qt::Key_T:
+            scaler = 1;
+            break;
+        //brickHeight
+        case Qt::Key_Y:
+            scaler = 2;
+            break;
+        //brickDepth
+        case Qt::Key_U:
+            scaler = 3;
+            break;
+        //uniform brick scale
+        case Qt::Key_B:
+            scaler = 4;
+            break;
+        //scale x
+        case Qt::Key_G:
+            scaler = 5;
+            break;
+        //scale y
+        case Qt::Key_H:
+            scaler = 6;
+            break;
+        //scale z
+        case Qt::Key_J:
+            scaler = 7;
+            break;
+        //uniform scale
+        case Qt::Key_N:
+            scaler = 8;
+            break;
+        //scale x and z
+        case Qt::Key_M:
+            scaler = 9;
+            break;
+        //spacing
+        case Qt::Key_X:
+            scaler = 10;
+            break;
+        //brightness
+        case Qt::Key_I:
+            scaler = 11;
+            break;
+        //red light
+        case Qt::Key_R:
+            scaler = 12;
+            break;
+        //green light
+        case Qt::Key_F:
+            scaler = 13;
+            break;
+        //blue light
+        case Qt::Key_V:
+            scaler = 14;
+            break;
+        //return to defaults
+        case Qt::Key_Q:
+            dist = 50;
+            brickWidth = .4;
+            brickHeight = .2;
+            brickDepth = .2;
+            spacing = .01;
+            scaleX = 30;
+            scaleY = 30;
+            scaleZ = 30;
+            wallDepth = 1;
+
+            lightLoc = vec3(0,10,0);
+            lightColor = vec3(1,1,1);
+            lightBrightness = 1;
+
+            modelMatrix = mat4(1.f);
+            viewMatrix = lookAt(vec3(0,0,-1 * dist),vec3(0,0,0),vec3(0,1,0));
+
+            structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
+
+            glUseProgram(cubeProg);
+            glUniformMatrix4fv(cubeViewMatrixLoc, 1, false, value_ptr(viewMatrix));
+            tempLight = vec3(viewMatrix * modelMatrix * vec4(lightLoc, 1));
+            glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
+            glUniformMatrix4fv(cubeModelMatrixLoc, 1, false, value_ptr(modelMatrix));
+            glUseProgram(lightProg);
+            glUniformMatrix4fv(lightViewMatrixLoc, 1, false, value_ptr(viewMatrix));
+            glUniformMatrix4fv(lightModelMatrixLoc, 1, false, value_ptr(modelMatrix));
+            glUseProgram(gridProg);
+            glUniformMatrix4fv(gridViewMatrixLoc, 1, false, value_ptr(viewMatrix));
+            glUniformMatrix4fv(gridModelMatrixLoc, 1, false, value_ptr(modelMatrix));
+
+            break;
+        //light positive z
+        case Qt::Key_W:
+            lightLoc.z += .1;
+            glUseProgram(lightProg);
+            lightMatrix = translate(mat4(1.f), lightLoc) * scale(mat4(1.f), vec3(.5, .5, .5));
+            glUniformMatrix4fv(lightLightMatrixLoc, 1, false, value_ptr(lightMatrix));
+            glUseProgram(cubeProg);
+            tempLight = vec3(viewMatrix * modelMatrix * vec4(lightLoc, 1));
+            glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
+            break;
+        //light negative z
+        case Qt::Key_S:
+            lightLoc.z -= .1;
+            glUseProgram(lightProg);
+            lightMatrix = translate(mat4(1.f), lightLoc) * scale(mat4(1.f), vec3(.5, .5, .5));
+            glUniformMatrix4fv(lightLightMatrixLoc, 1, false, value_ptr(lightMatrix));
+            glUseProgram(cubeProg);
+            tempLight = vec3(viewMatrix * modelMatrix * vec4(lightLoc, 1));
+            glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
+            break;
+        //light negative x
+        case Qt::Key_A:
+            lightLoc.x -= .1;
+            glUseProgram(lightProg);
+            lightMatrix = translate(mat4(1.f), lightLoc) * scale(mat4(1.f), vec3(.5, .5, .5));
+            glUniformMatrix4fv(lightLightMatrixLoc, 1, false, value_ptr(lightMatrix));
+            glUseProgram(cubeProg);
+            tempLight = vec3(viewMatrix * modelMatrix * vec4(lightLoc, 1));
+            glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
+            break;
+        //light positive x
+        case Qt::Key_D:
+            lightLoc.x += .1;
+            glUseProgram(lightProg);
+            lightMatrix = translate(mat4(1.f), lightLoc) * scale(mat4(1.f), vec3(.5, .5, .5));
+            glUniformMatrix4fv(lightLightMatrixLoc, 1, false, value_ptr(lightMatrix));
+            glUseProgram(cubeProg);
+            tempLight = vec3(viewMatrix * modelMatrix * vec4(lightLoc, 1));
+            glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
+            break;
+        //light positive y
+        case Qt::Key_E:
+            lightLoc.y += .1;
+            glUseProgram(lightProg);
+            lightMatrix = translate(mat4(1.f), lightLoc) * scale(mat4(1.f), vec3(.5, .5, .5));
+            glUniformMatrix4fv(lightLightMatrixLoc, 1, false, value_ptr(lightMatrix));
+            glUseProgram(cubeProg);
+            tempLight = vec3(viewMatrix * modelMatrix * vec4(lightLoc, 1));
+            glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
+            break;
+        //light negative y
+        case Qt::Key_C:
+            lightLoc.y -= .1;
+            glUseProgram(lightProg);
+            lightMatrix = translate(mat4(1.f), lightLoc) * scale(mat4(1.f), vec3(.5, .5, .5));
+            glUniformMatrix4fv(lightLightMatrixLoc, 1, false, value_ptr(lightMatrix));
+            glUseProgram(cubeProg);
+            tempLight = vec3(viewMatrix * modelMatrix * vec4(lightLoc, 1));
+            glUniform3fv(cubeLightPosLoc, 1, value_ptr(tempLight));
+            break;
+        //line
+        case Qt::Key_1:
+            structure.shapes.clear();
+            structure.shapes.push_back(Shape(1,0,1,1,vec3(0, 0, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+            structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
+            break;
+        //square
+        case Qt::Key_2:
+            structure.shapes.clear();
+            structure.shapes.push_back(Shape(1,1,1,4,vec3(0, 0, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+            structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
+            break;
+        //6 sides
+        case Qt::Key_3:
+            structure.shapes.clear();
+            structure.shapes.push_back(Shape(1,1,1,6,vec3(0, 0, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+            structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
+            break;
+        //8 sided funnel
+        case Qt::Key_4:
+            structure.shapes.clear();
+            structure.shapes.push_back(Shape(1,1,1,8,vec3(0, 0, 0),vec3(0,0,0),true,0,1,.5,make_shared<LinearFunction>()));
+            structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
+            break;
+        //4 sided pyramid
+        case Qt::Key_5:
+            structure.shapes.clear();
+            structure.shapes.push_back(Shape(1,1,1.05,4,vec3(0, 0, 0),vec3(0,0,0),true,1,0,1,make_shared<LinearFunction>()));
+            structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
+            break;
+        //100 sides sin
+        case Qt::Key_6:
+            structure.shapes.clear();
+            structure.shapes.push_back(Shape(.5,.5,1,100,vec3(0, 0, 0),vec3(0,0,0),true,0,1,.3,make_shared<SinFunction>()));
+            structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
+            break;
+        //castle
+        case Qt::Key_7:
+            structure.shapes.clear();
+            structure.shapes.push_back(Shape(2,2,1.5,4,vec3(0, 0, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+            structure.shapes.push_back(Shape(.4,.4,2.4,10,vec3(.7, 0, .7),vec3(0,0,0),true,0,1,1,make_shared<TowerFunction>()));
+            structure.shapes.push_back(Shape(.4,.4,2.4,10,vec3(-.7, 0, .7),vec3(0,0,0),true,0,1,1,make_shared<TowerFunction>()));
+            structure.shapes.push_back(Shape(.4,.4,2.4,10,vec3(.7, 0, -.7),vec3(0,0,0),true,0,1,1,make_shared<TowerFunction>()));
+            structure.shapes.push_back(Shape(.4,.4,2.4,10,vec3(-.7, 0, -.7),vec3(0,0,0),true,0,1,1,make_shared<TowerFunction>()));
+            structure.shapes.push_back(Shape(1,1,1,4,vec3(0, 0, 0),vec3(0,0,0),true,0,1,1,make_shared<DomeFunction>()));
+            structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
+            break;
+        //stadium
+        case Qt::Key_8:
+            structure.shapes.clear();
+            structure.shapes.push_back(Shape(.75,1,1.5,500,vec3(0, 0, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+            structure.shapes.push_back(Shape(.75,1,1,500,vec3(0, .25, 0),vec3(0,0,0),true,.5,1,1,make_shared<LinearFunction>()));
+            structure.shapes.push_back(Shape(.75*.75,.75,.5,500,vec3(0, 0, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+            structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
+            break;
+        //scale problem
+        case Qt::Key_9:
+            structure.shapes.clear();
+            structure.shapes.push_back(Shape(1,1,1,4,vec3(0, 0, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+            structure.shapes.push_back(Shape(1,1,1,4,vec3(0, 0, 0),vec3(M_PI/4,0,0),true,0,1,1,make_shared<Function>()));
+            structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
+            break;
+        //odd problem
+        case Qt::Key_0:
+            structure.shapes.clear();
+            structure.shapes.push_back(Shape(1,1,1,3,vec3(0, 0, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+            structure.updateBrickLocs(brickWidth, brickHeight, brickDepth, spacing, scaleX, scaleY, scaleZ, wallDepth);
+            break;
+    }
+
+    update();
+}
+

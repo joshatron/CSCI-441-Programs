@@ -1,6 +1,10 @@
 #ifndef __GLWIDGET__INCLUDE__
 #define __GLWIDGET__INCLUDE__
 
+#ifndef GLM_FORCE_RADIANS
+    #define GLM_FORCE_RADIANS
+#endif
+
 #include <QGLWidget>
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_3_3_Core>
@@ -9,7 +13,6 @@
 #include "structure.h"
 #include "shape.h"
 
-#define GLM_FORCE_RADIANS
 
 using glm::mat4;
 using glm::vec3;
@@ -29,20 +32,56 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
         void mousePressEvent(QMouseEvent *event);
         void mouseMoveEvent(QMouseEvent *event);
+        void wheelEvent(QWheelEvent *event);
+        void keyPressEvent(QKeyEvent *event);
 
     private:
+        void initializeLight();
         void initializeCube();
+        void renderLight();
         void renderCube();
-        void createCubes();
+        void updateBuffer(int num);
 
-        vector<vec3> cubes;
+        //scale values
+        double dist;
+        double brickWidth;
+        double brickHeight;
+        double brickDepth;
+        double spacing;
+        double scaleX;
+        double scaleY;
+        double scaleZ;
+        int wallDepth;
 
+        //what to scale
+        int scaler;
+
+        //cube info
+        vec3 cube[24];
+        vec3 normals[24];
+        vec3 cubeColor;
+        int numCubes;
+
+        //light info
+        mat4 lightTransform;
+        vec3 lightLoc;
+        vec3 lightColor;
+        double lightBrightness;
+
+        //structure which holds shape
+        Structure structure;
+
+        GLuint positionBuffer;
+        GLuint normalBuffer;
         GLuint cubeProg;
         GLuint cubeVao;
         GLint cubeProjMatrixLoc;
         GLint cubeViewMatrixLoc;
         GLint cubeModelMatrixLoc;
+        GLint cubeColorLoc;
         GLint cubeLightPosLoc;
+        GLint cubeLightColorLoc;
+        GLint cubeLightBrightnessLoc;
 
         void initializeGrid();
         void renderGrid();
@@ -52,6 +91,17 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         GLint gridProjMatrixLoc;
         GLint gridViewMatrixLoc;
         GLint gridModelMatrixLoc;
+
+        GLuint lightProg;
+        GLuint lightVao;
+        GLint lightProjMatrixLoc;
+        GLint lightViewMatrixLoc;
+        GLint lightModelMatrixLoc;
+        GLint lightLightMatrixLoc;
+        GLint lightColorLoc;
+        GLint lightBrightnessLoc;
+
+        mat4 lightMatrix;
 
         mat4 projMatrix;
         mat4 viewMatrix;
@@ -63,7 +113,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         glm::vec3 lastVPt;
         glm::vec3 pointOnVirtualTrackball(const glm::vec2 &pt);
 
-        vec3 light;
+        vec3 tempLight;
 };
 
 #endif

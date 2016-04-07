@@ -3,9 +3,9 @@
 uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model;
+uniform vec3 color;
 
 in vec3 position;
-in vec3 color;
 in vec3 normal;
 
 out vec3 fcolor;
