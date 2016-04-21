@@ -6,6 +6,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <QTextStream>
 #include <QTimer>
+#include <memory>
 
 #ifndef M_PI
     #define M_PI 3.14159265358979323846
@@ -26,9 +27,11 @@ using glm::value_ptr;
 using glm::lookAt;
 using std::cout;
 using std::endl;
+using std::make_shared;
 
 GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
 
+    setMouseTracking(true);
     timer = new QTimer(this);
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(animate()));
     timer->start(16);
@@ -38,6 +41,72 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
     right = false;
     back = false;
     flyMode = false;
+
+    QCursor c = cursor();
+    c.setPos(mapToGlobal(QPoint(width/2, height/2)));
+    c.setShape(Qt::BlankCursor);
+    setCursor(c);
+    lastPt = vec2(width/2,height/2);
+
+    structure.shapes.push_back(Shape(1,1,1,4,vec3(0, 0, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.updateBrickLocs(2, 1, 1, .01, 20, 20, 20, 1);
+
+    //initialize cube vertices
+    cube[0] = vec3(.5,.5,.5);
+    cube[1] = vec3(.5,.5,-.5);
+    cube[2] = vec3(-.5,.5,-.5);
+    cube[3] = vec3(-.5,.5,.5);
+    cube[4] = vec3(.5,-.5,.5);
+    cube[5] = vec3(-.5,-.5,.5);
+    cube[6] = vec3(-.5,-.5,-.5);
+    cube[7] = vec3(.5,-.5,-.5);
+    cube[8] = vec3(.5,.5,.5);
+    cube[9] = vec3(-.5,.5,.5);
+    cube[10] = vec3(-.5,-.5,.5);
+    cube[11] = vec3(.5,-.5,.5);
+    cube[12] = vec3(-.5,-.5,-.5);
+    cube[13] = vec3(-.5,.5,-.5);
+    cube[14] = vec3(.5,.5,-.5);
+    cube[15] = vec3(.5,-.5,-.5);
+    cube[16] = vec3(.5,-.5,.5);
+    cube[17] = vec3(.5,-.5,-.5);
+    cube[18] = vec3(.5,.5,-.5);
+    cube[19] = vec3(.5,.5,.5);
+    cube[20] = vec3(-.5,-.5,.5);
+    cube[21] = vec3(-.5,.5,.5);
+    cube[22] = vec3(-.5,.5,-.5);
+    cube[23] = vec3(-.5,-.5,-.5);
+
+    //initialize normals
+    normals[0] = vec3(0,1,0);
+    normals[1] = vec3(0,1,0);
+    normals[2] = vec3(0,1,0);
+    normals[3] = vec3(0,1,0);
+    normals[4] = vec3(0,-1,0);
+    normals[5] = vec3(0,-1,0);
+    normals[6] = vec3(0,-1,0);
+    normals[7] = vec3(0,-1,0);
+    normals[8] = vec3(0, 0, 1);
+    normals[9] = vec3(0, 0, 1);
+    normals[10] = vec3(0, 0, 1);
+    normals[11] = vec3(0, 0, 1);
+    normals[12] = vec3(0, 0, -1);
+    normals[13] = vec3(0, 0, -1);
+    normals[14] = vec3(0, 0, -1);
+    normals[15] = vec3(0, 0, -1);
+    normals[16] = vec3(1, 0, 0);
+    normals[17] = vec3(1, 0, 0);
+    normals[18] = vec3(1, 0, 0);
+    normals[19] = vec3(1, 0, 0);
+    normals[20] = vec3(-1, 0, 0);
+    normals[21] = vec3(-1, 0, 0);
+    normals[22] = vec3(-1, 0, 0);
+    normals[23] = vec3(-1, 0, 0);
+
+    cubeColor = vec3(1,1,1);
+    lightColor = vec3(1,1,1);
+    lightBrightness = 1;
+    lightLoc = vec3(10,10,10);
 }
 
 GLWidget::~GLWidget() {
@@ -64,7 +133,6 @@ void GLWidget::animate() {
         velocity = vec3(pitch * yaw * glm::vec4(velocity, 1.0f));
     } else {
         velocity = vec3(pitch * glm::vec4(velocity, 1.0f));
-        std::cout << "not in fly" << std::endl;
     }
 
 
@@ -133,160 +201,16 @@ void GLWidget::initializeCube() {
     // Create a buffer on the GPU for position data
     GLuint positionBuffer;
     glGenBuffers(1, &positionBuffer);
-
-    GLuint colorBuffer;
-    glGenBuffers(1, &colorBuffer);
-
-    GLuint uvBuffer;
-    glGenBuffers(1, &uvBuffer);
-
-    GLuint indexBuffer;
-    glGenBuffers(1, &indexBuffer);
-
-    vec3 pts[] = {
-        // top
-        vec3(1,1,1),    // 0
-        vec3(1,1,-1),   // 1
-        vec3(-1,1,-1),  // 2
-        vec3(-1,1,1),   // 3
-
-        // bottom
-        vec3(1,-1,1),   // 4
-        vec3(-1,-1,1),  // 5
-        vec3(-1,-1,-1), // 6
-        vec3(1,-1,-1),  // 7
-
-        // front
-        vec3(1,1,1),    // 8
-        vec3(-1,1,1),   // 9
-        vec3(-1,-1,1),  // 10
-        vec3(1,-1,1),   // 11
-
-        // back
-        vec3(-1,-1,-1), // 12
-        vec3(-1,1,-1),  // 13
-        vec3(1,1,-1),   // 14
-        vec3(1,-1,-1),  // 15
-
-        // right
-        vec3(1,-1,1),   // 16
-        vec3(1,-1,-1),  // 17
-        vec3(1,1,-1),   // 18
-        vec3(1,1,1),     // 19
-
-        // left
-        vec3(-1,-1,1),  // 20
-        vec3(-1,1,1),   // 21
-        vec3(-1,1,-1),  // 22
-        vec3(-1,-1,-1) // 23
-
-    };
-
-    for(int i = 0; i < 24; i++) {
-        pts[i] *= .5;
-    }
-
-    vec3 colors[] = {
-        // top
-        vec3(0,1,0),    
-        vec3(0,1,0),    
-        vec3(0,1,0),    
-        vec3(0,1,0),    
-
-        // bottom
-        vec3(0,.5f,0),  
-        vec3(0,.5f,0),  
-        vec3(0,.5f,0),  
-        vec3(0,.5f,0),  
-
-        // front
-        vec3(0,0,1),    
-        vec3(0,0,1),    
-        vec3(0,0,1),    
-        vec3(0,0,1),    
-
-        // back
-        vec3(0,0,.5f),  
-        vec3(0,0,.5f),  
-        vec3(0,0,.5f),  
-        vec3(0,0,.5f),
-
-        // right
-        vec3(1,0,0),    
-        vec3(1,0,0),    
-        vec3(1,0,0),    
-        vec3(1,0,0),    
-
-
-        // left
-        vec3(.5f,0,0),  
-        vec3(.5f,0,0),  
-        vec3(.5f,0,0),  
-        vec3(.5f,0,0)  
-    };
-
-    vec2 uvs[] = {
-        // top
-        vec2(0,0),
-        vec2(0,1),
-        vec2(1,1),
-        vec2(1,0),
-
-        // bottom
-        vec2(0,0),
-        vec2(0,1),
-        vec2(1,1),
-        vec2(1,0),
-
-        // front
-        vec2(0,0),
-        vec2(0,1),
-        vec2(1,1),
-        vec2(1,0),
-
-        // back
-        vec2(0,0),
-        vec2(0,1),
-        vec2(1,1),
-        vec2(1,0),
-
-        // right
-        vec2(0,0),
-        vec2(0,1),
-        vec2(1,1),
-        vec2(1,0),
-
-        // left
-        vec2(0,0),
-        vec2(0,1),
-        vec2(1,1),
-        vec2(1,0)
-
-    };
-
-    GLuint restart = 0xFFFFFFFF;
-    GLuint indices[] = {
-        0,1,2,3, restart,
-        4,5,6,7, restart,
-        8,9,10,11, restart,
-        12,13,14,15, restart,
-        16,17,18,19, restart,
-        20,21,22,23
-    };
+    GLuint normalBuffer;
+    glGenBuffers(1, &normalBuffer);
 
     // Upload the position data to the GPU, storing
     // it in the buffer we just allocated.
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(pts), pts, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(uvs), uvs, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals, GL_STATIC_DRAW);
 
     // Load our vertex and fragment shaders into a program object
     // on the GPU
@@ -303,55 +227,24 @@ void GLWidget::initializeCube() {
     glEnableVertexAttribArray(positionIndex);
     glVertexAttribPointer(positionIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-    GLint colorIndex = glGetAttribLocation(program, "color");
-    glEnableVertexAttribArray(colorIndex);
-    glVertexAttribPointer(colorIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
-    GLint uvIndex = glGetAttribLocation(program, "uv");
-    glEnableVertexAttribArray(uvIndex);
-    glVertexAttribPointer(uvIndex, 2, GL_FLOAT, GL_FALSE, 0, 0);
-
-    // The following is an 8x8 checkerboard pattern using
-    // GL_RED, GL_UNSIGNED_BYTE data.
-    static const GLubyte tex_checkerboard_data[] =
-    {
-        0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
-        0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
-        0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
-        0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
-        0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
-        0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
-        0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
-        0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF
-    };
-
-    glGenTextures(1, &textureObject);
-    glBindTexture(GL_TEXTURE_2D, textureObject);
-
-//    QImage img = QImage("orange.jpg").toImageFormat(QImage::Format_ARGB32);
-//    QImage img("orange.jpg");
-//    std::cout << img.format() << std::endl;
-//    QOpenGLTexture tex(img);
-//    std::cout << tex.format() << std::endl;
-
-    glTexImage2D(GL_TEXTURE_2D, 0,GL_RED,8,8,0,GL_RED,GL_UNSIGNED_BYTE,tex_checkerboard_data);
-
-//    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,img.width(),img.height(),0,GL_RGBA,GL_UNSIGNED_INT_8_8_8_8,img.bits());
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    // assign normal data
+    glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
+    GLint normalIndex = glGetAttribLocation(program, "normal");
+    glEnableVertexAttribArray(normalIndex);
+    glVertexAttribPointer(normalIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
     cubeProjMatrixLoc = glGetUniformLocation(program, "projection");
     cubeViewMatrixLoc = glGetUniformLocation(program, "view");
     cubeModelMatrixLoc = glGetUniformLocation(program, "model");
+    cubeColorLoc = glGetUniformLocation(program, "color");
+    cubeLightPosLoc = glGetUniformLocation(program, "lightPos");
+    cubeLightColorLoc = glGetUniformLocation(program, "lightColor");
+    cubeLightBrightnessLoc = glGetUniformLocation(program, "lightBrightness");
 
-//    GLint texLoc = glGetUniformLocation(program, "tex");
-//    glUniform1i(texLoc, 0);
+    glUniform3fv(cubeLightColorLoc, 1, value_ptr(lightColor));
+    glUniform1f(cubeLightBrightnessLoc, lightBrightness);
+    glUniform3fv(cubeLightPosLoc, 1, value_ptr(lightLoc));
+    glUniform3fv(cubeColorLoc, 1, value_ptr(cubeColor));
 }
 
 void GLWidget::initializeGL() {
@@ -405,10 +298,18 @@ void GLWidget::paintGL() {
 void GLWidget::renderCube() {
     glUseProgram(cubeProg);
     glBindVertexArray(cubeVao);
-
-    glBindTexture(GL_TEXTURE_2D, textureObject);
-
-    glDrawElements(GL_TRIANGLE_FAN, 29, GL_UNSIGNED_INT, 0);
+    //for each brickLoc
+    for(unsigned int k = 0; k < structure.brickLocs.size(); k++)
+    {
+        //get transform and upload to shader
+        mat4 loc = modelMatrix * structure.brickLocs.at(k) * structure.brickShape;
+        glUniformMatrix4fv(cubeModelMatrixLoc, 1, false, value_ptr(loc));
+        //for each face, render it
+        for(int a = 0; a < 6; a++)
+        {
+            glDrawArrays(GL_TRIANGLE_FAN, a * 4, 4);
+        }
+    }
 }
 
 void GLWidget::renderGrid() {
@@ -563,15 +464,22 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event) {
     vec2 pt(event->x(), event->y());
-    vec2 d = pt-lastPt;
 
-    // Part 1 - use d.x and d.y to modify your pitch and yaw angles
-    // before constructing pitch and yaw rotation matrices with them
-    pitchAngle -= d.x * .01;
-    yawAngle -= d.y * .01;
-    
-    pitch = rotate(mat4(1.f), (float)pitchAngle, vec3(0,1,0));
-    yaw = rotate(mat4(1.f), (float)yawAngle, vec3(1,0,0));
+    if(abs(pt.x-width/2) > .0001 || abs(pt.y-height/2) > .0001)
+    {
+        vec2 d = pt-lastPt;
+
+        pitchAngle -= d.x * .01;
+        yawAngle -= d.y * .01;
+        
+        pitch = rotate(mat4(1.f), (float)pitchAngle, vec3(0,1,0));
+        yaw = rotate(mat4(1.f), (float)yawAngle, vec3(1,0,0));
+        
+        QCursor c = cursor();
+        c.setPos(mapToGlobal(QPoint(width/2, height/2)));
+        c.setShape(Qt::BlankCursor);
+        setCursor(c);
+    }
 
     lastPt = pt;
 }

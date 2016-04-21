@@ -7,6 +7,7 @@
 #include <QMouseEvent>
 #include <QTimer>
 #include <glm/glm.hpp>
+#include "structure.h"
 
 #define GLM_FORCE_RADIANS
 
@@ -80,6 +81,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         bool right;
         bool back;
         bool flyMode;
+        bool move;
 
         vec3 position;
         vec3 velocity;
@@ -89,6 +91,21 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
         glm::vec2 lastPt;
         void updateView();
+
+        Structure structure;
+
+        vec3 cube[24];
+        vec3 normals[24];
+
+        GLint cubeColorLoc;
+        GLint cubeLightPosLoc;
+        GLint cubeLightColorLoc;
+        GLint cubeLightBrightnessLoc;
+
+        vec3 cubeColor;
+        vec3 lightLoc;
+        vec3 lightColor;
+        float lightBrightness;
 };
 
 #endif
