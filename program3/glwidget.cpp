@@ -49,7 +49,7 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
     lastPt = vec2(width/2,height/2);
 
     structure.shapes.push_back(Shape(1,1,1,4,vec3(0, 0, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-    structure.updateBrickLocs(2, 1, 1, .01, 20, 20, 20, 1);
+    structure.updateBrickLocs(1, .5, .5, .01, 40, 40, 40, 1);
 
     //initialize cube vertices
     cube[0] = vec3(.5,.5,.5);
@@ -107,6 +107,9 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
     lightColor = vec3(1,1,1);
     lightBrightness = 1;
     lightLoc = vec3(10,10,10);
+
+    pitchAngle = 0;
+    yawAngle = 0;
 }
 
 GLWidget::~GLWidget() {
@@ -114,25 +117,35 @@ GLWidget::~GLWidget() {
 
 
 void GLWidget::animate() {
-
+    bool move = false;
     velocity = vec3(0,0,0);
     if (forward) {
         velocity.z -= 1;
+        move = true;
     }
     if (back) {
         velocity.z += 1;
+        move = true;
     }
     if (left) {
         velocity.x -= 1;
+        move = true;
     }
     if (right) {
         velocity.x += 1;
+        move = true;
     }
 
-    if (flyMode) {
-        velocity = vec3(pitch * yaw * glm::vec4(velocity, 1.0f));
-    } else {
-        velocity = vec3(pitch * glm::vec4(velocity, 1.0f));
+    if(move)
+    {
+        if (flyMode) {
+            velocity = vec3(pitch * yaw * glm::vec4(velocity, 1.0f));
+        } else {
+            velocity = vec3(pitch * glm::vec4(velocity, 1.0f));
+        }
+
+        velocity = normalize(velocity);
+        velocity *= 20;
     }
 
 
@@ -465,13 +478,13 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
 void GLWidget::mouseMoveEvent(QMouseEvent *event) {
     vec2 pt(event->x(), event->y());
 
-    if(abs(pt.x-width/2) > .0001 || abs(pt.y-height/2) > .0001)
+    if((abs(pt.x-width/2) > .0001 || abs(pt.y-height/2) > .0001) && (abs(pt.x-lastPt.x) < 10 && abs(pt.y-lastPt.y) < 10))
     {
         vec2 d = pt-lastPt;
 
         pitchAngle -= d.x * .01;
         yawAngle -= d.y * .01;
-        
+
         pitch = rotate(mat4(1.f), (float)pitchAngle, vec3(0,1,0));
         yaw = rotate(mat4(1.f), (float)yawAngle, vec3(1,0,0));
         
