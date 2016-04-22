@@ -7,6 +7,7 @@
 #include <QTextStream>
 #include <QTimer>
 #include <memory>
+#include "tower_function.h"
 
 #ifndef M_PI
     #define M_PI 3.14159265358979323846
@@ -48,8 +49,37 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
     setCursor(c);
     lastPt = vec2(width/2,height/2);
 
+    //outer wall
     structure.shapes.push_back(Shape(1,1,1,4,vec3(0, 0, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-    structure.updateBrickLocs(1, .5, .5, .01, 40, 40, 40, 1);
+    //centralstructure
+    //outer wall
+    structure.shapes.push_back(Shape(.42,.02,.5,4,vec3(0, 0, .2),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.42,.02,.5,4,vec3(0, 0, -.2),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+
+    structure.shapes.push_back(Shape(.02,.19,.4,4,vec3(.21, 0, -.11325),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.02,.19,.4,4,vec3(.21, 0, .11325),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.02,.19,.4,4,vec3(-.21, 0, -.11325),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.02,.19,.4,4,vec3(-.21, 0, .11325),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+
+    structure.shapes.push_back(Shape(.02,.42,.1,4,vec3(.21, .201, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.02,.42,.1,4,vec3(-.21, .201, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+
+    //inner walls
+    structure.shapes.push_back(Shape(.19,.02,.4,4,vec3(0, 0, .04),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.08,.02,.4,4,vec3(.17, 0, .04),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.08,.02,.4,4,vec3(-.17, 0, .04),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+
+    structure.shapes.push_back(Shape(.19,.02,.4,4,vec3(0, 0, -.04),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.08,.02,.4,4,vec3(.17, 0, -.04),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.08,.02,.4,4,vec3(-.17, 0, -.04),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+
+    structure.shapes.push_back(Shape(.02,.16,.4,4,vec3(0, 0, -.12),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    //towers
+    structure.shapes.push_back(Shape(.2,.2,1.5,12,vec3(.35, 0, .35),vec3(0,0,0),true,0,1,1,make_shared<TowerFunction>()));
+    structure.shapes.push_back(Shape(.2,.2,1.5,12,vec3(-.35, 0, .35),vec3(0,0,0),true,0,1,1,make_shared<TowerFunction>()));
+    structure.shapes.push_back(Shape(.2,.2,1.5,12,vec3(-.35, 0, -.35),vec3(0,0,0),true,0,1,1,make_shared<TowerFunction>()));
+    structure.shapes.push_back(Shape(.2,.2,1.5,12,vec3(.35, 0, -.35),vec3(0,0,0),true,0,1,1,make_shared<TowerFunction>()));
+    structure.updateBrickLocs(2, 1, 1, .01, 75, 25, 75, 1);
 
     //initialize cube vertices
     cube[0] = vec3(.5,.5,.5);
@@ -110,6 +140,7 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
 
     pitchAngle = 0;
     yawAngle = 0;
+    position = vec3(0,7,0);
 }
 
 GLWidget::~GLWidget() {
@@ -119,19 +150,19 @@ GLWidget::~GLWidget() {
 void GLWidget::animate() {
     bool move = false;
     velocity = vec3(0,0,0);
-    if (forward) {
+    if (forward && !back) {
         velocity.z -= 1;
         move = true;
     }
-    if (back) {
+    if (back && !forward) {
         velocity.z += 1;
         move = true;
     }
-    if (left) {
+    if (left && !right) {
         velocity.x -= 1;
         move = true;
     }
-    if (right) {
+    if (right && !left) {
         velocity.x += 1;
         move = true;
     }
@@ -145,7 +176,7 @@ void GLWidget::animate() {
         }
 
         velocity = normalize(velocity);
-        velocity *= 20;
+        velocity *= 40;
     }
 
 
@@ -292,7 +323,7 @@ void GLWidget::resizeGL(int w, int h) {
 
     float aspect = (float)w/h;
 
-    projMatrix = perspective(45.0f, aspect, .01f, 100.0f);
+    projMatrix = perspective(45.0f, aspect, .01f, 200.0f);
 
     glUseProgram(cubeProg);
     glUniformMatrix4fv(cubeProjMatrixLoc, 1, false, value_ptr(projMatrix));

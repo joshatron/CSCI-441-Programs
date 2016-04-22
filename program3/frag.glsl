@@ -24,7 +24,7 @@ void main() {
         specular = .1 * pow(max(0, dot(v, r)), 5);
     }
 
-    float ambient = .1;
+    float ambient = .2;
 
     color_out = vec4((fcolor * (lightColor * lightBrightness * diffuse)) + (fcolor * (lightColor * lightBrightness * ambient)) + (lightColor * lightBrightness * vec3(specular)), 1);
     color_out = vec4((fcolor * (lightColor * lightBrightness * diffuse)) + (fcolor * (lightColor * lightBrightness * ambient)), 1);
