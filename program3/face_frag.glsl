@@ -4,10 +4,11 @@ in vec3 fcolor;
 in vec3 fposition;
 in vec3 fnormal;
 in vec3 light;
+in vec2 fuv;
+in float fambient;
 
 uniform vec3 lightColor;
 uniform float lightBrightness;
-uniform float ambient;
 
 out vec4 color_out;
 
@@ -25,5 +26,5 @@ void main() {
         specular = .1 * pow(max(0, dot(v, r)), 5);
     }
 
-    color_out = vec4((fcolor * (lightColor * lightBrightness * diffuse)) + (fcolor * (lightColor * lightBrightness * ambient)) + (lightColor * lightBrightness * vec3(specular)), 1);
+    color_out = vec4((fcolor * (lightColor * lightBrightness * diffuse)) + (fcolor * (lightColor * lightBrightness * fambient)) + (lightColor * lightBrightness * vec3(specular)), 1);
 }

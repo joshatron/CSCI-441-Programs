@@ -301,6 +301,94 @@ void GLWidget::initializeCube() {
     glUniform3fv(cubeColorLoc, 1, value_ptr(cubeColor));
 }
 
+void GLWidget::initializeFace()
+{
+    faces.push_back(vec3(10,10,10));
+    faces.push_back(vec3(10,10,20));
+    faces.push_back(vec3(10,0,10));
+    faces.push_back(vec3(10,0,20));
+
+    faceNormals.push_back(vec3(1,0,0));
+    faceNormals.push_back(vec3(1,0,0));
+    faceNormals.push_back(vec3(1,0,0));
+    faceNormals.push_back(vec3(1,0,0));
+
+    faceUVs.push_back(vec2(0,0));
+    faceUVs.push_back(vec2(1,0));
+    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(1,1));
+
+    faceAmbients.push_back(.2);
+    faceAmbients.push_back(.2);
+    faceAmbients.push_back(.2);
+    faceAmbients.push_back(.2);
+
+    glGenVertexArrays(1, &faceVao);
+    glBindVertexArray(faceVao);
+
+    // Create a buffer on the GPU for position data
+    GLuint positionBuffer;
+    glGenBuffers(1, &positionBuffer);
+    GLuint normalBuffer;
+    glGenBuffers(1, &normalBuffer);
+    GLuint uvBuffer;
+    glGenBuffers(1, &uvBuffer);
+    GLuint ambientBuffer;
+    glGenBuffers(1, &ambientBuffer);
+
+    // Upload the position data to the GPU, storing
+    // it in the buffer we just allocated.
+    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * faces.size(), faces.data(), GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * faceNormals.size(), faceNormals.data(), GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * faceUVs.size(), faceUVs.data(), GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, ambientBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * faceAmbients.size(), faceAmbients.data(), GL_STATIC_DRAW);
+
+    // Load our vertex and fragment shaders into a program object
+    // on the GPU
+    GLuint program = loadShaders(":/face_vert.glsl", ":/face_frag.glsl");
+    glUseProgram(program);
+    faceProg = program;
+
+    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+    GLint positionIndex = glGetAttribLocation(program, "position");
+    glEnableVertexAttribArray(positionIndex);
+    glVertexAttribPointer(positionIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
+    GLint normalIndex = glGetAttribLocation(program, "normal");
+    glEnableVertexAttribArray(normalIndex);
+    glVertexAttribPointer(normalIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
+    GLint uvIndex = glGetAttribLocation(program, "uv");
+    glEnableVertexAttribArray(uvIndex);
+    glVertexAttribPointer(uvIndex, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, ambientBuffer);
+    GLint ambientIndex = glGetAttribLocation(program, "ambient");
+    glEnableVertexAttribArray(ambientIndex);
+    glVertexAttribPointer(ambientIndex, 1, GL_FLOAT, GL_FALSE, 0, 0);
+
+    cubeProjMatrixLoc = glGetUniformLocation(program, "projection");
+    cubeViewMatrixLoc = glGetUniformLocation(program, "view");
+    cubeColorLoc = glGetUniformLocation(program, "color");
+    cubeLightPosLoc = glGetUniformLocation(program, "lightPos");
+    cubeLightColorLoc = glGetUniformLocation(program, "lightColor");
+    cubeLightBrightnessLoc = glGetUniformLocation(program, "lightBrightness");
+
+    glUniform3fv(cubeLightColorLoc, 1, value_ptr(lightColor));
+    glUniform1f(cubeLightBrightnessLoc, lightBrightness);
+    glUniform3fv(cubeLightPosLoc, 1, value_ptr(lightLoc));
+    glUniform3fv(cubeColorLoc, 1, value_ptr(cubeColor));
+}
+
 void GLWidget::initializeGL() {
     initializeOpenGLFunctions();
 
@@ -314,6 +402,7 @@ void GLWidget::initializeGL() {
 
     initializeCube();
     initializeGrid();
+    initializeFace();
 
     viewMatrix = mat4(1.0f);
     modelMatrix = mat4(1.0f);
@@ -325,6 +414,9 @@ void GLWidget::initializeGL() {
     glUseProgram(gridProg);
     glUniformMatrix4fv(gridViewMatrixLoc, 1, false, value_ptr(viewMatrix));
     glUniformMatrix4fv(gridModelMatrixLoc, 1, false, value_ptr(modelMatrix));
+
+    glUseProgram(faceProg);
+    glUniformMatrix4fv(faceViewMatrixLoc, 1, false, value_ptr(viewMatrix));
 }
 
 void GLWidget::resizeGL(int w, int h) {
@@ -340,6 +432,9 @@ void GLWidget::resizeGL(int w, int h) {
 
     glUseProgram(gridProg);
     glUniformMatrix4fv(gridProjMatrixLoc, 1, false, value_ptr(projMatrix));
+
+    glUseProgram(faceProg);
+    glUniformMatrix4fv(faceProjMatrixLoc, 1, false, value_ptr(projMatrix));
 }
 
 void GLWidget::paintGL() {
@@ -347,6 +442,10 @@ void GLWidget::paintGL() {
 
     renderGrid();
     renderCube();
+
+    glUseProgram(faceProg);
+    glBindVertexArray(faceVao);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 }
 
 void GLWidget::renderCube() {

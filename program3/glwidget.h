@@ -40,6 +40,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
     private:
         void initializeCube();
+        void initializeFace();
         void renderCube();
 
         GLuint cubeProg;
@@ -113,6 +114,17 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         bool goingUp;
         double upTime;
         double walkSpeed;
+
+        vector<vec3> faces;
+        vector<vec3> faceNormals;
+        vector<vec2> faceUVs;
+        vector<float> faceAmbients;
+
+        GLuint faceProg;
+        GLuint faceVao;
+        GLint faceProjMatrixLoc;
+        GLint faceViewMatrixLoc;
+
 };
 
 #endif
