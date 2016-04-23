@@ -47,7 +47,7 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
     headBob = true;
     goingUp = false;
     upTime = 0;
-    walkSpeed = 20;
+    walkSpeed = 40;
 
     QCursor c = cursor();
     c.setPos(mapToGlobal(QPoint(width/2, height/2)));
@@ -59,33 +59,36 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
     structure.shapes.push_back(Shape(1,1,1,4,vec3(0, 0, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
     //centralstructure
     //outer wall
-    structure.shapes.push_back(Shape(.42,.02,.5,4,vec3(0, 0, .2),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-    structure.shapes.push_back(Shape(.42,.02,.5,4,vec3(0, 0, -.2),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.405,.005,.5,4,vec3(0, 0, .2),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.405,.005,.5,4,vec3(0, 0, -.2),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.005,.405,.5,4,vec3(.2, 0, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
 
-    structure.shapes.push_back(Shape(.02,.19,.4,4,vec3(.21, 0, -.11325),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-    structure.shapes.push_back(Shape(.02,.19,.4,4,vec3(.21, 0, .11325),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-    structure.shapes.push_back(Shape(.02,.19,.4,4,vec3(-.21, 0, -.11325),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-    structure.shapes.push_back(Shape(.02,.19,.4,4,vec3(-.21, 0, .11325),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-
-    structure.shapes.push_back(Shape(.02,.42,.1,4,vec3(.21, .201, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-    structure.shapes.push_back(Shape(.02,.42,.1,4,vec3(-.21, .201, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.005,.18,.35,4,vec3(-.2, 0, .1125),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.005,.18,.35,4,vec3(-.2, 0, -.1125),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.005,.405,.16,4,vec3(-.2, .17085, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
 
     //inner walls
-    structure.shapes.push_back(Shape(.19,.02,.4,4,vec3(0, 0, .04),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-    structure.shapes.push_back(Shape(.08,.02,.4,4,vec3(.17, 0, .04),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-    structure.shapes.push_back(Shape(.08,.02,.4,4,vec3(-.17, 0, .04),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.005,.18,.35,4,vec3(0, 0, .1125),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.005,.18,.35,4,vec3(0, 0, -.1125),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.005,.405,.16,4,vec3(0, .17085, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
 
-    structure.shapes.push_back(Shape(.19,.02,.4,4,vec3(0, 0, -.04),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-    structure.shapes.push_back(Shape(.08,.02,.4,4,vec3(.17, 0, -.04),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-    structure.shapes.push_back(Shape(.08,.02,.4,4,vec3(-.17, 0, -.04),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.405,.005,.16,4,vec3(0, .17085, .06),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.2,.005,.35,4,vec3(0, 0, .06),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.075,.005,.35,4,vec3(.1625, 0, .06),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.075,.005,.35,4,vec3(-.1625, 0, .06),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
 
-    structure.shapes.push_back(Shape(.02,.16,.4,4,vec3(0, 0, -.12),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.405,.005,.16,4,vec3(0, .17085, -.06),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.2,.005,.35,4,vec3(0, 0, -.06),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.075,.005,.35,4,vec3(.1625, 0, -.06),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.075,.005,.35,4,vec3(-.1625, 0, -.06),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+
     //towers
     structure.shapes.push_back(Shape(.2,.2,1.5,12,vec3(.35, 0, .35),vec3(0,0,0),true,0,1,1,make_shared<TowerFunction>()));
     structure.shapes.push_back(Shape(.2,.2,1.5,12,vec3(-.35, 0, .35),vec3(0,0,0),true,0,1,1,make_shared<TowerFunction>()));
     structure.shapes.push_back(Shape(.2,.2,1.5,12,vec3(-.35, 0, -.35),vec3(0,0,0),true,0,1,1,make_shared<TowerFunction>()));
     structure.shapes.push_back(Shape(.2,.2,1.5,12,vec3(.35, 0, -.35),vec3(0,0,0),true,0,1,1,make_shared<TowerFunction>()));
-    structure.updateBrickLocs(2, 1, 1, .01, 75, 25, 75, 1);
+
+    structure.updateBrickLocs(2, 1, 1, .01, 200, 50, 200, 1);
 
     //initialize cube vertices
     cube[0] = vec3(.5,.5,.5);

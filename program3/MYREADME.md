@@ -1,17 +1,15 @@
 For this project, I built a small castle.
 
 TODO:
-building
-    correct config
-    roof
+doors
+    animated
+    textured
 collision detection
     togglable
 make ground
     courtyard
 sky
     blue with sun
-doors
-    animated
 lighting
     from torches and sun
     sunny outside
@@ -20,6 +18,8 @@ brick textures
     from stone
     varried
 drawbridge texture
+building
+    roof
 rooms
     great hall
         carpet
