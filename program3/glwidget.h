@@ -32,6 +32,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         void mouseMoveEvent(QMouseEvent *event);
         void keyPressEvent(QKeyEvent *event);
         void keyReleaseEvent(QKeyEvent *event);
+        void wheelEvent(QWheelEvent *event);
 
     public slots:
     // Part 2 - add an animate slot
@@ -106,6 +107,12 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         vec3 lightLoc;
         vec3 lightColor;
         float lightBrightness;
+
+        bool mouseCaptured;
+        bool headBob;
+        bool goingUp;
+        double upTime;
+        double walkSpeed;
 };
 
 #endif

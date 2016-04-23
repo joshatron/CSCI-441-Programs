@@ -43,6 +43,12 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
     back = false;
     flyMode = false;
 
+    mouseCaptured = false;
+    headBob = true;
+    goingUp = false;
+    upTime = 0;
+    walkSpeed = 20;
+
     QCursor c = cursor();
     c.setPos(mapToGlobal(QPoint(width/2, height/2)));
     c.setShape(Qt::BlankCursor);
@@ -172,11 +178,36 @@ void GLWidget::animate() {
         if (flyMode) {
             velocity = vec3(pitch * yaw * glm::vec4(velocity, 1.0f));
         } else {
+            if(headBob)
+            {
+                double rate = 2.97 + (walkSpeed / 250);
+                double time = .355 - (walkSpeed / 250);
+                if(goingUp)
+                {
+                    velocity.y += rate * .016;
+                    upTime += .016;
+                    if(upTime > time)
+                    {
+                        upTime = 0;
+                        goingUp = false;
+                    }
+                }
+                else
+                {
+                    velocity.y -= rate * .016;
+                    upTime += .016;
+                    if(upTime > time)
+                    {
+                        upTime = 0;
+                        goingUp = true;
+                    }
+                }
+            }
             velocity = vec3(pitch * glm::vec4(velocity, 1.0f));
         }
 
         velocity = normalize(velocity);
-        velocity *= 40;
+        velocity *= walkSpeed;
     }
 
 
@@ -467,6 +498,12 @@ void GLWidget::keyPressEvent(QKeyEvent *event) {
         case Qt::Key_Space:
             // up or jump
             break;
+        case Qt::Key_Q:
+            mouseCaptured = !mouseCaptured;
+            break;
+        case Qt::Key_B:
+            headBob = !headBob;
+            break;
     }
 }
 
@@ -511,19 +548,39 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
 
     if((abs(pt.x-width/2) > .0001 || abs(pt.y-height/2) > .0001) && (abs(pt.x-lastPt.x) < 10 && abs(pt.y-lastPt.y) < 10))
     {
-        vec2 d = pt-lastPt;
+        if(mouseCaptured)
+        {
+            vec2 d = pt-lastPt;
 
-        pitchAngle -= d.x * .01;
-        yawAngle -= d.y * .01;
+            pitchAngle -= d.x * .01;
+            yawAngle -= d.y * .01;
 
-        pitch = rotate(mat4(1.f), (float)pitchAngle, vec3(0,1,0));
-        yaw = rotate(mat4(1.f), (float)yawAngle, vec3(1,0,0));
-        
-        QCursor c = cursor();
-        c.setPos(mapToGlobal(QPoint(width/2, height/2)));
-        c.setShape(Qt::BlankCursor);
-        setCursor(c);
+            pitch = rotate(mat4(1.f), (float)pitchAngle, vec3(0,1,0));
+            yaw = rotate(mat4(1.f), (float)yawAngle, vec3(1,0,0));
+
+            QCursor c = cursor();
+            c.setPos(mapToGlobal(QPoint(width/2, height/2)));
+            c.setShape(Qt::BlankCursor);
+            setCursor(c);
+        }
+        else
+        {
+            QCursor c = cursor();
+            c.setShape(Qt::ArrowCursor);
+            setCursor(c);
+        }
     }
 
     lastPt = pt;
+}
+
+void GLWidget::wheelEvent(QWheelEvent *event)
+{
+    float numSteps = event->delta() / 8.f / 15.f;
+
+    walkSpeed += numSteps;
+    if(walkSpeed < 10)
+    {
+        walkSpeed = 10;
+    }
 }

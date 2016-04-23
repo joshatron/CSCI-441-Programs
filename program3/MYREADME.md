@@ -1,30 +1,17 @@
 For this project, I built a small castle.
 
 TODO:
+building
+    correct config
+    roof
 collision detection
     togglable
-torches
-    fire on torches
-fill library
-    shelves
-    couches
-    carpet
-    paintings
-fill bedroom
-    paintings
-    4 poster bed
-    dresser
-    table
-        quill and ink
-        paper
-        candle
-fill dining hall
-    table
-    chairs
-    paintings
-    fireplace?
 make ground
     courtyard
+sky
+    blue with sun
+doors
+    animated
 lighting
     from torches and sun
     sunny outside
@@ -32,11 +19,38 @@ lighting
 brick textures
     from stone
     varried
-doors
-    animated
-controls
-    speed
-sky
-    blue with sun
-walking
-    bob when walking
+drawbridge texture
+rooms
+    great hall
+        carpet
+        tapestries
+        coat of arms
+    throne room
+        throne
+        red carpet
+    jail
+        bars
+        doors
+        skeleton?
+    library
+        shelves
+        couches
+        carpet
+        paintings
+    bedroom
+        paintings
+        4 poster bed
+        dresser
+        table
+            quill and ink
+            paper
+            candle
+    dining hall
+        table
+        chairs
+        paintings
+        fireplace?
+torches
+    fire on torches
+stables
+    horses
