@@ -57,30 +57,6 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
 
     //outer wall
     structure.shapes.push_back(Shape(1,1,1,4,vec3(0, 0, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-    //centralstructure
-    //outer wall
-    structure.shapes.push_back(Shape(.405,.005,.5,4,vec3(0, 0, .2),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-    structure.shapes.push_back(Shape(.405,.005,.5,4,vec3(0, 0, -.2),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-    structure.shapes.push_back(Shape(.005,.405,.5,4,vec3(.2, 0, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-
-    structure.shapes.push_back(Shape(.005,.18,.35,4,vec3(-.2, 0, .1125),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-    structure.shapes.push_back(Shape(.005,.18,.35,4,vec3(-.2, 0, -.1125),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-    structure.shapes.push_back(Shape(.005,.405,.16,4,vec3(-.2, .17085, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-
-    //inner walls
-    structure.shapes.push_back(Shape(.005,.18,.35,4,vec3(0, 0, .1125),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-    structure.shapes.push_back(Shape(.005,.18,.35,4,vec3(0, 0, -.1125),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-    structure.shapes.push_back(Shape(.005,.405,.16,4,vec3(0, .17085, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-
-    structure.shapes.push_back(Shape(.405,.005,.16,4,vec3(0, .17085, .06),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-    structure.shapes.push_back(Shape(.2,.005,.35,4,vec3(0, 0, .06),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-    structure.shapes.push_back(Shape(.075,.005,.35,4,vec3(.1625, 0, .06),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-    structure.shapes.push_back(Shape(.075,.005,.35,4,vec3(-.1625, 0, .06),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-
-    structure.shapes.push_back(Shape(.405,.005,.16,4,vec3(0, .17085, -.06),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-    structure.shapes.push_back(Shape(.2,.005,.35,4,vec3(0, 0, -.06),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-    structure.shapes.push_back(Shape(.075,.005,.35,4,vec3(.1625, 0, -.06),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
-    structure.shapes.push_back(Shape(.075,.005,.35,4,vec3(-.1625, 0, -.06),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
 
     //towers
     structure.shapes.push_back(Shape(.2,.2,1.5,12,vec3(.35, 0, .35),vec3(0,0,0),true,0,1,1,make_shared<TowerFunction>()));
@@ -88,7 +64,7 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
     structure.shapes.push_back(Shape(.2,.2,1.5,12,vec3(-.35, 0, -.35),vec3(0,0,0),true,0,1,1,make_shared<TowerFunction>()));
     structure.shapes.push_back(Shape(.2,.2,1.5,12,vec3(.35, 0, -.35),vec3(0,0,0),true,0,1,1,make_shared<TowerFunction>()));
 
-    structure.updateBrickLocs(2, 1, 1, .01, 200, 50, 200, 1);
+    structure.updateBrickLocs(4, 2, 2, .01, 100, 25, 100, 1);
 
     //initialize cube vertices
     cube[0] = vec3(.5,.5,.5);
@@ -149,7 +125,7 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
 
     pitchAngle = 0;
     yawAngle = 0;
-    position = vec3(0,7,0);
+    position = vec3(0,14,0);
 }
 
 GLWidget::~GLWidget() {
