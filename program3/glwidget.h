@@ -124,7 +124,10 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         GLuint faceVao;
         GLint faceProjMatrixLoc;
         GLint faceViewMatrixLoc;
-
+        GLint faceColorLoc;
+        GLint faceLightPosLoc;
+        GLint faceLightColorLoc;
+        GLint faceLightBrightnessLoc;
 };
 
 #endif

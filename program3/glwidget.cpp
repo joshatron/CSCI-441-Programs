@@ -49,12 +49,6 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
     upTime = 0;
     walkSpeed = 40;
 
-    QCursor c = cursor();
-    c.setPos(mapToGlobal(QPoint(width/2, height/2)));
-    c.setShape(Qt::BlankCursor);
-    setCursor(c);
-    lastPt = vec2(width/2,height/2);
-
     //outer wall
     structure.shapes.push_back(Shape(1,1,1,4,vec3(0, 0, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
 
@@ -121,7 +115,7 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
     cubeColor = vec3(1,1,1);
     lightColor = vec3(1,1,1);
     lightBrightness = 1;
-    lightLoc = vec3(10,10,10);
+    lightLoc = vec3(0,10,0);
 
     pitchAngle = 0;
     yawAngle = 0;
@@ -201,6 +195,9 @@ void GLWidget::animate() {
 
     glUseProgram(gridProg);
     glUniformMatrix4fv(gridViewMatrixLoc, 1, false, value_ptr(viewMatrix));
+
+    glUseProgram(faceProg);
+    glUniformMatrix4fv(faceViewMatrixLoc, 1, false, value_ptr(viewMatrix));
 
     update();
 }
@@ -303,25 +300,128 @@ void GLWidget::initializeCube() {
 
 void GLWidget::initializeFace()
 {
-    faces.push_back(vec3(10,10,10));
-    faces.push_back(vec3(10,10,20));
-    faces.push_back(vec3(10,0,10));
-    faces.push_back(vec3(10,0,20));
-
-    faceNormals.push_back(vec3(1,0,0));
-    faceNormals.push_back(vec3(1,0,0));
-    faceNormals.push_back(vec3(1,0,0));
-    faceNormals.push_back(vec3(1,0,0));
-
+    float outsideAmbient = .8;
+    float insideAmbient = .1;
+    //ground
+    faces.push_back(vec3(200,0,200));
+    faces.push_back(vec3(200,0,-200));
+    faces.push_back(vec3(-200,0,-200));
+    faces.push_back(vec3(-200,0,200));
+    faceNormals.push_back(vec3(0,1,0));
+    faceNormals.push_back(vec3(0,1,0));
+    faceNormals.push_back(vec3(0,1,0));
+    faceNormals.push_back(vec3(0,1,0));
     faceUVs.push_back(vec2(0,0));
     faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(0,1));
     faceUVs.push_back(vec2(1,1));
+    faceUVs.push_back(vec2(0,1));
+    faceAmbients.push_back(outsideAmbient);
+    faceAmbients.push_back(outsideAmbient);
+    faceAmbients.push_back(outsideAmbient);
+    faceAmbients.push_back(outsideAmbient);
 
-    faceAmbients.push_back(.2);
-    faceAmbients.push_back(.2);
-    faceAmbients.push_back(.2);
-    faceAmbients.push_back(.2);
+    //building
+    faces.push_back(vec3(-80,40,-80));
+    faces.push_back(vec3(-80,40,80));
+    faces.push_back(vec3(-80,0,80));
+    faces.push_back(vec3(-80,0,-80));
+    faceNormals.push_back(vec3(1,0,0));
+    faceNormals.push_back(vec3(1,0,0));
+    faceNormals.push_back(vec3(1,0,0));
+    faceNormals.push_back(vec3(1,0,0));
+    faceUVs.push_back(vec2(0,0));
+    faceUVs.push_back(vec2(1,0));
+    faceUVs.push_back(vec2(1,1));
+    faceUVs.push_back(vec2(0,1));
+    faceAmbients.push_back(outsideAmbient);
+    faceAmbients.push_back(outsideAmbient);
+    faceAmbients.push_back(outsideAmbient);
+    faceAmbients.push_back(outsideAmbient);
+
+    faces.push_back(vec3(80,40,-80));
+    faces.push_back(vec3(80,40,80));
+    faces.push_back(vec3(80,0,80));
+    faces.push_back(vec3(80,0,-80));
+    faceNormals.push_back(vec3(-1,0,0));
+    faceNormals.push_back(vec3(-1,0,0));
+    faceNormals.push_back(vec3(-1,0,0));
+    faceNormals.push_back(vec3(-1,0,0));
+    faceUVs.push_back(vec2(0,0));
+    faceUVs.push_back(vec2(1,0));
+    faceUVs.push_back(vec2(1,1));
+    faceUVs.push_back(vec2(0,1));
+    faceAmbients.push_back(outsideAmbient);
+    faceAmbients.push_back(outsideAmbient);
+    faceAmbients.push_back(outsideAmbient);
+    faceAmbients.push_back(outsideAmbient);
+
+    faces.push_back(vec3(-80,40,80));
+    faces.push_back(vec3(80,40,80));
+    faces.push_back(vec3(80,0,80));
+    faces.push_back(vec3(-80,0,80));
+    faceNormals.push_back(vec3(0,0,-1));
+    faceNormals.push_back(vec3(0,0,-1));
+    faceNormals.push_back(vec3(0,0,-1));
+    faceNormals.push_back(vec3(0,0,-1));
+    faceUVs.push_back(vec2(0,0));
+    faceUVs.push_back(vec2(1,0));
+    faceUVs.push_back(vec2(1,1));
+    faceUVs.push_back(vec2(0,1));
+    faceAmbients.push_back(outsideAmbient);
+    faceAmbients.push_back(outsideAmbient);
+    faceAmbients.push_back(outsideAmbient);
+    faceAmbients.push_back(outsideAmbient);
+
+    faces.push_back(vec3(-80,40,-80));
+    faces.push_back(vec3(80,40,-80));
+    faces.push_back(vec3(80,20,-80));
+    faces.push_back(vec3(-80,20,-80));
+    faceNormals.push_back(vec3(0,0,1));
+    faceNormals.push_back(vec3(0,0,1));
+    faceNormals.push_back(vec3(0,0,1));
+    faceNormals.push_back(vec3(0,0,1));
+    faceUVs.push_back(vec2(0,0));
+    faceUVs.push_back(vec2(1,0));
+    faceUVs.push_back(vec2(1,1));
+    faceUVs.push_back(vec2(0,1));
+    faceAmbients.push_back(outsideAmbient);
+    faceAmbients.push_back(outsideAmbient);
+    faceAmbients.push_back(outsideAmbient);
+    faceAmbients.push_back(outsideAmbient);
+
+    faces.push_back(vec3(-80,20,-80));
+    faces.push_back(vec3(-10,20,-80));
+    faces.push_back(vec3(-10,0,-80));
+    faces.push_back(vec3(-80,0,-80));
+    faceNormals.push_back(vec3(0,0,1));
+    faceNormals.push_back(vec3(0,0,1));
+    faceNormals.push_back(vec3(0,0,1));
+    faceNormals.push_back(vec3(0,0,1));
+    faceUVs.push_back(vec2(0,0));
+    faceUVs.push_back(vec2(1,0));
+    faceUVs.push_back(vec2(1,1));
+    faceUVs.push_back(vec2(0,1));
+    faceAmbients.push_back(outsideAmbient);
+    faceAmbients.push_back(outsideAmbient);
+    faceAmbients.push_back(outsideAmbient);
+    faceAmbients.push_back(outsideAmbient);
+
+    faces.push_back(vec3(80,20,-80));
+    faces.push_back(vec3(10,20,-80));
+    faces.push_back(vec3(10,0,-80));
+    faces.push_back(vec3(80,0,-80));
+    faceNormals.push_back(vec3(0,0,1));
+    faceNormals.push_back(vec3(0,0,1));
+    faceNormals.push_back(vec3(0,0,1));
+    faceNormals.push_back(vec3(0,0,1));
+    faceUVs.push_back(vec2(0,0));
+    faceUVs.push_back(vec2(1,0));
+    faceUVs.push_back(vec2(1,1));
+    faceUVs.push_back(vec2(0,1));
+    faceAmbients.push_back(outsideAmbient);
+    faceAmbients.push_back(outsideAmbient);
+    faceAmbients.push_back(outsideAmbient);
+    faceAmbients.push_back(outsideAmbient);
 
     glGenVertexArrays(1, &faceVao);
     glBindVertexArray(faceVao);
@@ -345,10 +445,10 @@ void GLWidget::initializeFace()
     glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * faceNormals.size(), faceNormals.data(), GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * faceUVs.size(), faceUVs.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * faceUVs.size(), faceUVs.data(), GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, ambientBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * faceAmbients.size(), faceAmbients.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * faceAmbients.size(), faceAmbients.data(), GL_STATIC_DRAW);
 
     // Load our vertex and fragment shaders into a program object
     // on the GPU
@@ -376,17 +476,17 @@ void GLWidget::initializeFace()
     glEnableVertexAttribArray(ambientIndex);
     glVertexAttribPointer(ambientIndex, 1, GL_FLOAT, GL_FALSE, 0, 0);
 
-    cubeProjMatrixLoc = glGetUniformLocation(program, "projection");
-    cubeViewMatrixLoc = glGetUniformLocation(program, "view");
-    cubeColorLoc = glGetUniformLocation(program, "color");
-    cubeLightPosLoc = glGetUniformLocation(program, "lightPos");
-    cubeLightColorLoc = glGetUniformLocation(program, "lightColor");
-    cubeLightBrightnessLoc = glGetUniformLocation(program, "lightBrightness");
+    faceProjMatrixLoc = glGetUniformLocation(program, "projection");
+    faceViewMatrixLoc = glGetUniformLocation(program, "view");
+    faceColorLoc = glGetUniformLocation(program, "color");
+    faceLightPosLoc = glGetUniformLocation(program, "lightPos");
+    faceLightColorLoc = glGetUniformLocation(program, "lightColor");
+    faceLightBrightnessLoc = glGetUniformLocation(program, "lightBrightness");
 
-    glUniform3fv(cubeLightColorLoc, 1, value_ptr(lightColor));
-    glUniform1f(cubeLightBrightnessLoc, lightBrightness);
-    glUniform3fv(cubeLightPosLoc, 1, value_ptr(lightLoc));
-    glUniform3fv(cubeColorLoc, 1, value_ptr(cubeColor));
+    glUniform3fv(faceLightColorLoc, 1, value_ptr(lightColor));
+    glUniform1f(faceLightBrightnessLoc, lightBrightness);
+    glUniform3fv(faceLightPosLoc, 1, value_ptr(lightLoc));
+    glUniform3fv(faceColorLoc, 1, value_ptr(vec3(1,1,1)));
 }
 
 void GLWidget::initializeGL() {
@@ -445,7 +545,10 @@ void GLWidget::paintGL() {
 
     glUseProgram(faceProg);
     glBindVertexArray(faceVao);
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+    for(int k = 0; k < faces.size() / 4; k++)
+    {
+        glDrawArrays(GL_TRIANGLE_FAN, k * 4, 4);
+    }
 }
 
 void GLWidget::renderCube() {
