@@ -6,6 +6,7 @@
 #include <QOpenGLFunctions_3_3_Core>
 #include <QMouseEvent>
 #include <QTimer>
+#include <chrono>
 #include <glm/glm.hpp>
 #include "structure.h"
 #include "door.h"
@@ -135,6 +136,8 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
         vector<vec2> xLines;
         vector<vec2> zLines;
+
+        std::chrono::time_point<std::chrono::system_clock> first, last, current;
 };
 
 #endif

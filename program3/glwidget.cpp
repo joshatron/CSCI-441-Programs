@@ -51,7 +51,7 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
     headBob = true;
     goingUp = false;
     upTime = 0;
-    walkSpeed = 80;
+    walkSpeed = 40;
 
     doors.push_back(Door(vec3(10,0,.5), true, M_PI * 3 / 2, M_PI));
     doors.push_back(Door(vec3(-10,0,.5), false, M_PI * 2, M_PI * 3 / 2));
@@ -219,6 +219,9 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
     zLines.push_back(vec2(-120,-160));
     zLines.push_back(vec2(-160,-120));
     zLines.push_back(vec2(-120,-120));
+
+    first = std::chrono::system_clock::now();
+    last = std::chrono::system_clock::now();
 }
 
 GLWidget::~GLWidget() {
@@ -226,6 +229,11 @@ GLWidget::~GLWidget() {
 
 
 void GLWidget::animate() {
+    current = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = current - last;
+    double elapsed = elapsed_seconds.count();
+    last = current;
+
     bool move = false;
     velocity = vec3(0,0,0);
     if (forward && !back) {
@@ -252,12 +260,12 @@ void GLWidget::animate() {
         } else {
             if(headBob)
             {
-                double rate = 2.97 + (walkSpeed / 250);
+                double rate = .8 + (walkSpeed / 250);
                 double time = .355 - (walkSpeed / 250);
                 if(goingUp)
                 {
-                    velocity.y += rate * .016;
-                    upTime += .016;
+                    velocity.y += rate * elapsed;
+                    upTime += elapsed;
                     if(upTime > time)
                     {
                         upTime = 0;
@@ -266,8 +274,8 @@ void GLWidget::animate() {
                 }
                 else
                 {
-                    velocity.y -= rate * .016;
-                    upTime += .016;
+                    velocity.y -= rate * elapsed;
+                    upTime += elapsed;
                     if(upTime > time)
                     {
                         upTime = 0;
@@ -286,15 +294,15 @@ void GLWidget::animate() {
     {
         if(distance(doors.at(k).fulcrumPoint, position) < 40)
         {
-            doors.at(k).updateAngle(true, .016);
+            doors.at(k).updateAngle(true, elapsed);
         }
         else
         {
-            doors.at(k).updateAngle(false, .016);
+            doors.at(k).updateAngle(false, elapsed);
         }
     }
 
-    position = position + velocity * (float) 0.016;
+    position = position + velocity * (float) elapsed;
 
     if(collisions && !flyMode)
     {

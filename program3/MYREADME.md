@@ -1,8 +1,6 @@
 For this project, I built a small castle.
 
 TODO:
-collision detection
-    togglable
 lighting
     from torches and sun
     sunny outside
