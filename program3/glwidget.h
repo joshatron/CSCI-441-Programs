@@ -131,6 +131,9 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         GLint faceLightBrightnessLoc;
 
         vector<Door> doors;
+
+        vector<vec2> xLines;
+        vector<vec2> zLines;
 };
 
 #endif

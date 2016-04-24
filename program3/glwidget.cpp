@@ -1,6 +1,7 @@
 #include "glwidget.h"
 #include <iostream>
 #include <QOpenGLTexture>
+#include <algorithm>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -29,6 +30,8 @@ using glm::lookAt;
 using std::cout;
 using std::endl;
 using std::make_shared;
+using std::max;
+using std::min;
 
 GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
 
@@ -129,6 +132,92 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
     pitchAngle = 0;
     yawAngle = 0;
     position = vec3(0,14,0);
+
+    xLines.push_back(vec2(79.5,79.5));
+    xLines.push_back(vec2(79.5,-79.5));
+
+    xLines.push_back(vec2(-79.5,79.5));
+    xLines.push_back(vec2(-79.5,-79.5));
+
+    xLines.push_back(vec2(-20.5,79.5));
+    xLines.push_back(vec2(-20.5,45));
+    xLines.push_back(vec2(-20.5,35));
+    xLines.push_back(vec2(-20.5,-35));
+    xLines.push_back(vec2(-20.5,-79.5));
+    xLines.push_back(vec2(-20.5,-45));
+
+    xLines.push_back(vec2(20.5,79.5));
+    xLines.push_back(vec2(20.5,45));
+    xLines.push_back(vec2(20.5,35));
+    xLines.push_back(vec2(20.5,-35));
+    xLines.push_back(vec2(20.5,-79.5));
+    xLines.push_back(vec2(20.5,-45));
+
+    xLines.push_back(vec2(200,200));
+    xLines.push_back(vec2(200,-200));
+
+    xLines.push_back(vec2(-200,200));
+    xLines.push_back(vec2(-200,-200));
+
+    xLines.push_back(vec2(-160,160));
+    xLines.push_back(vec2(-160,120));
+    xLines.push_back(vec2(-120,160));
+    xLines.push_back(vec2(-120,120));
+
+    xLines.push_back(vec2(-160,-160));
+    xLines.push_back(vec2(-160,-120));
+    xLines.push_back(vec2(-120,-160));
+    xLines.push_back(vec2(-120,-120));
+
+    xLines.push_back(vec2(160,160));
+    xLines.push_back(vec2(160,120));
+    xLines.push_back(vec2(120,160));
+    xLines.push_back(vec2(120,120));
+
+    xLines.push_back(vec2(160,-160));
+    xLines.push_back(vec2(160,-120));
+    xLines.push_back(vec2(120,-160));
+    xLines.push_back(vec2(120,-120));
+
+
+    zLines.push_back(vec2(79.5,79.5));
+    zLines.push_back(vec2(-79.5,79.5));
+
+    zLines.push_back(vec2(79.5,-79.5));
+    zLines.push_back(vec2(10,-79.5));
+    zLines.push_back(vec2(-79.5,-79.5));
+    zLines.push_back(vec2(-10,-79.5));
+
+    zLines.push_back(vec2(79.5,0));
+    zLines.push_back(vec2(10,0));
+    zLines.push_back(vec2(-79.5,0));
+    zLines.push_back(vec2(-10,0));
+
+    zLines.push_back(vec2(200,200));
+    zLines.push_back(vec2(-200,200));
+
+    zLines.push_back(vec2(200,-200));
+    zLines.push_back(vec2(-200,-200));
+
+    zLines.push_back(vec2(160,160));
+    zLines.push_back(vec2(120,160));
+    zLines.push_back(vec2(160,120));
+    zLines.push_back(vec2(120,120));
+
+    zLines.push_back(vec2(-160,160));
+    zLines.push_back(vec2(-120,160));
+    zLines.push_back(vec2(-160,120));
+    zLines.push_back(vec2(-120,120));
+
+    zLines.push_back(vec2(160,-160));
+    zLines.push_back(vec2(120,-160));
+    zLines.push_back(vec2(160,-120));
+    zLines.push_back(vec2(120,-120));
+
+    zLines.push_back(vec2(-160,-160));
+    zLines.push_back(vec2(-120,-160));
+    zLines.push_back(vec2(-160,-120));
+    zLines.push_back(vec2(-120,-120));
 }
 
 GLWidget::~GLWidget() {
@@ -205,6 +294,40 @@ void GLWidget::animate() {
     }
 
     position = position + velocity * (float) 0.016;
+
+    double collisionBuffer = 5;
+
+    for(unsigned int k = 0; k < xLines.size(); k += 2)
+    {
+        if(position.z < max(xLines.at(k).y, xLines.at(k + 1).y) &&
+           position.z > min(xLines.at(k).y, xLines.at(k + 1).y))
+        {
+            if(position.x < xLines.at(k).x && position.x > xLines.at(k).x - collisionBuffer)
+            {
+                position.x = xLines.at(k).x - collisionBuffer;
+            }
+            else if(position.x > xLines.at(k).x && position.x < xLines.at(k).x + collisionBuffer)
+            {
+                position.x = xLines.at(k).x + collisionBuffer;
+            }
+        }
+    }
+
+    for(unsigned int k = 0; k < zLines.size(); k += 2)
+    {
+        if(position.x < max(zLines.at(k).x, zLines.at(k + 1).x) &&
+           position.x > min(zLines.at(k).x, zLines.at(k + 1).x))
+        {
+            if(position.z < zLines.at(k).y && position.z > zLines.at(k).y - collisionBuffer)
+            {
+                position.z = zLines.at(k).y - collisionBuffer;
+            }
+            else if(position.z > zLines.at(k).y && position.z < zLines.at(k).y + collisionBuffer)
+            {
+                position.z = zLines.at(k).y + collisionBuffer;
+            }
+        }
+    }
 
     mat4 translateMatrix = glm::translate(mat4(1.0f), position);
 
