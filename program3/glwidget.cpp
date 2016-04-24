@@ -47,6 +47,7 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
     flyMode = false;
 
     mouseCaptured = false;
+    collisions = true;
     headBob = true;
     goingUp = false;
     upTime = 0;
@@ -295,36 +296,39 @@ void GLWidget::animate() {
 
     position = position + velocity * (float) 0.016;
 
-    double collisionBuffer = 5;
-
-    for(unsigned int k = 0; k < xLines.size(); k += 2)
+    if(collisions && !flyMode)
     {
-        if(position.z < max(xLines.at(k).y, xLines.at(k + 1).y) &&
-           position.z > min(xLines.at(k).y, xLines.at(k + 1).y))
+        double collisionBuffer = 5;
+
+        for(unsigned int k = 0; k < xLines.size(); k += 2)
         {
-            if(position.x < xLines.at(k).x && position.x > xLines.at(k).x - collisionBuffer)
+            if(position.z < max(xLines.at(k).y, xLines.at(k + 1).y) &&
+               position.z > min(xLines.at(k).y, xLines.at(k + 1).y))
             {
-                position.x = xLines.at(k).x - collisionBuffer;
-            }
-            else if(position.x > xLines.at(k).x && position.x < xLines.at(k).x + collisionBuffer)
-            {
-                position.x = xLines.at(k).x + collisionBuffer;
+                if(position.x < xLines.at(k).x && position.x > xLines.at(k).x - collisionBuffer)
+                {
+                    position.x = xLines.at(k).x - collisionBuffer;
+                }
+                else if(position.x > xLines.at(k).x && position.x < xLines.at(k).x + collisionBuffer)
+                {
+                    position.x = xLines.at(k).x + collisionBuffer;
+                }
             }
         }
-    }
 
-    for(unsigned int k = 0; k < zLines.size(); k += 2)
-    {
-        if(position.x < max(zLines.at(k).x, zLines.at(k + 1).x) &&
-           position.x > min(zLines.at(k).x, zLines.at(k + 1).x))
+        for(unsigned int k = 0; k < zLines.size(); k += 2)
         {
-            if(position.z < zLines.at(k).y && position.z > zLines.at(k).y - collisionBuffer)
+            if(position.x < max(zLines.at(k).x, zLines.at(k + 1).x) &&
+               position.x > min(zLines.at(k).x, zLines.at(k + 1).x))
             {
-                position.z = zLines.at(k).y - collisionBuffer;
-            }
-            else if(position.z > zLines.at(k).y && position.z < zLines.at(k).y + collisionBuffer)
-            {
-                position.z = zLines.at(k).y + collisionBuffer;
+                if(position.z < zLines.at(k).y && position.z > zLines.at(k).y - collisionBuffer)
+                {
+                    position.z = zLines.at(k).y - collisionBuffer;
+                }
+                else if(position.z > zLines.at(k).y && position.z < zLines.at(k).y + collisionBuffer)
+                {
+                    position.z = zLines.at(k).y + collisionBuffer;
+                }
             }
         }
     }
@@ -1637,6 +1641,9 @@ void GLWidget::keyPressEvent(QKeyEvent *event) {
             break;
         case Qt::Key_Q:
             mouseCaptured = !mouseCaptured;
+            break;
+        case Qt::Key_C:
+            collisions = !collisions;
             break;
         case Qt::Key_B:
             headBob = !headBob;

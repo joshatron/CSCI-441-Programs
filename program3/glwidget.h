@@ -111,6 +111,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         float lightBrightness;
 
         bool mouseCaptured;
+        bool collisions;
         bool headBob;
         bool goingUp;
         double upTime;
