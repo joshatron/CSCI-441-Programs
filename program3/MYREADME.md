@@ -3,20 +3,18 @@ For this project, I built a small castle.
 TODO:
 collision detection
     togglable
-make ground
-    courtyard
-sky
-    blue with sun
 lighting
     from torches and sun
     sunny outside
         high ambient
-brick textures
-    from stone
-    varried
-drawbridge texture
-doors
-    textured
+textures
+    drawbridge
+    doors
+    bricks
+    walls
+    floor
+    courtyard
+    ceiling
 building
     roof
 rooms
