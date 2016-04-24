@@ -1,9 +1,6 @@
 For this project, I built a small castle.
 
 TODO:
-doors
-    animated
-    textured
 collision detection
     togglable
 make ground
@@ -18,6 +15,8 @@ brick textures
     from stone
     varried
 drawbridge texture
+doors
+    textured
 building
     roof
 rooms

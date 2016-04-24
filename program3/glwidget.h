@@ -8,6 +8,7 @@
 #include <QTimer>
 #include <glm/glm.hpp>
 #include "structure.h"
+#include "door.h"
 
 #define GLM_FORCE_RADIANS
 
@@ -128,6 +129,8 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         GLint faceLightPosLoc;
         GLint faceLightColorLoc;
         GLint faceLightBrightnessLoc;
+
+        vector<Door> doors;
 };
 
 #endif

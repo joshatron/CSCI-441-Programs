@@ -47,7 +47,16 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
     headBob = true;
     goingUp = false;
     upTime = 0;
-    walkSpeed = 40;
+    walkSpeed = 80;
+
+    doors.push_back(Door(vec3(10,0,.5), true, M_PI * 3 / 2, M_PI));
+    doors.push_back(Door(vec3(-10,0,.5), false, M_PI * 2, M_PI * 3 / 2));
+    doors.push_back(Door(vec3(10,0,-79), true, M_PI * 3 / 2, M_PI));
+    doors.push_back(Door(vec3(-10,0,-79), false, M_PI * 2, M_PI * 3 / 2));
+    doors.push_back(Door(vec3(-21,0,-35), true, M_PI, M_PI / 2));
+    doors.push_back(Door(vec3(-21,0,45), true, M_PI, M_PI / 2));
+    doors.push_back(Door(vec3(21,0,-35), false, M_PI / 2, 0));
+    doors.push_back(Door(vec3(21,0,45), false, M_PI / 2, 0));
 
     //outer wall
     structure.shapes.push_back(Shape(1,1,1,4,vec3(0, 0, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
@@ -183,6 +192,17 @@ void GLWidget::animate() {
         velocity *= walkSpeed;
     }
 
+    for(unsigned int k = 0; k < doors.size(); k++)
+    {
+        if(distance(doors.at(k).fulcrumPoint, position) < 40)
+        {
+            doors.at(k).updateAngle(true, .016);
+        }
+        else
+        {
+            doors.at(k).updateAngle(false, .016);
+        }
+    }
 
     position = position + velocity * (float) 0.016;
 
@@ -1294,7 +1314,7 @@ void GLWidget::initializeFace()
 void GLWidget::initializeGL() {
     initializeOpenGLFunctions();
 
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(0.0f/255.f, 191.0f/255.f, 255.0f/250.f, 1.0f);
     glPointSize(4.0f);
 
     glEnable(GL_DEPTH_TEST);
@@ -1327,7 +1347,7 @@ void GLWidget::resizeGL(int w, int h) {
 
     float aspect = (float)w/h;
 
-    projMatrix = perspective(45.0f, aspect, .01f, 200.0f);
+    projMatrix = perspective(45.0f, aspect, .01f, 400.0f);
 
     glUseProgram(cubeProg);
     glUniformMatrix4fv(cubeProjMatrixLoc, 1, false, value_ptr(projMatrix));
@@ -1361,6 +1381,17 @@ void GLWidget::renderCube() {
     {
         //get transform and upload to shader
         mat4 loc = modelMatrix * structure.brickLocs.at(k) * structure.brickShape;
+        glUniformMatrix4fv(cubeModelMatrixLoc, 1, false, value_ptr(loc));
+        //for each face, render it
+        for(int a = 0; a < 6; a++)
+        {
+            glDrawArrays(GL_TRIANGLE_FAN, a * 4, 4);
+        }
+    }
+
+    for(unsigned int k = 0; k < doors.size(); k++)
+    {
+        mat4 loc = doors.at(k).getTransform();
         glUniformMatrix4fv(cubeModelMatrixLoc, 1, false, value_ptr(loc));
         //for each face, render it
         for(int a = 0; a < 6; a++)
