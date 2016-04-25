@@ -2,6 +2,7 @@
 #include <iostream>
 #include <QOpenGLTexture>
 #include <algorithm>
+#include <stdlib.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -9,6 +10,7 @@
 #include <QTimer>
 #include <memory>
 #include "tower_function.h"
+#include <cmath>
 
 #ifndef M_PI
     #define M_PI 3.14159265358979323846
@@ -32,9 +34,11 @@ using std::endl;
 using std::make_shared;
 using std::max;
 using std::min;
+using std::abs;
 
 GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
 
+    srand(time(NULL));
     setMouseTracking(true);
     timer = new QTimer(this);
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(animate()));
@@ -128,7 +132,7 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
     cubeColor = vec3(1,1,1);
     lightColor = vec3(1,1,1);
     lightBrightness = 1;
-    lightLoc = vec3(0,10,0);
+    lightLoc = vec3(0,100,0);
 
     pitchAngle = 0;
     yawAngle = 0;
@@ -233,6 +237,28 @@ void GLWidget::animate() {
     std::chrono::duration<double> elapsed_seconds = current - last;
     double elapsed = elapsed_seconds.count();
     last = current;
+
+    double upRate = .8;
+    for(int k = 0; k < 24; k++)
+    {
+        if(brightening[k])
+        {
+            indoorBright[k] += upRate * elapsed;
+        }
+        else
+        {
+            indoorBright[k] -= upRate * elapsed;
+        }
+        if(abs(indoorBright[k] - .8) > magnitude[k])
+        {
+            brightening[k] = !brightening[k];
+            magnitude[k] = abs(rand()) * .15 / RAND_MAX;
+        }
+    }
+    glUseProgram(faceProg);
+    glUniform1fv(faceIndoorBrightLoc, 24, indoorBright);
+    glUseProgram(cubeProg);
+    glUniform1fv(cubeIndoorBrightLoc, 24, indoorBright);
 
     bool move = false;
     velocity = vec3(0,0,0);
@@ -446,6 +472,8 @@ void GLWidget::initializeCube() {
     cubeLightPosLoc = glGetUniformLocation(program, "lightPos");
     cubeLightColorLoc = glGetUniformLocation(program, "lightColor");
     cubeLightBrightnessLoc = glGetUniformLocation(program, "lightBrightness");
+    cubeIndoorPosLoc = glGetUniformLocation(program, "indoorLights");
+    cubeIndoorBrightLoc = glGetUniformLocation(program, "indoorBrightness");
 
     glUniform3fv(cubeLightColorLoc, 1, value_ptr(lightColor));
     glUniform1f(cubeLightBrightnessLoc, lightBrightness);
@@ -455,8 +483,8 @@ void GLWidget::initializeCube() {
 
 void GLWidget::initializeFace()
 {
-    float outsideAmbient = .8;
-    float insideAmbient = .1;
+    float outsideAmbient = .5;
+    float insideAmbient = .3;
     //ground
     faces.push_back(vec3(200,0,200));
     faces.push_back(vec3(200,0,-200));
@@ -1439,6 +1467,8 @@ void GLWidget::initializeFace()
     faceLightPosLoc = glGetUniformLocation(program, "lightPos");
     faceLightColorLoc = glGetUniformLocation(program, "lightColor");
     faceLightBrightnessLoc = glGetUniformLocation(program, "lightBrightness");
+    faceIndoorPosLoc = glGetUniformLocation(program, "indoorLights");
+    faceIndoorBrightLoc = glGetUniformLocation(program, "indoorBrightness");
 
     glUniform3fv(faceLightColorLoc, 1, value_ptr(lightColor));
     glUniform1f(faceLightBrightnessLoc, lightBrightness);
@@ -1474,6 +1504,115 @@ void GLWidget::initializeGL() {
 
     glUseProgram(faceProg);
     glUniformMatrix4fv(faceViewMatrixLoc, 1, false, value_ptr(viewMatrix));
+
+    vec3 indoor[24] = {
+        vec3(74, 10, 65),
+        vec3(74, 10, 25),
+        vec3(74, 10, -25),
+        vec3(74, 10, -65),
+        vec3(26, 10, 65),
+        vec3(26, 10, 25),
+        vec3(26, 10, -25),
+        vec3(26, 10, -65),
+        vec3(15, 10, 65),
+        vec3(15, 10, 25),
+        vec3(15, 10, -25),
+        vec3(15, 10, -65),
+        vec3(-74, 10, 65),
+        vec3(-74, 10, 25),
+        vec3(-74, 10, -25),
+        vec3(-74, 10, -65),
+        vec3(-26, 10, 65),
+        vec3(-26, 10, 25),
+        vec3(-26, 10, -25),
+        vec3(-26, 10, -65),
+        vec3(-15, 10, 65),
+        vec3(-15, 10, 25),
+        vec3(-15, 10, -25),
+        vec3(-15, 10, -65)
+    };
+
+    indoorBright[0] = .8;
+    indoorBright[1] = .8;
+    indoorBright[2] = .8;
+    indoorBright[3] = .8;
+    indoorBright[4] = .8;
+    indoorBright[5] = .8;
+    indoorBright[6] = .8;
+    indoorBright[7] = .8;
+    indoorBright[8] = .8;
+    indoorBright[9] = .8;
+    indoorBright[10] = .8;
+    indoorBright[11] = .8;
+    indoorBright[12] = .8;
+    indoorBright[13] = .8;
+    indoorBright[14] = .8;
+    indoorBright[15] = .8;
+    indoorBright[16] = .8;
+    indoorBright[17] = .8;
+    indoorBright[18] = .8;
+    indoorBright[19] = .8;
+    indoorBright[20] = .8;
+    indoorBright[21] = .8;
+    indoorBright[22] = .8;
+    indoorBright[23] = .8;
+
+    magnitude[0] = .1;
+    magnitude[1] = .1;
+    magnitude[2] = .1;
+    magnitude[3] = .1;
+    magnitude[4] = .1;
+    magnitude[5] = .1;
+    magnitude[6] = .1;
+    magnitude[7] = .1;
+    magnitude[8] = .1;
+    magnitude[9] = .1;
+    magnitude[10] = .1;
+    magnitude[11] = .1;
+    magnitude[12] = .1;
+    magnitude[13] = .1;
+    magnitude[14] = .1;
+    magnitude[15] = .1;
+    magnitude[16] = .1;
+    magnitude[17] = .1;
+    magnitude[18] = .1;
+    magnitude[19] = .1;
+    magnitude[20] = .1;
+    magnitude[21] = .1;
+    magnitude[22] = .1;
+    magnitude[23] = .1;
+
+    brightening[0] = true;
+    brightening[1] = true;
+    brightening[2] = true;
+    brightening[3] = true;
+    brightening[4] = true;
+    brightening[5] = true;
+    brightening[6] = true;
+    brightening[7] = true;
+    brightening[8] = true;
+    brightening[9] = true;
+    brightening[10] = true;
+    brightening[11] = true;
+    brightening[12] = true;
+    brightening[13] = true;
+    brightening[14] = true;
+    brightening[15] = true;
+    brightening[16] = true;
+    brightening[17] = true;
+    brightening[18] = true;
+    brightening[19] = true;
+    brightening[20] = true;
+    brightening[21] = true;
+    brightening[22] = true;
+    brightening[23] = true;
+
+    glUseProgram(faceProg);
+    glUniform3fv(faceIndoorPosLoc, 24, value_ptr(indoor[0]));
+    glUniform1fv(faceIndoorBrightLoc, 24, indoorBright);
+    glUseProgram(cubeProg);
+    glUniform3fv(cubeIndoorPosLoc, 24, value_ptr(indoor[0]));
+    glUniform1fv(cubeIndoorBrightLoc, 24, indoorBright);
 }
 
 void GLWidget::resizeGL(int w, int h) {

@@ -105,6 +105,8 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         GLint cubeLightPosLoc;
         GLint cubeLightColorLoc;
         GLint cubeLightBrightnessLoc;
+        GLint cubeIndoorPosLoc;
+        GLint cubeIndoorBrightLoc;
 
         vec3 cubeColor;
         vec3 lightLoc;
@@ -131,6 +133,8 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         GLint faceLightPosLoc;
         GLint faceLightColorLoc;
         GLint faceLightBrightnessLoc;
+        GLint faceIndoorPosLoc;
+        GLint faceIndoorBrightLoc;
 
         vector<Door> doors;
 
@@ -138,6 +142,10 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         vector<vec2> zLines;
 
         std::chrono::time_point<std::chrono::system_clock> first, last, current;
+
+        GLfloat indoorBright[24];
+        bool brightening[24];
+        double magnitude[24];
 };
 
 #endif
