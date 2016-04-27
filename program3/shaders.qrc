@@ -6,5 +6,15 @@
         <file>grid_vert.glsl</file>
         <file>face_frag.glsl</file>
         <file>face_vert.glsl</file>
+        <file>textures/brickWall.jpg</file>
+        <file>textures/concrete.jpg</file>
+        <file>textures/door1.jpg</file>
+        <file>textures/door2.jpg</file>
+        <file>textures/pavement1.jpg</file>
+        <file>textures/pavement2.jpg</file>
+        <file>textures/planks1.jpg</file>
+        <file>textures/planks2.jpg</file>
+        <file>textures/stone1.jpg</file>
+        <file>textures/stone2.jpg</file>
     </qresource>
 </RCC>

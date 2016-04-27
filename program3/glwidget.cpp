@@ -36,7 +36,7 @@ using std::max;
 using std::min;
 using std::abs;
 
-GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent) {
+GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent), brickTex(QOpenGLTexture::Target2D), groundTex(QOpenGLTexture::Target2D), plankTex(QOpenGLTexture::Target2D), stoneTex(QOpenGLTexture::Target2D), doorTex(QOpenGLTexture::Target2D) {
 
     srand(time(NULL));
     setMouseTracking(true);
@@ -249,10 +249,10 @@ void GLWidget::animate() {
         {
             indoorBright[k] -= upRate * elapsed;
         }
-        if(abs(indoorBright[k] - .8) > magnitude[k])
+        if(abs(indoorBright[k] - .7) > magnitude[k])
         {
             brightening[k] = !brightening[k];
-            magnitude[k] = abs(rand()) * .15 / RAND_MAX;
+            magnitude[k] = abs(rand()) * .25 / RAND_MAX;
         }
     }
     glUseProgram(faceProg);
@@ -495,13 +495,14 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,1,0));
     faceNormals.push_back(vec3(0,1,0));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(10,0));
+    faceUVs.push_back(vec2(10,10));
+    faceUVs.push_back(vec2(0,10));
     faceAmbients.push_back(outsideAmbient);
     faceAmbients.push_back(outsideAmbient);
     faceAmbients.push_back(outsideAmbient);
     faceAmbients.push_back(outsideAmbient);
+    faceTextures.push_back(1);
 
     //building
     //outside
@@ -513,31 +514,34 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(-1,0,0));
     faceNormals.push_back(vec3(-1,0,0));
     faceNormals.push_back(vec3(-1,0,0));
-    faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
+    faceUVs.push_back(vec2(2.534,1));
     faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(0,0));
+    faceUVs.push_back(vec2(2.534,0));
     faceAmbients.push_back(outsideAmbient);
     faceAmbients.push_back(outsideAmbient);
     faceAmbients.push_back(outsideAmbient);
     faceAmbients.push_back(outsideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(80,40,-80));
     faces.push_back(vec3(80,40,80));
     faces.push_back(vec3(80,0,80));
     faces.push_back(vec3(80,0,-80));
+    faceNormals.push_back(vec3(8,0,0));
     faceNormals.push_back(vec3(1,0,0));
     faceNormals.push_back(vec3(1,0,0));
     faceNormals.push_back(vec3(1,0,0));
-    faceNormals.push_back(vec3(1,0,0));
-    faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
+    faceUVs.push_back(vec2(2.534,1));
     faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(0,0));
+    faceUVs.push_back(vec2(2.534,0));
     faceAmbients.push_back(outsideAmbient);
     faceAmbients.push_back(outsideAmbient);
     faceAmbients.push_back(outsideAmbient);
     faceAmbients.push_back(outsideAmbient);
+    faceTextures.push_back(0);
+
 
     faces.push_back(vec3(-80,40,80));
     faces.push_back(vec3(80,40,80));
@@ -547,14 +551,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,0,1));
     faceNormals.push_back(vec3(0,0,1));
     faceNormals.push_back(vec3(0,0,1));
-    faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
+    faceUVs.push_back(vec2(2.534,1));
     faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(0,0));
+    faceUVs.push_back(vec2(2.534,0));
     faceAmbients.push_back(outsideAmbient);
     faceAmbients.push_back(outsideAmbient);
     faceAmbients.push_back(outsideAmbient);
     faceAmbients.push_back(outsideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(-80,40,-80));
     faces.push_back(vec3(80,40,-80));
@@ -564,14 +569,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,0,-1));
     faceNormals.push_back(vec3(0,0,-1));
     faceNormals.push_back(vec3(0,0,-1));
-    faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
+    faceUVs.push_back(vec2(2.534,1));
     faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(0,.5));
+    faceUVs.push_back(vec2(2.534,.5));
     faceAmbients.push_back(outsideAmbient);
     faceAmbients.push_back(outsideAmbient);
     faceAmbients.push_back(outsideAmbient);
     faceAmbients.push_back(outsideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(-80,20,-80));
     faces.push_back(vec3(-10,20,-80));
@@ -581,14 +587,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,0,-1));
     faceNormals.push_back(vec3(0,0,-1));
     faceNormals.push_back(vec3(0,0,-1));
+    faceUVs.push_back(vec2(1.1086,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(1.1086,0));
     faceAmbients.push_back(outsideAmbient);
     faceAmbients.push_back(outsideAmbient);
     faceAmbients.push_back(outsideAmbient);
     faceAmbients.push_back(outsideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(80,20,-80));
     faces.push_back(vec3(10,20,-80));
@@ -598,14 +605,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,0,-1));
     faceNormals.push_back(vec3(0,0,-1));
     faceNormals.push_back(vec3(0,0,-1));
+    faceUVs.push_back(vec2(1.1086,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(1.1086,0));
     faceAmbients.push_back(outsideAmbient);
     faceAmbients.push_back(outsideAmbient);
     faceAmbients.push_back(outsideAmbient);
     faceAmbients.push_back(outsideAmbient);
+    faceTextures.push_back(0);
 
     //inside
     faces.push_back(vec3(-79,40,-80));
@@ -616,14 +624,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(1,0,0));
     faceNormals.push_back(vec3(1,0,0));
     faceNormals.push_back(vec3(1,0,0));
-    faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
+    faceUVs.push_back(vec2(2.534,1));
     faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(0,0));
+    faceUVs.push_back(vec2(2.534,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(79,40,-80));
     faces.push_back(vec3(79,40,80));
@@ -633,14 +642,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(-1,0,0));
     faceNormals.push_back(vec3(-1,0,0));
     faceNormals.push_back(vec3(-1,0,0));
-    faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
+    faceUVs.push_back(vec2(2.534,1));
     faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(0,0));
+    faceUVs.push_back(vec2(2.534,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(-80,40,79));
     faces.push_back(vec3(80,40,79));
@@ -650,14 +660,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,0,-1));
     faceNormals.push_back(vec3(0,0,-1));
     faceNormals.push_back(vec3(0,0,-1));
-    faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
+    faceUVs.push_back(vec2(2.534,1));
     faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(0,0));
+    faceUVs.push_back(vec2(2.534,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(-80,40,-79));
     faces.push_back(vec3(80,40,-79));
@@ -667,14 +678,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,0,1));
     faceNormals.push_back(vec3(0,0,1));
     faceNormals.push_back(vec3(0,0,1));
-    faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
+    faceUVs.push_back(vec2(2.534,1));
     faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(0,.5));
+    faceUVs.push_back(vec2(2.534,.5));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(-80,20,-79));
     faces.push_back(vec3(-10,20,-79));
@@ -684,14 +696,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,0,1));
     faceNormals.push_back(vec3(0,0,1));
     faceNormals.push_back(vec3(0,0,1));
+    faceUVs.push_back(vec2(1.1086,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(1.1086,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(80,20,-79));
     faces.push_back(vec3(10,20,-79));
@@ -701,14 +714,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,0,1));
     faceNormals.push_back(vec3(0,0,1));
     faceNormals.push_back(vec3(0,0,1));
+    faceUVs.push_back(vec2(1.1086,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(1.1086,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(-80,40,-.5));
     faces.push_back(vec3(80,40,-.5));
@@ -718,14 +732,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,0,-1));
     faceNormals.push_back(vec3(0,0,-1));
     faceNormals.push_back(vec3(0,0,-1));
-    faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
+    faceUVs.push_back(vec2(2.534,1));
     faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(0,.5));
+    faceUVs.push_back(vec2(2.534,.5));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(-80,20,-.5));
     faces.push_back(vec3(-10,20,-.5));
@@ -735,14 +750,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,0,-1));
     faceNormals.push_back(vec3(0,0,-1));
     faceNormals.push_back(vec3(0,0,-1));
+    faceUVs.push_back(vec2(1.1086,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(1.1086,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(80,20,-.5));
     faces.push_back(vec3(10,20,-.5));
@@ -752,14 +768,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,0,-1));
     faceNormals.push_back(vec3(0,0,-1));
     faceNormals.push_back(vec3(0,0,-1));
+    faceUVs.push_back(vec2(1.1086,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(1.1086,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(-80,40,.5));
     faces.push_back(vec3(80,40,.5));
@@ -769,14 +786,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,0,1));
     faceNormals.push_back(vec3(0,0,1));
     faceNormals.push_back(vec3(0,0,1));
-    faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
+    faceUVs.push_back(vec2(2.534,1));
     faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(0,.5));
+    faceUVs.push_back(vec2(2.534,.5));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(-80,20,.5));
     faces.push_back(vec3(-10,20,.5));
@@ -786,14 +804,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,0,1));
     faceNormals.push_back(vec3(0,0,1));
     faceNormals.push_back(vec3(0,0,1));
+    faceUVs.push_back(vec2(1.1086,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(1.1086,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(80,20,.5));
     faces.push_back(vec3(10,20,.5));
@@ -803,14 +822,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,0,1));
     faceNormals.push_back(vec3(0,0,1));
     faceNormals.push_back(vec3(0,0,1));
+    faceUVs.push_back(vec2(1.1086,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(1.1086,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(-20,40,-80));
     faces.push_back(vec3(-20,40,80));
@@ -820,14 +840,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(1,0,0));
     faceNormals.push_back(vec3(1,0,0));
     faceNormals.push_back(vec3(1,0,0));
-    faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
+    faceUVs.push_back(vec2(2.534,1));
     faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(0,.5));
+    faceUVs.push_back(vec2(2.534,.5));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(20,40,-80));
     faces.push_back(vec3(20,40,80));
@@ -837,14 +858,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(-1,0,0));
     faceNormals.push_back(vec3(-1,0,0));
     faceNormals.push_back(vec3(-1,0,0));
-    faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
+    faceUVs.push_back(vec2(2.534,1));
     faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(0,.5));
+    faceUVs.push_back(vec2(2.534,.5));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(-21,40,-80));
     faces.push_back(vec3(-21,40,80));
@@ -854,14 +876,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(-1,0,0));
     faceNormals.push_back(vec3(-1,0,0));
     faceNormals.push_back(vec3(-1,0,0));
-    faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
+    faceUVs.push_back(vec2(2.534,1));
     faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(0,.5));
+    faceUVs.push_back(vec2(2.534,.5));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(21,40,-80));
     faces.push_back(vec3(21,40,80));
@@ -871,14 +894,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(1,0,0));
     faceNormals.push_back(vec3(1,0,0));
     faceNormals.push_back(vec3(1,0,0));
-    faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
+    faceUVs.push_back(vec2(2.534,1));
     faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(0,.5));
+    faceUVs.push_back(vec2(2.534,.5));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(-21,20,-80));
     faces.push_back(vec3(-21,20,-45));
@@ -888,14 +912,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(-1,0,0));
     faceNormals.push_back(vec3(-1,0,0));
     faceNormals.push_back(vec3(-1,0,0));
+    faceUVs.push_back(vec2(.5543,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(.5543,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(21,20,-80));
     faces.push_back(vec3(21,20,-45));
@@ -905,14 +930,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(1,0,0));
     faceNormals.push_back(vec3(1,0,0));
     faceNormals.push_back(vec3(1,0,0));
+    faceUVs.push_back(vec2(.5543,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(.5543,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(-20,20,-80));
     faces.push_back(vec3(-20,20,-45));
@@ -922,14 +948,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(1,0,0));
     faceNormals.push_back(vec3(1,0,0));
     faceNormals.push_back(vec3(1,0,0));
+    faceUVs.push_back(vec2(.5543,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(.5543,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(20,20,-80));
     faces.push_back(vec3(20,20,-45));
@@ -939,14 +966,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(-1,0,0));
     faceNormals.push_back(vec3(-1,0,0));
     faceNormals.push_back(vec3(-1,0,0));
+    faceUVs.push_back(vec2(.5543,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(.5543,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(-21,20,80));
     faces.push_back(vec3(-21,20,45));
@@ -956,14 +984,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(-1,0,0));
     faceNormals.push_back(vec3(-1,0,0));
     faceNormals.push_back(vec3(-1,0,0));
+    faceUVs.push_back(vec2(.5543,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(.5543,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(21,20,80));
     faces.push_back(vec3(21,20,45));
@@ -973,14 +1002,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(1,0,0));
     faceNormals.push_back(vec3(1,0,0));
     faceNormals.push_back(vec3(1,0,0));
+    faceUVs.push_back(vec2(.5543,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(.5543,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(-20,20,80));
     faces.push_back(vec3(-20,20,45));
@@ -990,14 +1020,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(1,0,0));
     faceNormals.push_back(vec3(1,0,0));
     faceNormals.push_back(vec3(1,0,0));
+    faceUVs.push_back(vec2(.5543,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(.5543,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(20,20,80));
     faces.push_back(vec3(20,20,45));
@@ -1007,14 +1038,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(-1,0,0));
     faceNormals.push_back(vec3(-1,0,0));
     faceNormals.push_back(vec3(-1,0,0));
+    faceUVs.push_back(vec2(.5543,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(.5543,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(-21,20,35));
     faces.push_back(vec3(-21,20,-35));
@@ -1024,14 +1056,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(-1,0,0));
     faceNormals.push_back(vec3(-1,0,0));
     faceNormals.push_back(vec3(-1,0,0));
+    faceUVs.push_back(vec2(1.1086,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(1.1086,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(21,20,35));
     faces.push_back(vec3(21,20,-35));
@@ -1041,14 +1074,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(1,0,0));
     faceNormals.push_back(vec3(1,0,0));
     faceNormals.push_back(vec3(1,0,0));
+    faceUVs.push_back(vec2(1.1086,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(1.1086,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(-20,20,35));
     faces.push_back(vec3(-20,20,-35));
@@ -1058,14 +1092,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(1,0,0));
     faceNormals.push_back(vec3(1,0,0));
     faceNormals.push_back(vec3(1,0,0));
+    faceUVs.push_back(vec2(1.1086,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(1.1086,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(20,20,35));
     faces.push_back(vec3(20,20,-35));
@@ -1075,14 +1110,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(-1,0,0));
     faceNormals.push_back(vec3(-1,0,0));
     faceNormals.push_back(vec3(-1,0,0));
+    faceUVs.push_back(vec2(1.1086,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(1.1086,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(80,40,80));
     faces.push_back(vec3(80,40,-80));
@@ -1093,13 +1129,32 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,-1,0));
     faceNormals.push_back(vec3(0,-1,0));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(4,0));
+    faceUVs.push_back(vec2(4,4));
+    faceUVs.push_back(vec2(0,4));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(2);
+
+    faces.push_back(vec3(80,.02,80));
+    faces.push_back(vec3(80,.02,-80));
+    faces.push_back(vec3(-80,.02,-80));
+    faces.push_back(vec3(-80,.02,80));
+    faceNormals.push_back(vec3(0,1,0));
+    faceNormals.push_back(vec3(0,1,0));
+    faceNormals.push_back(vec3(0,1,0));
+    faceNormals.push_back(vec3(0,1,0));
+    faceUVs.push_back(vec2(0,0));
+    faceUVs.push_back(vec2(4,0));
+    faceUVs.push_back(vec2(4,4));
+    faceUVs.push_back(vec2(0,4));
+    faceAmbients.push_back(insideAmbient);
+    faceAmbients.push_back(insideAmbient);
+    faceAmbients.push_back(insideAmbient);
+    faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(2);
 
     //inside doors
     faces.push_back(vec3(20,20,35));
@@ -1110,14 +1165,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,0,1));
     faceNormals.push_back(vec3(0,0,1));
     faceNormals.push_back(vec3(0,0,1));
+    faceUVs.push_back(vec2(.0158,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(.0158,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(20,20,-35));
     faces.push_back(vec3(21,20,-35));
@@ -1127,14 +1183,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,0,-1));
     faceNormals.push_back(vec3(0,0,-1));
     faceNormals.push_back(vec3(0,0,-1));
+    faceUVs.push_back(vec2(.0158,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(.0158,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(20,20,45));
     faces.push_back(vec3(21,20,45));
@@ -1144,14 +1201,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,0,-1));
     faceNormals.push_back(vec3(0,0,-1));
     faceNormals.push_back(vec3(0,0,-1));
+    faceUVs.push_back(vec2(.0158,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(.0158,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(20,20,-45));
     faces.push_back(vec3(21,20,-45));
@@ -1161,14 +1219,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,0,1));
     faceNormals.push_back(vec3(0,0,1));
     faceNormals.push_back(vec3(0,0,1));
+    faceUVs.push_back(vec2(.0158,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(.0158,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(-20,20,35));
     faces.push_back(vec3(-21,20,35));
@@ -1178,14 +1237,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,0,1));
     faceNormals.push_back(vec3(0,0,1));
     faceNormals.push_back(vec3(0,0,1));
+    faceUVs.push_back(vec2(.0158,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(.0158,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(-20,20,-35));
     faces.push_back(vec3(-21,20,-35));
@@ -1195,14 +1255,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,0,-1));
     faceNormals.push_back(vec3(0,0,-1));
     faceNormals.push_back(vec3(0,0,-1));
+    faceUVs.push_back(vec2(.0158,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(.0158,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(-20,20,45));
     faces.push_back(vec3(-21,20,45));
@@ -1212,14 +1273,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,0,-1));
     faceNormals.push_back(vec3(0,0,-1));
     faceNormals.push_back(vec3(0,0,-1));
+    faceUVs.push_back(vec2(.0158,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(.0158,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(-20,20,-45));
     faces.push_back(vec3(-21,20,-45));
@@ -1229,14 +1291,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,0,1));
     faceNormals.push_back(vec3(0,0,1));
     faceNormals.push_back(vec3(0,0,1));
+    faceUVs.push_back(vec2(.0158,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(.0158,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(-10,20,-.5));
     faces.push_back(vec3(-10,20,.5));
@@ -1246,14 +1309,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(1,0,0));
     faceNormals.push_back(vec3(1,0,0));
     faceNormals.push_back(vec3(1,0,0));
+    faceUVs.push_back(vec2(.0158,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(.0158,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(10,20,-.5));
     faces.push_back(vec3(10,20,.5));
@@ -1263,14 +1327,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(-1,0,0));
     faceNormals.push_back(vec3(-1,0,0));
     faceNormals.push_back(vec3(-1,0,0));
+    faceUVs.push_back(vec2(.0158,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(.0158,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(-10,20,-79));
     faces.push_back(vec3(-10,20,-80));
@@ -1280,14 +1345,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(1,0,0));
     faceNormals.push_back(vec3(1,0,0));
     faceNormals.push_back(vec3(1,0,0));
+    faceUVs.push_back(vec2(.0158,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(.0158,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(10,20,-79));
     faces.push_back(vec3(10,20,-80));
@@ -1297,14 +1363,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(-1,0,0));
     faceNormals.push_back(vec3(-1,0,0));
     faceNormals.push_back(vec3(-1,0,0));
+    faceUVs.push_back(vec2(.0158,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(.0158,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(10,20,-79));
     faces.push_back(vec3(10,20,-80));
@@ -1314,14 +1381,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,-1,0));
     faceNormals.push_back(vec3(0,-1,0));
     faceNormals.push_back(vec3(0,-1,0));
+    faceUVs.push_back(vec2(.0158,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(.0158,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(10,20,-.5));
     faces.push_back(vec3(10,20,.5));
@@ -1331,14 +1399,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,-1,0));
     faceNormals.push_back(vec3(0,-1,0));
     faceNormals.push_back(vec3(0,-1,0));
+    faceUVs.push_back(vec2(.0158,.5));
+    faceUVs.push_back(vec2(0,.5));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(.0158,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(20,20,-35));
     faces.push_back(vec3(21,20,-35));
@@ -1348,14 +1417,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,-1,0));
     faceNormals.push_back(vec3(0,-1,0));
     faceNormals.push_back(vec3(0,-1,0));
+    faceUVs.push_back(vec2(.0158,.25));
+    faceUVs.push_back(vec2(0,.25));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(.0158,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(20,20,35));
     faces.push_back(vec3(21,20,35));
@@ -1365,14 +1435,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,-1,0));
     faceNormals.push_back(vec3(0,-1,0));
     faceNormals.push_back(vec3(0,-1,0));
+    faceUVs.push_back(vec2(.0158,.25));
+    faceUVs.push_back(vec2(0,.25));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(.0158,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(-20,20,-35));
     faces.push_back(vec3(-21,20,-35));
@@ -1382,14 +1453,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,-1,0));
     faceNormals.push_back(vec3(0,-1,0));
     faceNormals.push_back(vec3(0,-1,0));
+    faceUVs.push_back(vec2(.0158,.25));
+    faceUVs.push_back(vec2(0,.25));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(.0158,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     faces.push_back(vec3(-20,20,35));
     faces.push_back(vec3(-21,20,35));
@@ -1399,14 +1471,15 @@ void GLWidget::initializeFace()
     faceNormals.push_back(vec3(0,-1,0));
     faceNormals.push_back(vec3(0,-1,0));
     faceNormals.push_back(vec3(0,-1,0));
+    faceUVs.push_back(vec2(.0158,.25));
+    faceUVs.push_back(vec2(0,.25));
     faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
+    faceUVs.push_back(vec2(.0158,0));
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(0);
 
     glGenVertexArrays(1, &faceVao);
     glBindVertexArray(faceVao);
@@ -1479,13 +1552,25 @@ void GLWidget::initializeFace()
 void GLWidget::initializeGL() {
     initializeOpenGLFunctions();
 
-    glClearColor(0.0f/255.f, 191.0f/255.f, 255.0f/250.f, 1.0f);
+    glClearColor(0.0f/255.f, 191.0f/255.f, 250.0f/255.f, 1.0f);
     glPointSize(4.0f);
 
     glEnable(GL_DEPTH_TEST);
     GLuint restart = 0xFFFFFFFF;
     glPrimitiveRestartIndex(restart);
     glEnable(GL_PRIMITIVE_RESTART);
+
+    QImage img("://textures/brickWall.jpg");
+    brickTex.setData(img.mirrored());
+
+    QImage img2("://textures/pavement1.jpg");
+    groundTex.setData(img2.mirrored());
+
+    QImage img3("://textures/planks1.jpg");
+    plankTex.setData(img3.mirrored());
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     initializeCube();
     initializeGrid();
@@ -1641,8 +1726,21 @@ void GLWidget::paintGL() {
 
     glUseProgram(faceProg);
     glBindVertexArray(faceVao);
+    glActiveTexture(GL_TEXTURE0);
     for(int k = 0; k < faces.size() / 4; k++)
     {
+        if(faceTextures.at(k) == 0)
+        {
+            brickTex.bind(0);
+        }
+        else if(faceTextures.at(k) == 1)
+        {
+            groundTex.bind(0);
+        }
+        else
+        {
+            plankTex.bind(0);
+        }
         glDrawArrays(GL_TRIANGLE_FAN, k * 4, 4);
     }
 }

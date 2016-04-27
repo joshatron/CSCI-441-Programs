@@ -11,6 +11,7 @@ in vec3 indoor[24];
 uniform vec3 lightColor;
 uniform float lightBrightness;
 uniform float indoorBrightness[24];
+uniform sampler2D tex;
 
 out vec4 color_out;
 
@@ -59,5 +60,5 @@ void main() {
         lightOut += (fcolor * (lightColor * lightBrightness * diffuse)) + (fcolor * (lightColor * lightBrightness * fambient)) + (lightColor * lightBrightness * vec3(specular));
     }
 
-    color_out = vec4(lightOut, 1);
+    color_out = vec4(lightOut, 1) * texture(tex, fuv);
 }

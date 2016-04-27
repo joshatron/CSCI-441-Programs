@@ -5,6 +5,7 @@
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_3_3_Core>
 #include <QMouseEvent>
+#include <QOpenGLTexture>
 #include <QTimer>
 #include <chrono>
 #include <glm/glm.hpp>
@@ -124,6 +125,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         vector<vec3> faceNormals;
         vector<vec2> faceUVs;
         vector<float> faceAmbients;
+        vector<int> faceTextures;
 
         GLuint faceProg;
         GLuint faceVao;
@@ -146,6 +148,12 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         GLfloat indoorBright[24];
         bool brightening[24];
         double magnitude[24];
+
+        QOpenGLTexture brickTex;
+        QOpenGLTexture groundTex;
+        QOpenGLTexture plankTex;
+        QOpenGLTexture stoneTex;
+        QOpenGLTexture doorTex;
 };
 
 #endif
