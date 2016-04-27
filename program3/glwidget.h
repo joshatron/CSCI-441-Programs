@@ -101,6 +101,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
         vec3 cube[24];
         vec3 normals[24];
+        vec2 uvs[24];
 
         GLint cubeColorLoc;
         GLint cubeLightPosLoc;
@@ -154,6 +155,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         QOpenGLTexture plankTex;
         QOpenGLTexture stoneTex;
         QOpenGLTexture doorTex;
+        QOpenGLTexture drawbridgeTex;
 };
 
 #endif

@@ -36,7 +36,7 @@ using std::max;
 using std::min;
 using std::abs;
 
-GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent), brickTex(QOpenGLTexture::Target2D), groundTex(QOpenGLTexture::Target2D), plankTex(QOpenGLTexture::Target2D), stoneTex(QOpenGLTexture::Target2D), doorTex(QOpenGLTexture::Target2D) {
+GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent), brickTex(QOpenGLTexture::Target2D), groundTex(QOpenGLTexture::Target2D), plankTex(QOpenGLTexture::Target2D), stoneTex(QOpenGLTexture::Target2D), doorTex(QOpenGLTexture::Target2D), drawbridgeTex(QOpenGLTexture::Target2D) {
 
     srand(time(NULL));
     setMouseTracking(true);
@@ -128,6 +128,50 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent), brickTex(QOpenGLTex
     normals[21] = vec3(-1, 0, 0);
     normals[22] = vec3(-1, 0, 0);
     normals[23] = vec3(-1, 0, 0);
+
+    //initialize uvs
+    uvs[0] = vec2(.5,.2);
+    uvs[1] = vec2(.5,.5);
+    uvs[2] = vec2(.6,.5);
+    uvs[3] = vec2(.6,.2);
+    uvs[4] = vec2(.5,.2);
+    uvs[5] = vec2(.5,.5);
+    uvs[6] = vec2(.6,.5);
+    uvs[7] = vec2(.6,.2);
+    uvs[8] = vec2(0,1);
+    uvs[9] = vec2(1,1);
+    uvs[10] = vec2(1,0);
+    uvs[11] = vec2(0,0);
+    uvs[12] = vec2(1,0);
+    uvs[13] = vec2(1,1);
+    uvs[14] = vec2(0,1);
+    uvs[15] = vec2(0,0);
+    uvs[16] = vec2(.5,.4);
+    uvs[17] = vec2(.5,.7);
+    uvs[18] = vec2(.6,.7);
+    uvs[19] = vec2(.6,.4);
+    uvs[20] = vec2(.5,.4);
+    uvs[21] = vec2(.5,.7);
+    uvs[22] = vec2(.6,.7);
+    uvs[23] = vec2(.6,.4);
+
+    cubeColor = vec3(1,1,1);
+    lightColor = vec3(1,1,1);
+    lightBrightness = 1;
+    lightLoc = vec3(0,100,0);
+
+    pitchAngle = 0;
+    yawAngle = 0;
+    position = vec3(0,14,0);
+
+    cubeColor = vec3(1,1,1);
+    lightColor = vec3(1,1,1);
+    lightBrightness = 1;
+    lightLoc = vec3(0,1000,0);
+
+    pitchAngle = 0;
+    yawAngle = 0;
+    position = vec3(0,14,0);
 
     cubeColor = vec3(1,1,1);
     lightColor = vec3(1,1,1);
@@ -435,6 +479,8 @@ void GLWidget::initializeCube() {
     glGenBuffers(1, &positionBuffer);
     GLuint normalBuffer;
     glGenBuffers(1, &normalBuffer);
+    GLuint uvBuffer;
+    glGenBuffers(1, &uvBuffer);
 
     // Upload the position data to the GPU, storing
     // it in the buffer we just allocated.
@@ -443,6 +489,9 @@ void GLWidget::initializeCube() {
 
     glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(uvs), uvs, GL_STATIC_DRAW);
 
     // Load our vertex and fragment shaders into a program object
     // on the GPU
@@ -464,6 +513,11 @@ void GLWidget::initializeCube() {
     GLint normalIndex = glGetAttribLocation(program, "normal");
     glEnableVertexAttribArray(normalIndex);
     glVertexAttribPointer(normalIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
+    GLint uvIndex = glGetAttribLocation(program, "uvIn");
+    glEnableVertexAttribArray(uvIndex);
+    glVertexAttribPointer(uvIndex, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
     cubeProjMatrixLoc = glGetUniformLocation(program, "projection");
     cubeViewMatrixLoc = glGetUniformLocation(program, "view");
@@ -1481,6 +1535,24 @@ void GLWidget::initializeFace()
     faceAmbients.push_back(insideAmbient);
     faceTextures.push_back(0);
 
+    faces.push_back(vec3(-10,0,-198.2));
+    faces.push_back(vec3(10,0,-198.2));
+    faces.push_back(vec3(10,40,-198.2));
+    faces.push_back(vec3(-10,40,-198.2));
+    faceNormals.push_back(vec3(0,0,1));
+    faceNormals.push_back(vec3(0,0,1));
+    faceNormals.push_back(vec3(0,0,1));
+    faceNormals.push_back(vec3(0,0,1));
+    faceUVs.push_back(vec2(0,0));
+    faceUVs.push_back(vec2(1,0));
+    faceUVs.push_back(vec2(1,1));
+    faceUVs.push_back(vec2(0,1));
+    faceAmbients.push_back(insideAmbient);
+    faceAmbients.push_back(insideAmbient);
+    faceAmbients.push_back(insideAmbient);
+    faceAmbients.push_back(insideAmbient);
+    faceTextures.push_back(4);
+    
     glGenVertexArrays(1, &faceVao);
     glBindVertexArray(faceVao);
 
@@ -1560,14 +1632,23 @@ void GLWidget::initializeGL() {
     glPrimitiveRestartIndex(restart);
     glEnable(GL_PRIMITIVE_RESTART);
 
-    QImage img("://textures/brickWall.jpg");
+    QImage img("textures/brickWall.jpg");
     brickTex.setData(img.mirrored());
 
-    QImage img2("://textures/pavement1.jpg");
+    QImage img2("textures/pavement.jpg");
     groundTex.setData(img2.mirrored());
 
-    QImage img3("://textures/planks1.jpg");
+    QImage img3("textures/planks.jpg");
     plankTex.setData(img3.mirrored());
+
+    QImage img4("textures/brick.jpg");
+    stoneTex.setData(img4.mirrored());
+
+    QImage img5("textures/door.jpg");
+    doorTex.setData(img5.mirrored());
+
+    QImage img6("textures/drawbridge.jpg");
+    drawbridgeTex.setData(img6.mirrored());
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -1737,9 +1818,13 @@ void GLWidget::paintGL() {
         {
             groundTex.bind(0);
         }
-        else
+        else if(faceTextures.at(k) == 2)
         {
             plankTex.bind(0);
+        }
+        else
+        {
+            drawbridgeTex.bind(0);
         }
         glDrawArrays(GL_TRIANGLE_FAN, k * 4, 4);
     }
@@ -1748,6 +1833,8 @@ void GLWidget::paintGL() {
 void GLWidget::renderCube() {
     glUseProgram(cubeProg);
     glBindVertexArray(cubeVao);
+    glActiveTexture(GL_TEXTURE0);
+    stoneTex.bind(0);
     //for each brickLoc
     for(unsigned int k = 0; k < structure.brickLocs.size(); k++)
     {
@@ -1761,6 +1848,7 @@ void GLWidget::renderCube() {
         }
     }
 
+    doorTex.bind(0);
     for(unsigned int k = 0; k < doors.size(); k++)
     {
         mat4 loc = doors.at(k).getTransform();

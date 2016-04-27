@@ -9,6 +9,7 @@ uniform vec3 indoorLights[24];
 
 in vec3 position;
 in vec3 normal;
+in vec2 uvIn;
 
 out vec3 fcolor;
 out vec3 fposition;
@@ -16,6 +17,7 @@ out vec3 fnormal;
 out vec3 light;
 out vec3 indoor[24];
 out vec3 fpos;
+out vec2 fuv;
 
 void main() {
   gl_Position = projection * view * model * vec4(position, 1);
@@ -29,4 +31,6 @@ void main() {
   {
     indoor[k] = vec3(view * vec4(indoorLights[k], 1));
   }
+
+  fuv = uvIn;
 }
