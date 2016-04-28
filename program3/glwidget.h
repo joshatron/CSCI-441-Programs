@@ -8,6 +8,7 @@
 #include <QOpenGLTexture>
 #include <QTimer>
 #include <chrono>
+#include <tinyobjloader/tiny_obj_loader.h>
 #include <glm/glm.hpp>
 #include "structure.h"
 #include "door.h"
@@ -44,7 +45,10 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     private:
         void initializeCube();
         void initializeFace();
+        void initializeModels();
         void renderCube();
+        void initializeSmoothModel(const tinyobj::shape_t &shape, vector<vec3> &positions, vector<vec2> & uvs, vector<vec3> &normals, vector<unsigned int> &indices);
+
 
         GLuint cubeProg;
         GLuint cubeVao;
@@ -61,6 +65,18 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         GLint gridProjMatrixLoc;
         GLint gridViewMatrixLoc;
         GLint gridModelMatrixLoc;
+
+        GLuint modelProg;
+        GLuint modelVao;
+        GLint modelProjMatrixLoc;
+        GLint modelViewMatrixLoc;
+        GLint modelModelMatrixLoc;
+        GLint modelColorLoc;
+        GLint modelLightPosLoc;
+        GLint modelLightColorLoc;
+        GLint modelLightBrightnessLoc;
+        GLint modelIndoorPosLoc;
+        GLint modelIndoorBrightLoc;
 
         mat4 projMatrix;
         mat4 viewMatrix;
@@ -155,7 +171,19 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         QOpenGLTexture plankTex;
         QOpenGLTexture stoneTex;
         QOpenGLTexture doorTex;
-        QOpenGLTexture drawbridgeTex;
+        QOpenGLTexture chairTex;
+        QOpenGLTexture bedTex;
+        QOpenGLTexture tableTex;
+        QOpenGLTexture torchTex;
+        QOpenGLTexture throneTex;
+        QOpenGLTexture couchTex;
+        QOpenGLTexture bookTex;
+
+        int numSmoothIndices;
+
+        vector<mat4> modelTransforms;
+        vector<int> modelIndices;
+        vector<int> modelTexture;
 };
 
 #endif

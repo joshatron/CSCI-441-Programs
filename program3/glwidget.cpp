@@ -9,7 +9,9 @@
 #include <QTextStream>
 #include <QTimer>
 #include <memory>
-#include "tower_function.h"
+#include "function.h"
+#include "linear_function.h"
+#include "dome_function.h"
 #include <cmath>
 
 #ifndef M_PI
@@ -30,13 +32,15 @@ using glm::rotate;
 using glm::value_ptr;
 using glm::lookAt;
 using std::cout;
+using std::cerr;
 using std::endl;
 using std::make_shared;
 using std::max;
 using std::min;
 using std::abs;
+using std::string;
 
-GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent), brickTex(QOpenGLTexture::Target2D), groundTex(QOpenGLTexture::Target2D), plankTex(QOpenGLTexture::Target2D), stoneTex(QOpenGLTexture::Target2D), doorTex(QOpenGLTexture::Target2D), drawbridgeTex(QOpenGLTexture::Target2D) {
+GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent), brickTex(QOpenGLTexture::Target2D), groundTex(QOpenGLTexture::Target2D), plankTex(QOpenGLTexture::Target2D), stoneTex(QOpenGLTexture::Target2D), doorTex(QOpenGLTexture::Target2D), chairTex(QOpenGLTexture::Target2D), bedTex(QOpenGLTexture::Target2D), tableTex(QOpenGLTexture::Target2D), torchTex(QOpenGLTexture::Target2D), throneTex(QOpenGLTexture::Target2D), couchTex(QOpenGLTexture::Target2D), bookTex(QOpenGLTexture::Target2D) {
 
     srand(time(NULL));
     setMouseTracking(true);
@@ -70,10 +74,17 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent), brickTex(QOpenGLTex
     structure.shapes.push_back(Shape(1,1,1,4,vec3(0, 0, 0),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
 
     //towers
-    structure.shapes.push_back(Shape(.2,.2,1.5,12,vec3(.35, 0, .35),vec3(0,0,0),true,0,1,1,make_shared<TowerFunction>()));
-    structure.shapes.push_back(Shape(.2,.2,1.5,12,vec3(-.35, 0, .35),vec3(0,0,0),true,0,1,1,make_shared<TowerFunction>()));
-    structure.shapes.push_back(Shape(.2,.2,1.5,12,vec3(-.35, 0, -.35),vec3(0,0,0),true,0,1,1,make_shared<TowerFunction>()));
-    structure.shapes.push_back(Shape(.2,.2,1.5,12,vec3(.35, 0, -.35),vec3(0,0,0),true,0,1,1,make_shared<TowerFunction>()));
+    structure.shapes.push_back(Shape(.2,.2,1.2,12,vec3(.35, 0, .35),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.2,.2,1.2,12,vec3(-.35, 0, .35),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.2,.2,1.2,12,vec3(-.35, 0, -.35),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+    structure.shapes.push_back(Shape(.2,.2,1.2,12,vec3(.35, 0, -.35),vec3(0,0,0),true,0,1,1,make_shared<Function>()));
+
+    structure.shapes.push_back(Shape(.25,.25,.6,12,vec3(.35, .5, .35),vec3(0,0,0),true,1,0,1,make_shared<LinearFunction>()));
+    structure.shapes.push_back(Shape(.25,.25,.6,12,vec3(-.35, .5, .35),vec3(0,0,0),true,1,0,1,make_shared<LinearFunction>()));
+    structure.shapes.push_back(Shape(.25,.25,.6,12,vec3(-.35, .5, -.35),vec3(0,0,0),true,1,0,1,make_shared<LinearFunction>()));
+    structure.shapes.push_back(Shape(.25,.25,.6,12,vec3(.35, .5, -.35),vec3(0,0,0),true,1,0,1,make_shared<LinearFunction>()));
+
+    structure.shapes.push_back(Shape(.4,.4,.6,4,vec3(0, .41, 0),vec3(0,0,0),true,0,1,1,make_shared<DomeFunction>()));
 
     structure.updateBrickLocs(4, 2, 2, .01, 100, 25, 100, 1);
 
@@ -303,6 +314,8 @@ void GLWidget::animate() {
     glUniform1fv(faceIndoorBrightLoc, 24, indoorBright);
     glUseProgram(cubeProg);
     glUniform1fv(cubeIndoorBrightLoc, 24, indoorBright);
+    glUseProgram(modelProg);
+    glUniform1fv(modelIndoorBrightLoc, 24, indoorBright);
 
     bool move = false;
     velocity = vec3(0,0,0);
@@ -423,6 +436,9 @@ void GLWidget::animate() {
 
     glUseProgram(faceProg);
     glUniformMatrix4fv(faceViewMatrixLoc, 1, false, value_ptr(viewMatrix));
+
+    glUseProgram(modelProg);
+    glUniformMatrix4fv(modelViewMatrixLoc, 1, false, value_ptr(viewMatrix));
 
     update();
 }
@@ -1534,24 +1550,6 @@ void GLWidget::initializeFace()
     faceAmbients.push_back(insideAmbient);
     faceAmbients.push_back(insideAmbient);
     faceTextures.push_back(0);
-
-    faces.push_back(vec3(-10,0,-198.2));
-    faces.push_back(vec3(10,0,-198.2));
-    faces.push_back(vec3(10,40,-198.2));
-    faces.push_back(vec3(-10,40,-198.2));
-    faceNormals.push_back(vec3(0,0,1));
-    faceNormals.push_back(vec3(0,0,1));
-    faceNormals.push_back(vec3(0,0,1));
-    faceNormals.push_back(vec3(0,0,1));
-    faceUVs.push_back(vec2(0,0));
-    faceUVs.push_back(vec2(1,0));
-    faceUVs.push_back(vec2(1,1));
-    faceUVs.push_back(vec2(0,1));
-    faceAmbients.push_back(insideAmbient);
-    faceAmbients.push_back(insideAmbient);
-    faceAmbients.push_back(insideAmbient);
-    faceAmbients.push_back(insideAmbient);
-    faceTextures.push_back(4);
     
     glGenVertexArrays(1, &faceVao);
     glBindVertexArray(faceVao);
@@ -1621,6 +1619,266 @@ void GLWidget::initializeFace()
     glUniform3fv(faceColorLoc, 1, value_ptr(vec3(1,1,1)));
 }
 
+void GLWidget::initializeSmoothModel(const tinyobj::shape_t &shape, vector<vec3> &positions, vector<vec2> &uvs, vector<vec3> &normals, vector<unsigned int> &indices)
+{
+    int indexAdd = positions.size();
+
+    for (size_t size = 0; size < shape.mesh.positions.size() / 3; size++) {
+        vec3 p0 = vec3(shape.mesh.positions[3*size+0],
+                       shape.mesh.positions[3*size+1],
+                       shape.mesh.positions[3*size+2]);
+        
+        vec2 texCoord = vec2(shape.mesh.texcoords[2*size+0],
+                             shape.mesh.texcoords[2*size+1]);
+
+        positions.push_back(p0);
+        uvs.push_back(texCoord);
+        normals.push_back(vec3(0,0,0));
+    }
+
+    for(size_t tri = 0; tri < shape.mesh.indices.size() / 3; tri++) {
+        // Here we're getting the indices for the current triangle
+        unsigned int ind0 = shape.mesh.indices[3*tri+0];
+        unsigned int ind1 = shape.mesh.indices[3*tri+1];
+        unsigned int ind2 = shape.mesh.indices[3*tri+2];
+
+        // Using those indices we can get the three points of the triangle
+        vec3 p0 = vec3(shape.mesh.positions[3*ind0+0],
+                       shape.mesh.positions[3*ind0+1],
+                       shape.mesh.positions[3*ind0+2]);
+
+        vec3 p1 = vec3(shape.mesh.positions[3*ind1+0],
+                       shape.mesh.positions[3*ind1+1],
+                       shape.mesh.positions[3*ind1+2]);
+
+        vec3 p2 = vec3(shape.mesh.positions[3*ind2+0],
+                       shape.mesh.positions[3*ind2+1],
+                       shape.mesh.positions[3*ind2+2]);
+
+        // Part 1 - TODO Calculate the normal of the triangle
+        vec3  n = normalize(cross(p1 - p0, p2 - p0));
+
+        normals[ind0] += n;
+        normals[ind1] += n;
+        normals[ind2] += n;
+
+        indices.push_back(ind0 + indexAdd);
+        indices.push_back(ind1 + indexAdd);
+        indices.push_back(ind2 + indexAdd);
+    }
+
+    for (size_t tri = 0; tri < normals.size(); tri++) {
+        normals[tri] = normalize(normals[tri]);
+    }
+}
+
+void GLWidget::initializeModels()
+{
+    vector<tinyobj::shape_t> shapes;
+    vector<tinyobj::material_t> materials;
+
+    vector<vec3> smooth_positions;
+    vector<vec3> smooth_normals;
+    vector<unsigned int> smooth_indices;
+    vector<vec2> smooth_uvs;
+
+
+    vector<const char*> files;
+
+    files.push_back("models/chair/chair.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(37,4.9,-36)) * rotate(mat4(1.f), (float)(M_PI / 2), vec3(0,1,0)) * scale(mat4(1.f), vec3(.7,.7,.7)));
+    modelTexture.push_back(0);
+    files.push_back("models/chair/chair.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(63,4.9,-30)) * rotate(mat4(1.f), (float)(M_PI * 3 / 2), vec3(0,1,0)) * scale(mat4(1.f), vec3(.7,.7,.7)));
+    modelTexture.push_back(0);
+    files.push_back("models/chair/chair.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(37,4.9,-46)) * rotate(mat4(1.f), (float)(M_PI / 2), vec3(0,1,0)) * scale(mat4(1.f), vec3(.7,.7,.7)));
+    modelTexture.push_back(0);
+    files.push_back("models/chair/chair.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(63,4.9,-40)) * rotate(mat4(1.f), (float)(M_PI * 3 / 2), vec3(0,1,0)) * scale(mat4(1.f), vec3(.7,.7,.7)));
+    modelTexture.push_back(0);
+    files.push_back("models/chair/chair.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(37,4.9,-56)) * rotate(mat4(1.f), (float)(M_PI / 2), vec3(0,1,0)) * scale(mat4(1.f), vec3(.7,.7,.7)));
+    modelTexture.push_back(0);
+    files.push_back("models/chair/chair.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(63,4.9,-50)) * rotate(mat4(1.f), (float)(M_PI * 3 / 2), vec3(0,1,0)) * scale(mat4(1.f), vec3(.7,.7,.7)));
+    modelTexture.push_back(0);
+    files.push_back("models/bed/bed.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(50,-.5,65)) * rotate(mat4(1.f), 0.f, vec3(0,1,0)) * scale(mat4(1.f), vec3(.08,.08,.08)));
+    modelTexture.push_back(1);
+    files.push_back("models/table/table.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(50,4,-43)) * rotate(mat4(1.f), (float)(M_PI / 2), vec3(0,1,0)) * scale(mat4(1.f), vec3(.16,.16,.16)));
+    modelTexture.push_back(2);
+    files.push_back("models/throne/throne.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(0,0,60)) * rotate(mat4(1.f), (float)(M_PI), vec3(0,1,0)) * scale(mat4(1.f), vec3(6,6,6)));
+    modelTexture.push_back(4);
+    files.push_back("models/couch/couch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(-50,0,-10)) * rotate(mat4(1.f), (float)(M_PI), vec3(0,1,0)) * scale(mat4(1.f), vec3(.08,.08,.08)));
+    modelTexture.push_back(5);
+    files.push_back("models/couch/couch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(-70,0,-40)) * rotate(mat4(1.f), (float)(M_PI / 2), vec3(0,1,0)) * scale(mat4(1.f), vec3(.08,.08,.08)));
+    modelTexture.push_back(5);
+
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(20,5,25)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(20,5,65)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(20,5,-25)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(20,5,-65)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(-20,5,25)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(-20,5,65)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(-20,5,-25)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(-20,5,-65)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(79,5,25)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(79,5,65)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(79,5,-25)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(79,5,-65)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(-79,5,-25)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(-79,5,-65)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(-64,5,0)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(1,0,0)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(-64,5,79)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(1,0,0)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(-21,5,25)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(-21,5,65)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(-21,5,-25)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(-21,5,-65)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(21,5,25)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(21,5,65)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(21,5,-25)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(21,5,-65)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+
+    int sum = 0;
+    for(int k = 0; k < files.size(); k++)
+    {
+        shapes.clear();
+        materials.clear();
+        QFile file(files.at(k));
+        string err = tinyobj::LoadObj(shapes, materials, file);
+
+        if(!err.empty()) {
+            cerr << err << endl;
+            exit(1);
+        }
+
+        initializeSmoothModel(shapes[0], smooth_positions, smooth_uvs, smooth_normals, smooth_indices);
+        modelIndices.push_back(smooth_indices.size() - sum);
+        sum += modelIndices.at(k);
+    }
+    numSmoothIndices = smooth_indices.size();
+
+    GLuint smoothPositionBuffer;
+    glGenBuffers(1, &smoothPositionBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, smoothPositionBuffer);
+    glBufferData(GL_ARRAY_BUFFER, smooth_positions.size()*sizeof(vec3), &smooth_positions[0], GL_STATIC_DRAW);
+
+    GLuint smoothNormalBuffer;
+    glGenBuffers(1, &smoothNormalBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, smoothNormalBuffer);
+    glBufferData(GL_ARRAY_BUFFER, smooth_normals.size()*sizeof(vec3), &smooth_normals[0], GL_STATIC_DRAW);
+
+    GLuint smoothUVBuffer;
+    glGenBuffers(1, &smoothUVBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, smoothUVBuffer);
+    glBufferData(GL_ARRAY_BUFFER, smooth_uvs.size()*sizeof(vec2), &smooth_uvs[0], GL_STATIC_DRAW);
+
+    GLuint smoothIndexBuffer;
+    glGenBuffers(1, &smoothIndexBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, smoothIndexBuffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, smooth_indices.size()*sizeof(unsigned int), &smooth_indices[0], GL_STATIC_DRAW);
+
+    GLuint program = loadShaders(":/vert.glsl", ":/frag.glsl");
+    glUseProgram(program);
+    modelProg = program;
+
+    // get some variable positions
+    GLint positionIndex = glGetAttribLocation(program, "position");
+    GLint normalIndex = glGetAttribLocation(program, "normal");
+    GLint uvIndex = glGetAttribLocation(program, "uvIn");
+
+    // bind our buffers to vertex array objects and shader attributes
+    glGenVertexArrays(1, &modelVao);
+    glBindVertexArray(modelVao);
+
+    glBindBuffer(GL_ARRAY_BUFFER, smoothPositionBuffer);
+    glEnableVertexAttribArray(positionIndex);
+    glVertexAttribPointer(positionIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, smoothNormalBuffer);
+    glEnableVertexAttribArray(normalIndex);
+    glVertexAttribPointer(normalIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, smoothUVBuffer);
+    glEnableVertexAttribArray(uvIndex);
+    glVertexAttribPointer(uvIndex, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, smoothIndexBuffer);
+
+    modelProjMatrixLoc = glGetUniformLocation(program, "projection");
+    modelViewMatrixLoc = glGetUniformLocation(program, "view");
+    modelModelMatrixLoc = glGetUniformLocation(program, "model");
+    modelColorLoc = glGetUniformLocation(program, "color");
+    modelLightPosLoc = glGetUniformLocation(program, "lightPos");
+    modelLightColorLoc = glGetUniformLocation(program, "lightColor");
+    modelLightBrightnessLoc = glGetUniformLocation(program, "lightBrightness");
+    modelIndoorPosLoc = glGetUniformLocation(program, "indoorLights");
+    modelIndoorBrightLoc = glGetUniformLocation(program, "indoorBrightness");
+
+    glUniform3fv(modelLightColorLoc, 1, value_ptr(lightColor));
+    glUniform1f(modelLightBrightnessLoc, lightBrightness);
+    glUniform3fv(modelLightPosLoc, 1, value_ptr(lightLoc));
+    glUniform3fv(modelColorLoc, 1, value_ptr(cubeColor));
+}
+
 void GLWidget::initializeGL() {
     initializeOpenGLFunctions();
 
@@ -1628,9 +1886,9 @@ void GLWidget::initializeGL() {
     glPointSize(4.0f);
 
     glEnable(GL_DEPTH_TEST);
-    GLuint restart = 0xFFFFFFFF;
+    /*GLuint restart = 0xFFFFFFFF;
     glPrimitiveRestartIndex(restart);
-    glEnable(GL_PRIMITIVE_RESTART);
+    glEnable(GL_PRIMITIVE_RESTART);*/
 
     QImage img("textures/brickWall.jpg");
     brickTex.setData(img.mirrored());
@@ -1647,8 +1905,26 @@ void GLWidget::initializeGL() {
     QImage img5("textures/door.jpg");
     doorTex.setData(img5.mirrored());
 
-    QImage img6("textures/drawbridge.jpg");
-    drawbridgeTex.setData(img6.mirrored());
+    QImage img6("models/chair/chair.jpg");
+    chairTex.setData(img6.mirrored());
+
+    QImage img7("models/bed/bed.jpg");
+    bedTex.setData(img7.mirrored());
+
+    QImage img8("models/table/table.jpg");
+    tableTex.setData(img8.mirrored());
+
+    QImage img9("models/torch/torch.jpg");
+    torchTex.setData(img9.mirrored());
+
+    QImage img10("models/throne/throne.jpg");
+    throneTex.setData(img10.mirrored());
+
+    QImage img11("models/couch/couch.jpg");
+    couchTex.setData(img11.mirrored());
+
+    QImage img12("textures/bookshelf.jpg");
+    bookTex.setData(img12.mirrored());
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -1656,6 +1932,7 @@ void GLWidget::initializeGL() {
     initializeCube();
     initializeGrid();
     initializeFace();
+    initializeModels();
 
     viewMatrix = mat4(1.0f);
     modelMatrix = mat4(1.0f);
@@ -1671,31 +1948,35 @@ void GLWidget::initializeGL() {
     glUseProgram(faceProg);
     glUniformMatrix4fv(faceViewMatrixLoc, 1, false, value_ptr(viewMatrix));
 
+    glUseProgram(modelProg);
+    glUniformMatrix4fv(modelViewMatrixLoc, 1, false, value_ptr(viewMatrix));
+    glUniformMatrix4fv(modelModelMatrixLoc, 1, false, value_ptr(modelMatrix));
+
     vec3 indoor[24] = {
-        vec3(74, 10, 65),
-        vec3(74, 10, 25),
-        vec3(74, 10, -25),
-        vec3(74, 10, -65),
-        vec3(26, 10, 65),
-        vec3(26, 10, 25),
-        vec3(26, 10, -25),
-        vec3(26, 10, -65),
-        vec3(15, 10, 65),
-        vec3(15, 10, 25),
-        vec3(15, 10, -25),
-        vec3(15, 10, -65),
-        vec3(-74, 10, 65),
-        vec3(-74, 10, 25),
-        vec3(-74, 10, -25),
-        vec3(-74, 10, -65),
-        vec3(-26, 10, 65),
-        vec3(-26, 10, 25),
-        vec3(-26, 10, -25),
-        vec3(-26, 10, -65),
-        vec3(-15, 10, 65),
-        vec3(-15, 10, 25),
-        vec3(-15, 10, -25),
-        vec3(-15, 10, -65)
+        vec3(74, 15, 65),
+        vec3(74, 15, 25),
+        vec3(74, 15, -25),
+        vec3(74, 15, -65),
+        vec3(26, 15, 65),
+        vec3(26, 15, 25),
+        vec3(26, 15, -25),
+        vec3(26, 15, -65),
+        vec3(15, 15, 65),
+        vec3(15, 15, 25),
+        vec3(15, 15, -25),
+        vec3(15, 15, -65),
+        vec3(-64, 15, 74),
+        vec3(-64, 15, 5),
+        vec3(-74, 15, -25),
+        vec3(-74, 15, -65),
+        vec3(-26, 15, 65),
+        vec3(-26, 15, 25),
+        vec3(-26, 15, -25),
+        vec3(-26, 15, -65),
+        vec3(-15, 15, 65),
+        vec3(-15, 15, 25),
+        vec3(-15, 15, -25),
+        vec3(-15, 15, -65)
     };
 
     indoorBright[0] = .8;
@@ -1779,6 +2060,9 @@ void GLWidget::initializeGL() {
     glUseProgram(cubeProg);
     glUniform3fv(cubeIndoorPosLoc, 24, value_ptr(indoor[0]));
     glUniform1fv(cubeIndoorBrightLoc, 24, indoorBright);
+    glUseProgram(modelProg);
+    glUniform3fv(modelIndoorPosLoc, 24, value_ptr(indoor[0]));
+    glUniform1fv(modelIndoorBrightLoc, 24, indoorBright);
 }
 
 void GLWidget::resizeGL(int w, int h) {
@@ -1797,6 +2081,9 @@ void GLWidget::resizeGL(int w, int h) {
 
     glUseProgram(faceProg);
     glUniformMatrix4fv(faceProjMatrixLoc, 1, false, value_ptr(projMatrix));
+
+    glUseProgram(modelProg);
+    glUniformMatrix4fv(modelProjMatrixLoc, 1, false, value_ptr(projMatrix));
 }
 
 void GLWidget::paintGL() {
@@ -1822,11 +2109,42 @@ void GLWidget::paintGL() {
         {
             plankTex.bind(0);
         }
-        else
-        {
-            drawbridgeTex.bind(0);
-        }
         glDrawArrays(GL_TRIANGLE_FAN, k * 4, 4);
+    }
+
+    glActiveTexture(GL_TEXTURE0);
+    glUseProgram(modelProg);
+    glBindVertexArray(modelVao);
+    int start = 0;
+    for(int k = 0; k < modelIndices.size(); k++)
+    {
+        if(modelTexture.at(k) == 0)
+        {
+            chairTex.bind(0);
+        }
+        else if(modelTexture.at(k) == 1)
+        {
+            bedTex.bind(0);
+        }
+        else if(modelTexture.at(k) == 2)
+        {
+            tableTex.bind(0);
+        }
+        else if(modelTexture.at(k) == 3)
+        {
+            torchTex.bind(0);
+        }
+        else if(modelTexture.at(k) == 4)
+        {
+            throneTex.bind(0);
+        }
+        else if(modelTexture.at(k) == 5)
+        {
+            couchTex.bind(0);
+        }
+        glUniformMatrix4fv(modelModelMatrixLoc, 1, false, value_ptr(modelTransforms.at(k)));
+        glDrawElements(GL_TRIANGLES, modelIndices.at(k), GL_UNSIGNED_INT, (void *)(start * sizeof(unsigned int)));
+        start += modelIndices.at(k);
     }
 }
 
@@ -1858,6 +2176,15 @@ void GLWidget::renderCube() {
         {
             glDrawArrays(GL_TRIANGLE_FAN, a * 4, 4);
         }
+    }
+
+    bookTex.bind(0);
+    mat4 loc = translate(mat4(1.f), vec3(-77, 15, 39)) * rotate(mat4(1.f), (float)(M_PI / 2), vec3(0,1,0)) * scale(mat4(1.f), vec3(78, 30, 4));
+    glUniformMatrix4fv(cubeModelMatrixLoc, 1, false, value_ptr(loc));
+    //for each face, render it
+    for(int a = 0; a < 6; a++)
+    {
+        glDrawArrays(GL_TRIANGLE_FAN, a * 4, 4);
     }
 }
 
