@@ -2149,7 +2149,6 @@ void GLWidget::paintGL() {
     {
         for(int a = 0; a < fires.at(k).particles.size(); a++)
         {
-            cout << fires.at(k).particles.at(a).location.x << ", " << fires.at(k).particles.at(a).location.y << ", " << fires.at(k).particles.at(a).location.z << endl;
             mat4 loc = translate(mat4(1.f), fires.at(k).particles.at(a).location);
             glUniformMatrix4fv(lightModelMatrixLoc, 1, false, value_ptr(loc));
             glDrawArrays(GL_POINTS, 0, 1);

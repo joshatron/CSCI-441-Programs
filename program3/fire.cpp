@@ -9,6 +9,10 @@ void Fire::update(double time)
 {
     vec3 acceleration = vec3(0,1,0);
     int numToAdd = (int)(time * rate);
+    if(numToAdd == 0)
+    {
+        numToAdd = 1;
+    }
 
     for(int k = 0; k < numToAdd; k++)
     {
