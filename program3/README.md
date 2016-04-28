@@ -8,6 +8,7 @@ When you move the mouse, it tracks the movement and then moves back to center, m
 To get the mouse back, press q again.
 I also implemented head bobbing to make a more realistic walking effect.
 This can be toggled on and off with the h key.
+Speed can be changed by scrolling and the head bobbing rate will change, but admittedly not in a very realistic way.
 The final improvement I made to the first person controls was collision detection.
 It is only implemented on the walls because it became too hard to navigate when I put it on every object.
 It works by having lines in the xz plane which, if you get too close, it pushes you back.
