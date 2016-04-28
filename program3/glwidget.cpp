@@ -348,8 +348,8 @@ void GLWidget::animate() {
         } else {
             if(headBob)
             {
-                double rate = .8 + (walkSpeed / 250);
-                double time = .355 - (walkSpeed / 250);
+                double rate = .88 + (walkSpeed / 500);
+                double time = .275 - (walkSpeed / 500);
                 if(goingUp)
                 {
                     velocity.y += rate * elapsed;
@@ -390,6 +390,7 @@ void GLWidget::animate() {
         }
     }
 
+    vec3 oldPos(position.x, 0, position.z);
     position = position + velocity * (float) elapsed;
 
     if(collisions && !flyMode)
@@ -398,32 +399,32 @@ void GLWidget::animate() {
 
         for(unsigned int k = 0; k < xLines.size(); k += 2)
         {
-            if(position.z < max(xLines.at(k).y, xLines.at(k + 1).y) &&
-               position.z > min(xLines.at(k).y, xLines.at(k + 1).y))
+            if(oldPos.z < max(xLines.at(k).y, xLines.at(k + 1).y) &&
+               oldPos.z > min(xLines.at(k).y, xLines.at(k + 1).y))
             {
-                if(position.x < xLines.at(k).x && position.x > xLines.at(k).x - collisionBuffer)
+                if(oldPos.x < xLines.at(k).x - collisionBuffer && position.x > xLines.at(k).x - collisionBuffer)
                 {
-                    position.x = xLines.at(k).x - collisionBuffer;
+                    position.x = xLines.at(k).x - collisionBuffer - .01;
                 }
-                else if(position.x > xLines.at(k).x && position.x < xLines.at(k).x + collisionBuffer)
+                else if(oldPos.x > xLines.at(k).x + collisionBuffer && position.x < xLines.at(k).x + collisionBuffer)
                 {
-                    position.x = xLines.at(k).x + collisionBuffer;
+                    position.x = xLines.at(k).x + collisionBuffer + .01;
                 }
             }
         }
 
         for(unsigned int k = 0; k < zLines.size(); k += 2)
         {
-            if(position.x < max(zLines.at(k).x, zLines.at(k + 1).x) &&
-               position.x > min(zLines.at(k).x, zLines.at(k + 1).x))
+            if(oldPos.x < max(zLines.at(k).x, zLines.at(k + 1).x) &&
+               oldPos.x > min(zLines.at(k).x, zLines.at(k + 1).x))
             {
-                if(position.z < zLines.at(k).y && position.z > zLines.at(k).y - collisionBuffer)
+                if(oldPos.z < zLines.at(k).y - collisionBuffer && position.z > zLines.at(k).y - collisionBuffer)
                 {
-                    position.z = zLines.at(k).y - collisionBuffer;
+                    position.z = zLines.at(k).y - collisionBuffer - .01;
                 }
-                else if(position.z > zLines.at(k).y && position.z < zLines.at(k).y + collisionBuffer)
+                else if(oldPos.z > zLines.at(k).y + collisionBuffer && position.z < zLines.at(k).y + collisionBuffer)
                 {
-                    position.z = zLines.at(k).y + collisionBuffer;
+                    position.z = zLines.at(k).y + collisionBuffer + .01;
                 }
             }
         }
@@ -2424,6 +2425,15 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
 
             pitchAngle -= d.x * .01;
             yawAngle -= d.y * .01;
+
+            if(yawAngle > M_PI * .45)
+            {
+                yawAngle = M_PI * .45;
+            }
+            else if(yawAngle < M_PI * -.45)
+            {
+                yawAngle = M_PI * -.45;
+            }
 
             pitch = rotate(mat4(1.f), (float)pitchAngle, vec3(0,1,0));
             yaw = rotate(mat4(1.f), (float)yawAngle, vec3(1,0,0));
