@@ -11,6 +11,7 @@ This can be toggled on and off with the h key.
 The final improvement I made to the first person controls was collision detection.
 It is only implemented on the walls because it became too hard to navigate when I put it on every object.
 It works by having lines in the xz plane which, if you get too close, it pushes you back.
+To toggle collision detection, either enter fly mode with tab or hit the c key.
 
 For lighting, I have 2 types of sources, the sun, which gives objects high ambient lighting, and torches, which have a lower ambient light.
 The torches also flicker to make them more realistic looking. The third material is the lights themselves, which only have a high ambient component;
@@ -21,4 +22,4 @@ The other objects in the world are a ground plane, several planes to make the bu
 
 My animated objects are the doors. When you get within a certain distance of them, they automatically open, and when you move far enough away, they close again.
 
-My partivle effect is a simple fire for each torch, I set a starting x and z velocity which is random and give each an upwards acceleration of 1.
+My partivle effect is a simple fire for each torch, I set a starting x and z velocity which is random and give each an constant upwards acceleration.
