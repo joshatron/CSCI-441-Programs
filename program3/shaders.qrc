@@ -8,5 +8,7 @@
         <file>face_vert.glsl</file>
         <file>model_frag.glsl</file>
         <file>model_vert.glsl</file>
+        <file>light_frag.glsl</file>
+        <file>light_vert.glsl</file>
     </qresource>
 </RCC>

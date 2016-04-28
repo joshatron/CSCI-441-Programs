@@ -12,6 +12,7 @@
 #include <glm/glm.hpp>
 #include "structure.h"
 #include "door.h"
+#include "fire.h"
 
 #define GLM_FORCE_RADIANS
 
@@ -46,6 +47,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         void initializeCube();
         void initializeFace();
         void initializeModels();
+        void initializeLights();
         void renderCube();
         void initializeSmoothModel(const tinyobj::shape_t &shape, vector<vec3> &positions, vector<vec2> & uvs, vector<vec3> &normals, vector<unsigned int> &indices);
 
@@ -184,6 +186,14 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
         vector<mat4> modelTransforms;
         vector<int> modelIndices;
         vector<int> modelTexture;
+
+        vector<Fire> fires;
+
+        GLuint lightProg;
+        GLuint lightVao;
+        GLint lightProjMatrixLoc;
+        GLint lightViewMatrixLoc;
+        GLint lightModelMatrixLoc;
 };
 
 #endif

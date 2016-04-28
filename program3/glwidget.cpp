@@ -293,6 +293,11 @@ void GLWidget::animate() {
     double elapsed = elapsed_seconds.count();
     last = current;
 
+    for(int k = 0; k < fires.size(); k++)
+    {
+        fires.at(k).update(elapsed);
+    }
+
     double upRate = .8;
     for(int k = 0; k < 24; k++)
     {
@@ -439,6 +444,9 @@ void GLWidget::animate() {
 
     glUseProgram(modelProg);
     glUniformMatrix4fv(modelViewMatrixLoc, 1, false, value_ptr(viewMatrix));
+
+    glUseProgram(lightProg);
+    glUniformMatrix4fv(lightViewMatrixLoc, 1, false, value_ptr(viewMatrix));
 
     update();
 }
@@ -1720,81 +1728,81 @@ void GLWidget::initializeModels()
     modelTexture.push_back(5);
 
     files.push_back("models/torch/torch.obj");
-    modelTransforms.push_back(translate(mat4(1.f), vec3(20,5,25)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTransforms.push_back(translate(mat4(1.f), vec3(20,7.5,25)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
     modelTexture.push_back(3);
     files.push_back("models/torch/torch.obj");
-    modelTransforms.push_back(translate(mat4(1.f), vec3(20,5,65)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTransforms.push_back(translate(mat4(1.f), vec3(20,7.5,65)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
     modelTexture.push_back(3);
     files.push_back("models/torch/torch.obj");
-    modelTransforms.push_back(translate(mat4(1.f), vec3(20,5,-25)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTransforms.push_back(translate(mat4(1.f), vec3(20,7.5,-25)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
     modelTexture.push_back(3);
     files.push_back("models/torch/torch.obj");
-    modelTransforms.push_back(translate(mat4(1.f), vec3(20,5,-65)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
-    modelTexture.push_back(3);
-
-    files.push_back("models/torch/torch.obj");
-    modelTransforms.push_back(translate(mat4(1.f), vec3(-20,5,25)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
-    modelTexture.push_back(3);
-    files.push_back("models/torch/torch.obj");
-    modelTransforms.push_back(translate(mat4(1.f), vec3(-20,5,65)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
-    modelTexture.push_back(3);
-    files.push_back("models/torch/torch.obj");
-    modelTransforms.push_back(translate(mat4(1.f), vec3(-20,5,-25)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
-    modelTexture.push_back(3);
-    files.push_back("models/torch/torch.obj");
-    modelTransforms.push_back(translate(mat4(1.f), vec3(-20,5,-65)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTransforms.push_back(translate(mat4(1.f), vec3(20,7.5,-65)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
     modelTexture.push_back(3);
 
     files.push_back("models/torch/torch.obj");
-    modelTransforms.push_back(translate(mat4(1.f), vec3(79,5,25)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTransforms.push_back(translate(mat4(1.f), vec3(-20,7.5,25)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
     modelTexture.push_back(3);
     files.push_back("models/torch/torch.obj");
-    modelTransforms.push_back(translate(mat4(1.f), vec3(79,5,65)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTransforms.push_back(translate(mat4(1.f), vec3(-20,7.5,65)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
     modelTexture.push_back(3);
     files.push_back("models/torch/torch.obj");
-    modelTransforms.push_back(translate(mat4(1.f), vec3(79,5,-25)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTransforms.push_back(translate(mat4(1.f), vec3(-20,7.5,-25)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
     modelTexture.push_back(3);
     files.push_back("models/torch/torch.obj");
-    modelTransforms.push_back(translate(mat4(1.f), vec3(79,5,-65)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
-    modelTexture.push_back(3);
-
-    files.push_back("models/torch/torch.obj");
-    modelTransforms.push_back(translate(mat4(1.f), vec3(-79,5,-25)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
-    modelTexture.push_back(3);
-    files.push_back("models/torch/torch.obj");
-    modelTransforms.push_back(translate(mat4(1.f), vec3(-79,5,-65)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
-    modelTexture.push_back(3);
-    files.push_back("models/torch/torch.obj");
-    modelTransforms.push_back(translate(mat4(1.f), vec3(-64,5,0)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(1,0,0)) * scale(mat4(1.f), vec3(.1,.1,.1)));
-    modelTexture.push_back(3);
-    files.push_back("models/torch/torch.obj");
-    modelTransforms.push_back(translate(mat4(1.f), vec3(-64,5,79)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(1,0,0)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTransforms.push_back(translate(mat4(1.f), vec3(-20,7.5,-65)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
     modelTexture.push_back(3);
 
     files.push_back("models/torch/torch.obj");
-    modelTransforms.push_back(translate(mat4(1.f), vec3(-21,5,25)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTransforms.push_back(translate(mat4(1.f), vec3(79,7.5,25)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
     modelTexture.push_back(3);
     files.push_back("models/torch/torch.obj");
-    modelTransforms.push_back(translate(mat4(1.f), vec3(-21,5,65)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTransforms.push_back(translate(mat4(1.f), vec3(79,7.5,65)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
     modelTexture.push_back(3);
     files.push_back("models/torch/torch.obj");
-    modelTransforms.push_back(translate(mat4(1.f), vec3(-21,5,-25)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTransforms.push_back(translate(mat4(1.f), vec3(79,7.5,-25)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
     modelTexture.push_back(3);
     files.push_back("models/torch/torch.obj");
-    modelTransforms.push_back(translate(mat4(1.f), vec3(-21,5,-65)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTransforms.push_back(translate(mat4(1.f), vec3(79,7.5,-65)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
     modelTexture.push_back(3);
 
     files.push_back("models/torch/torch.obj");
-    modelTransforms.push_back(translate(mat4(1.f), vec3(21,5,25)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTransforms.push_back(translate(mat4(1.f), vec3(-79,7.5,-25)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
     modelTexture.push_back(3);
     files.push_back("models/torch/torch.obj");
-    modelTransforms.push_back(translate(mat4(1.f), vec3(21,5,65)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTransforms.push_back(translate(mat4(1.f), vec3(-79,7.5,-65)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
     modelTexture.push_back(3);
     files.push_back("models/torch/torch.obj");
-    modelTransforms.push_back(translate(mat4(1.f), vec3(21,5,-25)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTransforms.push_back(translate(mat4(1.f), vec3(-64,7.5,0)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(1,0,0)) * scale(mat4(1.f), vec3(.1,.1,.1)));
     modelTexture.push_back(3);
     files.push_back("models/torch/torch.obj");
-    modelTransforms.push_back(translate(mat4(1.f), vec3(21,5,-65)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTransforms.push_back(translate(mat4(1.f), vec3(-64,7.5,79)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(1,0,0)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(-21,7.5,25)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(-21,7.5,65)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(-21,7.5,-25)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(-21,7.5,-65)) * rotate(mat4(1.f), (float)(M_PI / 6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(21,7.5,25)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(21,7.5,65)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(21,7.5,-25)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
+    modelTexture.push_back(3);
+    files.push_back("models/torch/torch.obj");
+    modelTransforms.push_back(translate(mat4(1.f), vec3(21,7.5,-65)) * rotate(mat4(1.f), (float)(M_PI / -6), vec3(0,0,1)) * scale(mat4(1.f), vec3(.1,.1,.1)));
     modelTexture.push_back(3);
 
     int sum = 0;
@@ -1879,6 +1887,39 @@ void GLWidget::initializeModels()
     glUniform3fv(modelColorLoc, 1, value_ptr(cubeColor));
 }
 
+void GLWidget::initializeLights()
+{
+    glGenVertexArrays(1, &lightVao);
+    glBindVertexArray(lightVao);
+
+    // Create a buffer on the GPU for position data
+    GLuint positionBuffer;
+    glGenBuffers(1, &positionBuffer);
+
+    vec3 pt[] = {vec3(0,0,0)};
+    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(pt), pt, GL_STATIC_DRAW);
+
+    // Load our vertex and fragment shaders into a program object
+    // on the GPU
+    GLuint program = loadShaders(":/light_vert.glsl", ":/light_frag.glsl");
+    glUseProgram(program);
+    lightProg = program;
+
+    // Bind the attribute "position" (defined in our vertex shader)
+    // to the currently bound buffer object, which contains our
+    // position data for a single triangle. This information 
+    // is stored in our vertex array object.
+    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+    GLint positionIndex = glGetAttribLocation(program, "position");
+    glEnableVertexAttribArray(positionIndex);
+    glVertexAttribPointer(positionIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+    lightProjMatrixLoc = glGetUniformLocation(program, "projection");
+    lightViewMatrixLoc = glGetUniformLocation(program, "view");
+    lightModelMatrixLoc = glGetUniformLocation(program, "model");
+}
+
 void GLWidget::initializeGL() {
     initializeOpenGLFunctions();
 
@@ -1933,6 +1974,7 @@ void GLWidget::initializeGL() {
     initializeGrid();
     initializeFace();
     initializeModels();
+    initializeLights();
 
     viewMatrix = mat4(1.0f);
     modelMatrix = mat4(1.0f);
@@ -1951,6 +1993,10 @@ void GLWidget::initializeGL() {
     glUseProgram(modelProg);
     glUniformMatrix4fv(modelViewMatrixLoc, 1, false, value_ptr(viewMatrix));
     glUniformMatrix4fv(modelModelMatrixLoc, 1, false, value_ptr(modelMatrix));
+
+    glUseProgram(lightProg);
+    glUniformMatrix4fv(lightViewMatrixLoc, 1, false, value_ptr(viewMatrix));
+    glUniformMatrix4fv(lightModelMatrixLoc, 1, false, value_ptr(modelMatrix));
 
     vec3 indoor[24] = {
         vec3(74, 15, 65),
@@ -1978,6 +2024,11 @@ void GLWidget::initializeGL() {
         vec3(-15, 15, -25),
         vec3(-15, 15, -65)
     };
+
+    for(int k = 0; k < 24; k++)
+    {
+        fires.push_back(Fire(10, indoor[k]));
+    }
 
     indoorBright[0] = .8;
     indoorBright[1] = .8;
@@ -2084,10 +2135,26 @@ void GLWidget::resizeGL(int w, int h) {
 
     glUseProgram(modelProg);
     glUniformMatrix4fv(modelProjMatrixLoc, 1, false, value_ptr(projMatrix));
+
+    glUseProgram(lightProg);
+    glUniformMatrix4fv(lightProjMatrixLoc, 1, false, value_ptr(projMatrix));
 }
 
 void GLWidget::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glUseProgram(lightProg);
+    glBindVertexArray(lightVao);
+    for(int k = 0; k < fires.size(); k++)
+    {
+        for(int a = 0; a < fires.at(k).particles.size(); a++)
+        {
+            cout << fires.at(k).particles.at(a).location.x << ", " << fires.at(k).particles.at(a).location.y << ", " << fires.at(k).particles.at(a).location.z << endl;
+            mat4 loc = translate(mat4(1.f), fires.at(k).particles.at(a).location);
+            glUniformMatrix4fv(lightModelMatrixLoc, 1, false, value_ptr(loc));
+            glDrawArrays(GL_POINTS, 0, 1);
+        }
+    }
 
     renderGrid();
     renderCube();
