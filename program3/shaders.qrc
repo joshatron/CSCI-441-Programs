@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file>frag.glsl</file>
+        <file>vert.glsl</file>
+        <file>grid_frag.glsl</file>
+        <file>grid_vert.glsl</file>
+        <file>face_frag.glsl</file>
+        <file>face_vert.glsl</file>
+        <file>model_frag.glsl</file>
+        <file>model_vert.glsl</file>
+        <file>light_frag.glsl</file>
+        <file>light_vert.glsl</file>
+    </qresource>
+</RCC>
