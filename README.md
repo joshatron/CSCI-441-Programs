@@ -134,3 +134,16 @@ To get back to the lastest, you can run:
 
 For a more fully featured git cheat sheet go [here](https://training.github.com/kit/downloads/github-git-cheat-sheet.pdf).
 The official git documentation is [here](http://git-scm.com/doc).
+
+## Running
+
+Install Qt
+
+    sudo apt install qt5-default
+
+Build
+
+    cd base/dir/of/project
+    qmake
+    make
+    ./programX
