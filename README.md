@@ -6,6 +6,10 @@ This repo contains three programs I created for a graphics class.
 Details about each of the projects can be found in the program{1|2|3} folders.
 The assignment definitions are in the ASSIGNMENTREADME.md files while the solution descriptions are in the README.md files
 
+ * [Program 1](program1/README.md)
+ * [Program 2](program2/README.md)
+ * [Program 3](program3/README.md)
+
 Running
 -------
 

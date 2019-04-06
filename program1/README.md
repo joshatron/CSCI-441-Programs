@@ -1,3 +1,8 @@
+Program 1
+=========
+
+[Assignment Instructinos](ASSIGNMENTREADME.md)
+
 The image I chose is a panoramic picture I took from the top of Wilson Peak near Big Sky last August.
 I like it because of how the landscape is reinterpreted with the polygons. The best settings I found
 were lines, at the default size, with colors taken at each corner, and filled randomly. The colors

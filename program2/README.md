@@ -1,3 +1,8 @@
+Program 2
+=========
+
+[Assignment Instructions](ASSIGNMENTREADME.md)
+
 For this project, my main focus was on construction algorithms.
 The bricks are held in shape classes.
 Each shape is composed of walls (press 1).

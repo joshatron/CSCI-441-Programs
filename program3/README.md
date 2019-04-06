@@ -1,3 +1,8 @@
+Program 3
+=========
+
+[Assignment Instructions](ASSIGNMENTREADME.md)
+
 For this project, I built a small castle.
 
 For the first person camera controls, I made several improvements.
